@@ -1,0 +1,12 @@
+Options -Indexes
+RewriteEngine On
+RewriteBase /kmkdt-Library/public/
+
+# Redirect .php to extensionless (e.g., login.php -> login)
+RewriteCond %{THE_REQUEST} /([^.]+)\.php [NC]
+RewriteRule ^ %1 [L,R=301]
+
+# Match the file if it exists without .php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^.]+)$ $1.php [NC,L]
