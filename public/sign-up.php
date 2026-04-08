@@ -106,7 +106,7 @@ function old($key) { return $_SESSION['old_input'][$key] ?? ''; }
                 <div class="d-flex flex-column align-items-center w-100"> <button type="submit" name="registerbutton" class="btn btn-dark w-100 d-flex align-items-center justify-content-center py-3 fw-bold mt-3 fs-4 gap-0"><span>Sign Up</span><iconify-icon icon="lucide:arrow-right" class="fs-5"></iconify-icon></button></div>
             </form>
 
-            <p class="mt-4 fw-medium text-center">Already have an account? <a class="text-dark" href="sign-in">Sign In</a></p>
+            <p class="mt-4 fw-medium text-center">Already have an account? <a class="text-dark" href="login">Log In</a></p>
           </div>
         </div>
       </div>
