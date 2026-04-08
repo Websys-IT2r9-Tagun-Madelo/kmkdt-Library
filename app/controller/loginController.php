@@ -76,48 +76,40 @@ if (isset($_POST['loginbutton'])) {
 // --- SIGN UP LOGIC ---
 if (isset($_POST['registerbutton'])) {
     global $conn;
-    // Ensure the connection is active
     if (!isset($conn) && isset($GLOBALS['conn'])) {
         $conn = $GLOBALS['conn'];
     }
 
-    // Helper function for UUID
-    function generate_uuid()
-    {
-        return sprintf(
-            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand(0, 0xffff),
-            mt_rand(0, 0xffff),
-            mt_rand(0, 0xffff),
-            mt_rand(0, 0x0fff) | 0x4000,
-            mt_rand(0, 0x3fff) | 0x8000,
-            mt_rand(0, 0xffff),
-            mt_rand(0, 0xffff),
-            mt_rand(0, 0xffff)
-        );
-    }
-
-    // 1. Sanitize and Capture Inputs
-    $uuid = generate_uuid();
-    $fullName = mysqli_real_escape_string($conn, $_POST['fullName']);
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
-    $email = mysqli_real_escape_string($conn, $_POST['emailAddress']);
+    // 1. Capture and Trim Inputs
+    $fullName = trim($_POST['fullName']);
+    $username = trim($_POST['username']);
+    $email    = trim($_POST['emailAddress']);
     $password = $_POST['password'];
-    $confirm = $_POST['confirmPassword'];
-    $street = mysqli_real_escape_string($conn, $_POST['street']);
-    $barangay = mysqli_real_escape_string($conn, $_POST['barangay']);
-    $city = mysqli_real_escape_string($conn, $_POST['city']);
-    $role = 'user';
+    $confirm  = $_POST['confirmPassword'];
+    $street   = trim($_POST['street']);
+    $barangay = trim($_POST['barangay']);
+    $city     = trim($_POST['city']);
 
-    // 2. Validate Email Format
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $_SESSION['message'] = "Invalid format!";
+    // Store inputs in session so the form can "remember" them if there's an error
+    $_SESSION['old_input'] = $_POST;
+
+    // --- CHECK FOR EMPTY FIELDS ---
+    if (empty($fullName) || empty($username) || empty($email) || empty($password) || empty($street) || empty($barangay) || empty($city)) {
+        $_SESSION['message'] = "Please fill in all details before signing up.";
         $_SESSION['code'] = "error";
         header("Location: ../../public/sign-up");
         exit();
     }
 
-    // 3. Check for Duplicates (Username or Email)
+    // 2. Validate Email Format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['message'] = "Invalid Email format!";
+        $_SESSION['code'] = "error";
+        header("Location: ../../public/sign-up");
+        exit();
+    }
+
+    // 3. Check for Duplicates
     $checkUser = "SELECT id FROM user WHERE emailAddress = ? OR username = ? LIMIT 1";
     $stmt = $conn->prepare($checkUser);
     $stmt->bind_param("ss", $email, $username);
@@ -137,18 +129,29 @@ if (isset($_POST['registerbutton'])) {
         exit();
     }
 
-    // 5. Insert New User (9 Columns, 9 Placeholders)
+    // 5. If everything is OK, proceed to Insert
+    // (Sanitize right before DB insert)
+    function generate_uuid() {
+        return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000, mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+        );
+    }
+
+    $uuid = generate_uuid();
     $hashed = password_hash($password, PASSWORD_DEFAULT);
+    $role = 'user';
+
     $insertQuery = "INSERT INTO user (uuid, fullName, username, emailAddress, password, street, barangay, city, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $insStmt = $conn->prepare($insertQuery);
-
-    // Bind 9 parameters: 9 "s" for strings
     $insStmt->bind_param("sssssssss", $uuid, $fullName, $username, $email, $hashed, $street, $barangay, $city, $role);
 
     if ($insStmt->execute()) {
+        unset($_SESSION['old_input']); // Clear the "remembered" data on success
         $_SESSION['message'] = "Registration successful! Please login.";
         $_SESSION['code'] = "success";
-        header("Location: ../../public/login"); // Redirects to extensionless login
+        header("Location: ../../public/login");
     } else {
         $_SESSION['message'] = "Database Error: " . $conn->error;
         $_SESSION['code'] = "error";

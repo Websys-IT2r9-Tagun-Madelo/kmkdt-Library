@@ -1,4 +1,7 @@
-<?php session_start(); ?>
+<?php 
+session_start(); 
+function old($key) { return $_SESSION['old_input'][$key] ?? ''; } 
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -45,13 +48,13 @@
               
               <p class="text-muted fs-2 mb-0 mt-2 text-uppercase fw-bold">Full Name</p>  
               <div>
-                  <input type="text" name="fullName" class="form-control border-bottom" placeholder="Monkey D. Luffy" required>
+                  <input type="text" name="fullName" class="form-control border-bottom" placeholder="Monkey D. Luffy" value="<?php echo old('fullName'); ?>" required>
                   <div class="invalid-feedback">Please enter your full name.</div>
               </div>
               
               <p class="text-muted fs-2 mb-0 mt-2 text-uppercase fw-bold">Email Address</p>  
               <div>
-                <input type="email" name="emailAddress" class="form-control border-bottom" placeholder="PirateKingLuffy@gmail.com" required>
+                <input type="email" name="emailAddress" class="form-control border-bottom" placeholder="PirateKingLuffy@gmail.com" value="<?php echo old('emailAddress'); ?>" required>
                 <div class="invalid-feedback">Please enter a valid email address.</div>
               </div>
 
@@ -59,7 +62,7 @@
 
               <p class="text-muted fs-2 mb-0 mt-2 text-uppercase fw-bold">Username</p>  
               <div>
-                  <input type="text" name="username" class="form-control border-bottom" placeholder="Pirateking55" required>
+                  <input type="text" name="username" class="form-control border-bottom" placeholder="Pirateking55" value="<?php echo old('username'); ?>" required>
                   <div class="invalid-feedback">Please enter a username.</div>
               </div>
 
@@ -78,18 +81,18 @@
 
               <p class="text-muted fs-2 mb-0 mt-3 text-uppercase fw-bold">Street</p>
               <div>
-                  <input type="text" name="street" class="form-control border-bottom" placeholder="123 Rizal St., Apt 2B" required>
+                  <input type="text" name="street" class="form-control border-bottom" placeholder="123 Rizal St., Apt 2B" value="<?php echo old('street'); ?>" required>
                   <div class="invalid-feedback">Please enter your street address.</div>
               </div>
 
               <div class="row g-3">
                   <div class="col-md-6">
                       <p class="text-muted fs-2 mb-0 mt-2 text-uppercase fw-bold">Barangay</p>
-                      <input type="text" name="barangay" class="form-control border-bottom" placeholder="Brgy. Obrero" required>
+                      <input type="text" name="barangay" class="form-control border-bottom" placeholder="Brgy. Obrero" value="<?php echo old('barangay'); ?>" required>
                   </div>
                   <div class="col-md-6">
                       <p class="text-muted fs-2 mb-0 mt-2 text-uppercase fw-bold">City</p>
-                      <input type="text" name="city" class="form-control border-bottom" placeholder="Davao City" required>
+                      <input type="text" name="city" class="form-control border-bottom" placeholder="Davao City" value="<?php echo old('city'); ?>" required>
                   </div>
               </div>
 
@@ -139,7 +142,7 @@
         title: "<?php echo $_SESSION['message']; ?>"
       });
     </script>
-    <?php unset($_SESSION['message'], $_SESSION['code']); ?>
+    <?php unset($_SESSION['message'], $_SESSION['code'], $_SESSION['old_input']); ?>
   <?php endif; ?>
 </body>
 </html>
