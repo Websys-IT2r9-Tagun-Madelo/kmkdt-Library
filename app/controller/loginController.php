@@ -111,7 +111,7 @@ if (isset($_POST['registerbutton'])) {
 
     // 2. Validate Email Format
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $_SESSION['message'] = "Invalid email format!";
+        $_SESSION['message'] = "Invalid format!";
         $_SESSION['code'] = "error";
         header("Location: ../../public/sign-up");
         exit();
