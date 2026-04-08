@@ -12,6 +12,38 @@ function old($key) { return $_SESSION['old_input'][$key] ?? ''; }
   <link rel="stylesheet" href="/kmkdt-Library/public/assets/libs/owl.carousel/dist/assets/owl.carousel.min.css">
   <link rel="stylesheet" href="/kmkdt-Library/public/assets/libs/aos-master/dist/aos.css">
   <link rel="stylesheet" href="/kmkdt-Library/public/assets/css/styles.css" />
+
+  <style>
+    /* 1. Placeholder Styling: Light gray and italic to prevent confusion */
+    .form-control::placeholder {
+      color: #AAB2BD !important;
+      font-style: italic;
+      font-weight: 300;
+      opacity: 1;
+    }
+
+    /* 2. Minimalist input styling */
+    .form-control.border-bottom {
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      border-radius: 0;
+      padding-left: 0;
+      background-color: transparent;
+      transition: border-color 0.3s ease;
+    }
+
+    /* 3. Focus state: Highlights the line in Lime Green when clicked */
+    .form-control.border-bottom:focus {
+      box-shadow: none;
+      border-bottom-color: #97ee5b !important;
+    }
+
+    /* Ensure label colors match the brand Navy */
+    .text-brand-navy {
+      color: #2A3547;
+    }
+  </style>
 </head>
 <body>
   <div class="page-wrapper overflow-hidden">
@@ -44,11 +76,11 @@ function old($key) { return $_SESSION['old_input'][$key] ?? ''; }
                   autocomplete="off" 
                   novalidate>
               
-              <p class="text-center fs-3 mb-0 mt-3 text-uppercase fw-bold" style="letter-spacing: 1px; color: #2A3547;">Profile Information</p>
+              <p class="text-center fs-3 mb-0 mt-3 text-uppercase fw-bold text-brand-navy" style="letter-spacing: 1px;">Profile Information</p>
               
               <p class="text-muted fs-2 mb-0 mt-2 text-uppercase fw-bold">Full Name</p>  
               <div>
-                  <input type="text" name="fullName" class="form-control border-bottom" placeholder="Monkey D. Luffy" value="<?php echo old('fullName'); ?>" required>
+                  <input type="text" name="fullName" class="form-control border-bottom" placeholder="e.g. Monkey D. Luffy" value="<?php echo old('fullName'); ?>" required>
                   <div class="invalid-feedback">Please enter your full name.</div>
               </div>
               
@@ -58,7 +90,7 @@ function old($key) { return $_SESSION['old_input'][$key] ?? ''; }
                 <div class="invalid-feedback">Please enter a valid email address.</div>
               </div>
 
-              <p class="text-center fs-3 mb-0 mt-3 text-uppercase fw-bold" style="letter-spacing: 1px; color: #2A3547;">Account Setup</p>
+              <p class="text-center fs-3 mb-0 mt-3 text-uppercase fw-bold text-brand-navy" style="letter-spacing: 1px;">Account Setup</p>
 
               <p class="text-muted fs-2 mb-0 mt-2 text-uppercase fw-bold">Username</p>  
               <div>
@@ -77,7 +109,7 @@ function old($key) { return $_SESSION['old_input'][$key] ?? ''; }
                 <div id="pwMismatch" class="text-danger fs-2" style="display:none;">Passwords do not match.</div>
               </div>
 
-              <p class="text-center fs-3 mb-0 mt-3 text-uppercase fw-bold" style="letter-spacing: 1px; color: #2A3547;">Address Details</p>
+              <p class="text-center fs-3 mb-0 mt-3 text-uppercase fw-bold text-brand-navy" style="letter-spacing: 1px;">Address Details</p>
 
               <p class="text-muted fs-2 mb-0 mt-3 text-uppercase fw-bold">Street</p>
               <div>
@@ -103,7 +135,12 @@ function old($key) { return $_SESSION['old_input'][$key] ?? ''; }
                 </label>
               </div>
           
-                <div class="d-flex flex-column align-items-center w-100"> <button type="submit" name="registerbutton" class="btn btn-dark w-100 d-flex align-items-center justify-content-center py-3 fw-bold mt-3 fs-4 gap-0"><span>Sign Up</span><iconify-icon icon="lucide:arrow-right" class="fs-5"></iconify-icon></button></div>
+              <div class="d-flex flex-column align-items-center w-100"> 
+                <button type="submit" name="registerbutton" class="btn btn-dark w-100 d-flex align-items-center justify-content-center py-3 fw-bold mt-3 fs-4 gap-0">
+                  <span>Sign Up</span>
+                  <iconify-icon icon="lucide:arrow-right" class="fs-5"></iconify-icon>
+                </button>
+              </div>
             </form>
 
             <p class="mt-4 fw-medium text-center">Already have an account? <a class="text-dark" href="login">Log In</a></p>
