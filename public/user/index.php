@@ -1,89 +1,7 @@
-<!doctype html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>kmkdt-Library</title>
-  <!-- <link rel="shortcut icon" type="image/png" href="../assets/images/logos/favicon.svg" /> -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2397ee5b'><path d='M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z'/></svg>">
-
-  <link rel="stylesheet" href="../assets/libs/owl.carousel/dist/assets/owl.carousel.min.css">
-  <link rel="stylesheet" href="../assets/libs/aos-master/dist/aos.css">
-  <link rel="stylesheet" href="../assets/css/styles.css" />
-</head>
-
-<body>
-
-  <!-- Header -->
-  <header class="header border-4 border-primary border-top position-fixed start-0 top-0 w-100">
-    <div class="container">
-      <div class="header-wrapper d-flex align-items-center justify-content-between">
-        <div class="logo">
-          <a href="index.html" class="logo-white">
-            <!-- <img src="../assets/images/logos/logo-white.svg" alt="logo" class="img-fluid"> -->
-          </a>
-          <a href="index.html" class="logo-dark">
-            <!-- <img src="../assets/images/logos/logo-dark.svg" alt="logo" class="img-fluid"> -->
-          </a>
-        </div>
-        <div class="d-flex align-items-center gap-4">
-
-          <div class="btn-group">
-            <button
-              class="btn btn-secondary toggle-menu round-45 p-2 d-flex align-items-center justify-content-center bg-white rounded-circle"
-              type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-              <iconify-icon icon="solar:hamburger-menu-line-duotone" class="menu-icon fs-8 text-dark"></iconify-icon>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end p-4">
-              <div class="d-flex flex-column gap-6">
-                <div class="hstack justify-content-between border-bottom pb-6">
-                  <p class="mb-0 fs-5 text-dark">Menu</p>
-                  <button type="button" class="btn-close opacity-75" aria-label="Close"></button>
-                </div>
-                <div class="d-flex flex-column gap-3">
-                  <ul class="header-menu list-unstyled mb-0 d-flex flex-column gap-2">
-                    <li class="header-item">
-                      <a href="index.html" aria-current="true"
-                        class="header-link active hstack gap-2 fs-7 fw-bold text-dark"><img
-                          src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                          class="img-fluid animate-spin">Home</a>
-                    </li>
-                    <li class="header-item">
-                      <a href="Profile.html" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
-                          src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                          class="img-fluid animate-spin">Profile </a>
-                    </li>
-                    <li class="header-item">
-                      <a href="MBB.html" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
-                          src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                          class="img-fluid animate-spin">My Borrowed Books</a>
-                    </li>
-                    <li class="header-item">
-                      <a href="BrowBoks.html" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
-                          src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                          class="img-fluid animate-spin">Browse Books</a>
-                    </li>
-                    <li class="header-item">
-                      <a href="contact.html" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
-                          src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                          class="img-fluid animate-spin">Contact</a>
-                    </li>
-                  </ul>
-                    <form action= "/kmkdt-Library/app/controller/UserController.php" method="post">
-                      <button type="submit" name="logoutButton"
-                        class="btn btn-dark text-white fs-6 bg-dark px-3 py-2 w-50 hstack justify-content-center"> <span>Log Out</span></a>      
-                      </button>
-                    </form>                                                                                                    
-                  </div>
-                </div>
-              </div>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
+<?php
+include('./includes/header.php');
+include('./includes/tsbar.php');
+?>
 
   <!--  Page Wrapper -->
   <div class="page-wrapper overflow-hidden">
@@ -100,9 +18,9 @@
               <div class="d-flex align-items-center gap-4" data-aos="fade-up" data-aos-delay="100"
                 data-aos-duration="1000">
                 <img src="../assets/images/svgs/primary-leaf.svg" alt="" class="img-fluid animate-spin">
-                <p class="mb-0 text-white fs-5 text-opacity-70">We create <span
+                <!-- <p class="mb-0 text-white fs-5 text-opacity-70">We create <span
                     class="text-primary">high-performing</span> digital designs that elevate brands and enhance
-                  conversions.</p>
+                  conversions.</p> -->
               </div>
             </div>
           </div>
@@ -1003,12 +921,12 @@
                               icon="lucide:check" class="fs-6 text-dark"></iconify-icon></span>
                           <h6 class="mb-0 fw-normal">E-commerce functionality (if needed)</h6>
                         </li>
-                        <li class="hstack gap-3">
+                        <!-- <li class="hstack gap-3">
                           <span
                             class="round-32 rounded-circle bg-primary flex-shrink-0 hstack justify-content-center"><iconify-icon
                               icon="lucide:check" class="fs-6 text-dark"></iconify-icon></span>
                           <h6 class="mb-0 fw-normal">Branded email template design</h6>
-                        </li>
+                        </li> -->
                         <li class="hstack gap-3">
                           <span
                             class="round-32 rounded-circle bg-primary flex-shrink-0 hstack justify-content-center"><iconify-icon
@@ -1158,12 +1076,12 @@
                   </div>
                 </div>
                 <div class="accordion-item">
-                  <h2 class="accordion-header">
+                  <!-- <h2 class="accordion-header">
                     <button class="accordion-button collapsed fs-8 fw-bold" type="button" data-bs-toggle="collapse"
                       data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
                       Do you offer custom designs, or do you use templates?
                     </button>
-                  </h2>
+                  </h2> -->
                   <div id="flush-collapseThree" class="accordion-collapse collapse"
                     data-bs-parent="#accordionFlushExample">
                     <div class="accordion-body pt-0 fs-5 text-dark">Yes, we provide post-launch support to ensure smooth
@@ -1335,67 +1253,6 @@
 
   </div>
 
-  <footer class="footer bg-dark py-5 py-lg-11 py-xl-12">
-    <div class="container">
-      <div class="row">
-        <div class="col-xl-5 mb-8 mb-xl-0">
-          <div class="d-flex flex-column gap-8 pe-xl-5">
-            <h2 class="mb-0 text-white">Build something together?</h2>
-            <div class="d-flex flex-column gap-2">
-              <a href="https://www.wrappixel.com/" target="_blank" class="link-hover hstack gap-3 text-white fs-5">
-                <iconify-icon icon="lucide:arrow-up-right" class="fs-7 text-primary"></iconify-icon>
-                info@wrappixel.com
-              </a>
-              <a href="https://maps.app.goo.gl/hpDp81fqzGt5y4bC8" target="_blank"
-                class="link-hover hstack gap-3 text-white fs-5">
-                <iconify-icon icon="lucide:map-pin" class="fs-7 text-primary"></iconify-icon>
-                info@wrappixel.com
-              </a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 col-xl-2 mb-8 mb-xl-0">
-          <ul class="footer-menu list-unstyled mb-0 d-flex flex-column gap-2">
-            <li><a class="link-hover fs-5 text-white" href="index.html">Home</a></li>
-            <li><a class="link-hover fs-5 text-white" href="about-us.html">About</a></li>
-            <li><a class="link-hover fs-5 text-white" id="services" href="#services">Services</a></li>
-            <li><a class="link-hover fs-5 text-white" href="projects.html">Work</a></li>
-            <li><a class="link-hover fs-5 text-white" href="terms-and-conditions.html">Terms</a></li>
-            <li><a class="link-hover fs-5 text-white" href="privacy-policy.html">Privacy Policy</a></li>
-            <li><a class="link-hover fs-5 text-white" href="404.html">Error 404</a></li>
-          </ul>
-        </div>
-        <div class="col-md-4 col-xl-2 mb-8 mb-xl-0">
-          <ul class="footer-menu list-unstyled mb-0 d-flex flex-column gap-2">
-            <li><a class="link-hover fs-5 text-white" href="https://www.facebook.com/">Facebook</a></li>
-            <li><a class="link-hover fs-5 text-white" href="https://www.instagram.com/">Instagram</a></li>
-            <li><a class="link-hover fs-5 text-white" href="https://x.com/">Twitter</a></li>
-          </ul>
-        </div>
-        <div class="col-md-4 col-xl-3 mb-8 mb-xl-0">
-          <p class="mb-0 text-white text-opacity-70 text-md-end">© Studiova copyright 2025</p>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <div class="get-template hstack gap-2">
-    <a class="bg-primary px-3 py-2 rounded fs-3 fw-semibold text-dark" target="_blank"
-      href="https://www.wrappixel.com/templates/">Get This Template</a>
-    <button class="btn bg-primary p-2 round-52 rounded-circle hstack justify-content-center flex-shrink-0"
-      id="scrollToTopBtn">
-      <iconify-icon icon="lucide:arrow-up" class="fs-7 text-dark"></iconify-icon>
-    </button>
-  </div>
-
-
-  <script src="../assets/libs/jquery/dist/jquery.min.js"></script>
-  <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../assets/libs/owl.carousel/dist/owl.carousel.min.js"></script>
-  <script src="../assets/libs/aos-master/dist/aos.js"></script>
-  <script src="../assets/js/custom.js"></script>
-  <!-- solar icons -->
-  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-</body>
-
-</html>
+<?php
+include('./includes/footer.php');
+?>

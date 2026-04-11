@@ -1,58 +1,59 @@
 <?php $page = basename($_SERVER['PHP_SELF']); ?>
-  
-  <!-- ======= Sidebar ======= -->
-  <aside id="sidebar" class="sidebar">
 
-    <ul class="sidebar-nav" id="sidebar-nav">
+<aside id="sidebar" class="sidebar">
 
-      <li class="nav-item">
-        <a class="nav-link <?= ($page == 'index.php') ? '' : 'collapsed' ?> " href="index">
-          <i class="bi bi-grid"></i>
-          <span>Dashboard</span>
-        </a>
-      </li>
-  <li class="nav-heading">Manangement</li> 
+  <ul class="sidebar-nav" id="sidebar-nav">
 
-      <li class="nav-item">
-        <a class="nav-link <?= ($page == 'Members.php') ? '' : 'collapsed' ?> " href="Members">
-          <i class="bi bi-people"></i>
-          <span>Members</span>
-        </a>
-      </li>
+    <li class="nav-item">
+      <a class="nav-link <?= ($page == 'index.php') ? '' : 'collapsed' ?> " href="index">
+        <i class="bi bi-grid"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
 
-      <li class="nav-item">
-        <a class="nav-link <?= ($page == 'Catalog.php') ? '' : 'collapsed' ?> " href="Catalog">
-          <i class="bi bi-journal-bookmark"></i>
-          <span>Catalog</span>
-        </a>
-      </li>
-  
-      <li class="nav-item">
-        <a class="nav-link <?= ($page == 'Circulation.php') ? '' : 'collapsed' ?> " href="Circulation">
-          <i class="bi bi-arrow-clockwise"></i>
-          <span>Circulation</span>
-        </a>
-      </li>
+    <li class="nav-heading">Management</li> 
 
-  <li class="nav-heading">Accounts</li> 
+    <li class="nav-item">
+      <a class="nav-link <?= ($page == 'Members.php') ? '' : 'collapsed' ?> " href="Members">
+        <i class="bi bi-people"></i>
+        <span>Members</span>
+      </a>
+    </li>
 
-      <li class="nav-item">
-        <a class="nav-link <?= ($page == 'Accounts.php') ? '' : 'collapsed' ?> " href="Accounts">
-          <i class="bi bi-person-fill"></i>
-          <span>Accounts</span>
-        </a>
-      </li>
+    <li class="nav-item">
+      <a class="nav-link <?= ($page == 'Catalog.php') ? '' : 'collapsed' ?> " href="Catalog">
+        <i class="bi bi-journal-bookmark"></i>
+        <span>Catalog</span>
+      </a>
+    </li>
 
-<li class="nav-heading">Reports</li> 
-      <li class="nav-item">
-        <a class="nav-link <?= ($page == 'Reports.php') ? '' : 'collapsed' ?> " href="Reports">
-          <i class="bi bi-flag"></i>
-          <span>Reports</span>
-        </a>
-      </li>
+    <li class="nav-item">
+      <a class="nav-link <?= ($page == 'Circulation.php') ? '' : 'collapsed' ?> " href="Circulation">
+        <i class="bi bi-arrow-clockwise"></i>
+        <span>Circulation</span>
+      </a>
+    </li>
 
-    </ul>
+    <li class="nav-heading">Accounts</li> 
 
-  </aside>
+    <li class="nav-item">
+      <a class="nav-link <?= ($page == 'Accounts.php') ? '' : 'collapsed' ?> " href="Accounts">
+        <i class="bi bi-person-fill"></i>
+        <span>Accounts</span>
+      </a>
+    </li>
 
-  <main id="main" class="main">
+    <li class="nav-heading">Reports</li> 
+    
+    <li class="nav-item">
+      <a class="nav-link <?= ($page == 'Reports.php') ? '' : 'collapsed' ?> " href="Reports">
+        <i class="bi bi-flag"></i>
+        <span>Reports</span>
+      </a>
+    </li>
+
+  </ul>
+
+</aside>
+
+<main id="main" class="main">
