@@ -1,8 +1,9 @@
 <?php
+session_start(); 
+
 include('./includes/header.php');
 include('./includes/tsbar.php');
 ?>
-
   <!--  Page Wrapper -->
   <div class="page-wrapper overflow-hidden">
 
@@ -1254,5 +1255,29 @@ include('./includes/tsbar.php');
   </div>
 
 <?php
-include('./includes/footer.php');
+// 1. Include your footer so the SweetAlert library is actually loaded
+include('./includes/footer.php'); 
+
+// 2. Check if there is a message to show
+if (isset($_SESSION['message'])) : ?>
+    <script>
+        // Use a small delay to ensure the page is fully ready
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: "<?= $_SESSION['message']; ?>",
+                    icon: "<?= $_SESSION['code']; ?>",
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            } else {
+                console.error("SweetAlert2 (Swal) is not loaded. Check your footer.php");
+            }
+        });
+    </script>
+    <?php 
+    // 3. Clear the message so it doesn't show again on logout
+    unset($_SESSION['message']);
+    unset($_SESSION['code']);
+endif; 
 ?>
