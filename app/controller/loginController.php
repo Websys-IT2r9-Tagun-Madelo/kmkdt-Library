@@ -11,7 +11,7 @@ if (file_exists($configPath)) {
     die("Config file not found at: " . $configPath);
 }
 
-// --- LOGIN LOGIC (Updated for Username Only) ---
+// --- LOGIN/SIGN IN ---
 if (isset($_POST['loginbutton'])) {
 
     global $conn;
@@ -70,10 +70,9 @@ if (isset($_POST['loginbutton'])) {
     header("Location: /kmkdt-Library/public/login");
     exit();
 }
-// --- dont touch code above this line ---
 
 
-// --- SIGN UP LOGIC ---
+// --- SIGN UP/Registration---
 if (isset($_POST['registerbutton'])) {
     global $conn;
     if (!isset($conn) && isset($GLOBALS['conn'])) {
