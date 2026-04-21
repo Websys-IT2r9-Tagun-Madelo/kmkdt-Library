@@ -11,7 +11,7 @@
       </a>
     </li>
 
-    <li class="nav-heading">Management</li> 
+    <li class="nav-heading">Library Management</li> 
 
     <li class="nav-item">
       <a class="nav-link <?= ($page == 'Members.php') ? '' : 'collapsed' ?> " href="Members">
@@ -34,7 +34,7 @@
       </a>
     </li>
 
-    <li class="nav-heading">Accounts</li> 
+    <li class="nav-heading">Client Management</li> 
 
     <li class="nav-item">
       <a class="nav-link <?= ($page == 'Accounts.php') ? '' : 'collapsed' ?> " href="Accounts">
@@ -42,10 +42,17 @@
         <span>Accounts</span>
       </a>
     </li>
-
-    <li class="nav-heading">Reports</li> 
     
     <li class="nav-item">
+      <a class="nav-link <?= ($page == 'Contacts.php') ? '' : 'collapsed' ?> " href="Contacts">
+        <i class="bi bi-envelope"></i>
+        <span>Contacts</span>
+      </a>
+    </li>
+
+    <li class="nav-heading">Analytics</li> 
+     <!-- #region -->
+        <li class="nav-item">
       <a class="nav-link <?= ($page == 'Reports.php') ? '' : 'collapsed' ?> " href="Reports">
         <i class="bi bi-flag"></i>
         <span>Reports</span>
