@@ -1,6 +1,6 @@
-/* --- LIME EDITION COLOR SWAP --- */
+
 :root {
-  /* Only changing the color values, keeping the variable structure */
+
   --primary: #32cd32 !important;
   --blue: #32cd32 !important;
   --success: #28a745;
@@ -11,7 +11,7 @@
   --bg-lime: #f6f9ff;
 }
 
-/* Color-only override for Bootstrap Primary Buttons */
+
 .btn-primary {
   background-color: var(--primary-lime) !important;
   border-color: var(--primary-lime) !important;
@@ -22,7 +22,7 @@
   border-color: var(--hover-lime) !important;
 }
 
-/* General - Color Updates Only */
+
 body {
   font-family: "Open Sans", sans-serif;
   background: var(--bg-lime);
@@ -31,13 +31,11 @@ body {
 
 a {
   color: var(--primary-lime);
-  /* Changed from blue */
   text-decoration: none;
 }
 
 a:hover {
   color: var(--hover-lime);
-  /* Changed from light blue */
   text-decoration: none;
 }
 
@@ -48,7 +46,7 @@ h4,
 h5,
 h6 {
   font-family: "Nunito", sans-serif;
-  /* color remains inherited or deep-lime */
+
 }
 
 /*--------------------------------------------------------------
@@ -516,7 +514,7 @@ h6 {
 .sidebar-nav .nav-link {
   display: flex;
   align-items: center;
-  font-size: 19px;
+  font-size: 15px;
   font-weight: 600; 
   color: #32cd32;
   transition: 0.3s;
@@ -551,7 +549,7 @@ h6 {
 }
       
 .sidebar-nav .nav-content a {
-  padding: 10px 0 10px 40px; /* This padding stays to keep sub-items indented */
+  padding: 10px 0 10px 40px; 
 }
 
 .sidebar-nav .nav-content a:hover,
@@ -1020,7 +1018,6 @@ h6 {
   font-size: 14px;
   transition: all 0.3s;
   border-top: 1px solid #d1e7dd;
-  /* Swapped from blue-tint to light lime/mint border */
 }
 
 .footer .copyright {
