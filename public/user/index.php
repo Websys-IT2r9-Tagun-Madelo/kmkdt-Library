@@ -12,7 +12,7 @@ include('./includes/tsbar.php');
   <!--  Banner Section -->
   <section class="banner-section position-relative d-flex align-items-end min-vh-100">
     <video class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" autoplay muted loop playsinline>
-      <source src="../assets/images/backgrounds/banner-video.mp4" type="video/mp4" />
+      <source src="../assets/images/backgrounds/" type="video/mp4" />
     </video>
     <div class="container">
       <div class="d-flex flex-column gap-4 pb-8 position-relative z-1">
@@ -1178,4 +1178,4 @@ include('./includes/tsbar.php');
 
   <?php
   include('./includes/footer.php');
-  ?>
+  ?>  

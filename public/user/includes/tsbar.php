@@ -1,3 +1,7 @@
+<?php 
+$current_page = basename($_SERVER['PHP_SELF']); 
+?>
+
 <header class="header border-4 border-primary border-top position-fixed start-0 top-0 w-100">
   <div class="container">
     <div class="header-wrapper d-flex align-items-center justify-content-between">
@@ -17,6 +21,7 @@
             type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
             <iconify-icon icon="solar:hamburger-menu-line-duotone" class="menu-icon fs-8 text-dark"></iconify-icon>
           </button>
+
           <ul class="dropdown-menu dropdown-menu-end p-4">
             <div class="d-flex flex-column gap-6">
               <div class="hstack justify-content-between border-bottom pb-6">
@@ -34,7 +39,7 @@
                   <li class="header-item">
                     <a href="Profile" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                        class="img-fluid animate-spin">Profile </a>
+                        class="img-fluid animate-spin">My Profile </a>
                   </li>
                   <li class="header-item">
                     <a href="MBB" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
@@ -49,7 +54,7 @@
                   <li class="header-item">
                     <a href="contact" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                        class="img-fluid animate-spin">Contact</a>
+                        class="img-fluid animate-spin">Contact Us</a>
                   </li>
                   <li class="header-item">
                     <form action="/kmkdt-Library/app/controller/userController.php" method="POST">

@@ -18,7 +18,7 @@ include('./includes/sidebar.php');
   <div class="row">
 
     <!-- Left side columns -->
-    <div class="col-lg-8">
+    <div class="col-lg-12">
       <div class="row">
 
         <!-- Sales Card -->
@@ -366,7 +366,7 @@ include('./includes/sidebar.php');
     </div><!-- End Left side columns -->
 
     <!-- Right side columns -->
-    <div class="col-lg-4">
+    <div class="col-lg-12">
 
       <!-- Recent Activity -->
       <div class="card">
@@ -561,66 +561,6 @@ include('./includes/sidebar.php');
         </div>
       </div><!-- End Library Access -->
 
-
-
-      <!-- Library & Updates Traffic -->
-      <div class="card">
-        <div class="filter">
-          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-            <li class="dropdown-header text-start">
-              <h6>Filter</h6>
-            </li>
-
-            <li><a class="dropdown-item" href="#">Today</a></li>
-            <li><a class="dropdown-item" href="#">This Month</a></li>
-            <li><a class="dropdown-item" href="#">This Year</a></li>
-          </ul>
-        </div>
-
-        <div class="card-body pb-0">
-          <h5 class="card-title">Library &amp; Updates <span>| Today</span></h5>
-
-          <div class="news">
-            <div class="post-item clearfix">
-              <img src="assets/img/news-1.jpg" alt="">
-              <h4><a href="#">Newly Added Books Collection</a></h4>
-              <p>Recently added library materials and reading resources available for users...</p>
-            </div>
-
-            <div class="post-item clearfix">
-              <img src="assets/img/news-2.jpg" alt="">
-              <h4><a href="#">Library Announcement and Notices</a></h4>
-              <p>Important updates and reminders for library users and members...</p>
-            </div>
-
-            <div class="post-item clearfix">
-              <img src="assets/img/news-3.jpg" alt="">
-              <h4><a href="#">Featured Reading Materials</a></h4>
-              <p>Highlighting selected books and journals for this month’s reading list...</p>
-            </div>
-
-            <div class="post-item clearfix">
-              <img src="assets/img/news-4.jpg" alt="">
-              <h4><a href="#">Library Events and Activities</a></h4>
-              <p>Upcoming workshops, reading sessions, and library programs...</p>
-            </div>
-
-            <div class="post-item clearfix">
-              <img src="assets/img/news-5.jpg" alt="">
-              <h4><a href="#">Digital Resources Access</a></h4>
-              <p>Access online databases, e-books, and digital learning materials...</p>
-            </div>
-
-          </div><!-- End sidebar recent posts-->
-
-        </div>
-      </div><!-- End Library & Updates -->
-
-    </div><!-- End Right side columns -->
-
-  </div>
-</section>
 
 
 

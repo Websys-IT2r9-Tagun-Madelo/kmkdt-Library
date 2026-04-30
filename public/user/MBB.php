@@ -3,15 +3,14 @@ include('./includes/header.php');
 include('./includes/tsbar.php');
 ?>
 
-<!doctype html>
-<html lang="en">
 
   <!--  Page Wrapper -->
   <div class="page-wrapper overflow-hidden">
 
     <!--  Banner Section -->
     <section class="banner-section banner-inner-section position-relative overflow-hidden d-flex align-items-end"
-      style="background-image: url(../assets/images/backgrounds/projects-banner.jpg);">
+      style="background-image: url('assets/images/backgrounds/MMB.jpg');">
+      
       <div class="container">
         <div class="d-flex flex-column gap-4 pb-5 pb-xl-10 position-relative z-1">
           <div class="row align-items-center">

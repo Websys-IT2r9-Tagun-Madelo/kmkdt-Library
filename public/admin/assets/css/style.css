@@ -504,10 +504,10 @@ h6 {
 /* title color */
 .sidebar-nav .nav-heading {
   font-size: 14px;
-  text-transform: uppercase;
+  text-transform: none;
   color: 	#043104;
   font-weight: 600;
-  margin: 10px 0 5px 15px; 
+  margin: 11px 0 5px 15px; 
 }
 
 /* --side title size-- */

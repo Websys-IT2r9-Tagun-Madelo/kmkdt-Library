@@ -19,8 +19,8 @@
       </div>
       <div class="col-md-4 col-xl-2 mb-8 mb-xl-0">
         <ul class="footer-menu list-unstyled mb-0 d-flex flex-column gap-2">
-          <li><a class="link-hover fs-5 text-white" href="index.html">Home</a></li>
-          <li><a class="link-hover fs-5 text-white" href="about-us.html">About</a></li>
+          <li><a class="link-hover fs-5 text-white" href="index">Home</a></li>
+          <li><a class="link-hover fs-5 text-white" href="Profile">Profile</a></li>
           <li><a class="link-hover fs-5 text-white" id="services" href="#services">Services</a></li>
           <li><a class="link-hover fs-5 text-white" href="projects.html">Work</a></li>
           <li><a class="link-hover fs-5 text-white" href="terms-and-conditions.html">Terms</a></li>
