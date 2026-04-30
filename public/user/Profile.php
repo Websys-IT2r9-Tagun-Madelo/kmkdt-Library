@@ -7,16 +7,14 @@ if (session_status() === PHP_SESSION_NONE) {
 // 1. Load the controller and connection
 require_once dirname(__DIR__, 2) . '/app/controller/userController.php';
 
-// 2. Fetch Active User Data from the 'authUser' session key
+// 2. Fetch Active User Data
 $authUser = $_SESSION['authUser'] ?? null;
 
-// Redirect to login if the session is missing
 if (!$authUser) {
     header("Location: /kmkdt-Library/public/login");
     exit();
 }
 
-// Map session data to local variables
 $currentUserId = $authUser['user_id'];
 $fullName      = $authUser['fullName'];
 
@@ -38,15 +36,11 @@ include('./includes/tsbar.php');
                 <div class="row align-items-center">
                     <div class="col-md-8">  
                         <div class="d-flex align-items-center gap-4" data-aos="fade-up">
-                            
-                            <!-- Avatar using initials API -->
                             <div class="bg-primary d-flex align-items-center justify-content-center overflow-hidden border border-4 border-white shadow-sm" 
                                 style="width: 150px; height: 150px; flex-shrink: 0; border-radius: 15px;">
                                 <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($fullName); ?>&background=32cd32&color=fff&size=150" 
                                      alt="Profile" class="w-100 h-100 object-fit-cover">
                             </div>
-
-                            <!-- Dynamic Name and ID -->
                             <div>
                                 <h1 class="mb-1 text-white fw-bold" style="font-size: 2.5rem;">
                                     <?php echo htmlspecialchars($fullName); ?>
@@ -62,26 +56,42 @@ include('./includes/tsbar.php');
 
     <section class="profile-content py-5">
         <div class="container">
+            
+            <?php if (isset($_GET['status'])): ?>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="alert alert-<?php echo $_GET['status'] == 'renewed' ? 'success' : 'danger'; ?> alert-dismissible fade show border-0 shadow-sm rounded-4">
+                            <strong><?php echo $_GET['status'] == 'renewed' ? 'Success!' : 'Error!'; ?></strong> 
+                            <?php echo $_GET['status'] == 'renewed' ? 'Your book loan has been successfully renewed.' : 'Could not renew the book. Please try again.'; ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <div class="row g-5">
-                
-                <!-- Left Sidebar: Library Stats -->
+                <!-- Left Sidebar -->
                 <div class="col-lg-4">
                     <div class="p-4 rounded-4 border bg-white shadow-sm">
                         <h4 class="border-bottom pb-3 mb-4">Library Overview</h4>
                         <div class="d-flex justify-content-between mb-3">
                             <span>Total Borrowed</span>
-                            <span class="fw-bold text-primary"><?php echo $stats['total_borrowed']; ?></span>
+                            <span class="fw-bold text-primary"><?php echo $stats['total_borrowed'] ?? 0; ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <span>Currently Holding</span>
-                            <span class="fw-bold text-primary"><?php echo $stats['current_holdings']; ?></span>
+                            <span class="fw-bold text-primary"><?php echo $stats['current_holdings'] ?? 0; ?></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Total Returned</span>
+                            <span class="fw-bold text-primary"><?php echo $stats['total_returned'] ?? 0; ?></span>
                         </div>
                         <hr>
                         <button class="btn btn-primary rounded-pill w-100">Update Profile</button>
                     </div>
                 </div>
 
-                <!-- Right Content: Borrowed Books List -->
+                <!-- Right Content -->
                 <div class="col-lg-8">
                     <h2 class="mb-4">Current Borrowed Books</h2>
                     
@@ -93,9 +103,10 @@ include('./includes/tsbar.php');
                                     <h4 class="mb-1"><?php echo htmlspecialchars($book['title']); ?></h4>
                                     <p class="mb-0 text-muted small">Category: <?php echo htmlspecialchars($book['genre']); ?></p>
                                 </div>
-                                <a href="../../app/controller/userController.php?action=renew&book_id=<?php echo $book['id']; ?>" 
-                                  class="btn btn-outline-dark rounded-pill">
-                                  Renew
+                                <a href="MBB"
+                                   class="btn rounded-pill px-4 fw-bold"
+                                   style="background-color: #CCFF66; color: #000; border: none;">
+                                    Go to MMB
                                 </a>
                             </div>
                         <?php endwhile; ?>

@@ -39,7 +39,7 @@ loadInclude('tsbar.php', $searchPaths);
                 <div class="row align-items-center">
                     <div class="col-xl-4">
                         <div class="d-flex align-items-center gap-4" data-aos="fade-up" data-aos-delay="100" data-aos-duration="1000">
-                            <img src="../../assets/images/svgs/primary-leaf.svg" alt="" class="img-fluid animate-spin">
+                            <img src="../assets/images/svgs/primary-leaf.svg" alt="" class="img-fluid animate-spin">
                             <p class="mb-0 text-white fs-5 text-opacity-70">
                                 Explore our <span class="text-primary">library collection</span> and discover your next favorite book.
                             </p>
@@ -90,7 +90,7 @@ loadInclude('tsbar.php', $searchPaths);
                                 <div class="text-end">
                                     <?php if (is_null($row['user_id'])): ?>
                                         <!-- CASE 1: Book is available -->
-                                        <a href="./borrow_process?id=<?php echo $row['id']; ?>" 
+                                        <a href="process/borrow_process?id=<?php echo $row['id']; ?>" 
                                         class="btn btn-dark rounded-pill px-4">Borrow Book</a>
 
                                     <?php elseif ($row['user_id'] == $currentUserId): ?>

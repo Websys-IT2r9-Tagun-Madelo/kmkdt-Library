@@ -25,36 +25,37 @@ $current_page = basename($_SERVER['PHP_SELF']);
           <ul class="dropdown-menu dropdown-menu-end p-4">
             <div class="d-flex flex-column gap-6">
               <div class="hstack justify-content-between border-bottom pb-6">
-                <p class="mb-0 fs-5 text-dark">Menu</p>
+                <p class="mb-0 fs-5 text-dark"> Menu </p>
                 <button type="button" class="btn-close opacity-75" aria-label="Close"></button>
               </div>
+
               <div class="d-flex flex-column gap-3">
                 <ul class="header-menu list-unstyled mb-0 d-flex flex-column gap-2">
                   <li class="header-item">
-                    <a href="index" aria-current="true"
-                      class="header-link active hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="index" class="header-link active hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                        class="img-fluid animate-spin">Home</a>
+                        class="img-fluid animate-spin"> Home</a>
                   </li>
+
                   <li class="header-item">
                     <a href="Profile" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                        class="img-fluid animate-spin">My Profile </a>
+                        class="img-fluid animate-spin"> My Profile </a>
                   </li>
                   <li class="header-item">
                     <a href="MBB" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                        class="img-fluid animate-spin">My Borrowed Books</a>
+                        class="img-fluid animate-spin"> My Borrowed Books</a>
                   </li>
                   <li class="header-item">
                     <a href="BrowBoks" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                        class="img-fluid animate-spin">Browse Books</a>
+                        class="img-fluid animate-spin"> Browse Books</a>
                   </li>
                   <li class="header-item">
                     <a href="contact" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                        class="img-fluid animate-spin">Contact Us</a>
+                        class="img-fluid animate-spin"> Contact Us</a>
                   </li>
                   <li class="header-item">
                     <form action="/kmkdt-Library/app/controller/userController.php" method="POST">

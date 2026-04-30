@@ -10,10 +10,8 @@ include('./includes/tsbar.php');
 <div class="page-wrapper overflow-hidden">
 
   <!--  Banner Section -->
-  <section class="banner-section position-relative d-flex align-items-end min-vh-100">
-    <video class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" autoplay muted loop playsinline>
-      <source src="../assets/images/backgrounds/" type="video/mp4" />
-    </video>
+  <section class="banner-section position-relative d-flex align-items-end min-vh-100"
+    style="background-image: url('assets/images/backgrounds/home.jpg');">
     <div class="container">
       <div class="d-flex flex-column gap-4 pb-8 position-relative z-1">
         <div class="row align-items-center">
@@ -21,9 +19,6 @@ include('./includes/tsbar.php');
             <div class="d-flex align-items-center gap-4" data-aos="fade-up" data-aos-delay="100"
               data-aos-duration="1000">
               <img src="../assets/images/svgs/primary-leaf.svg" alt="" class="img-fluid animate-spin">
-              <!-- <p class="mb-0 text-white fs-5 text-opacity-70">We create <span
-                    class="text-primary">high-performing</span> digital designs that elevate brands and enhance
-                  conversions.</p> -->
             </div>
           </div>
         </div>
@@ -38,6 +33,7 @@ include('./includes/tsbar.php');
       </div>
     </div>
   </section>
+
 
   <!--  Library Stats & Facts Section -->
   <section class="stats-facts py-5 py-lg-11 py-xl-12 position-relative overflow-hidden">
@@ -149,7 +145,7 @@ include('./includes/tsbar.php');
           <div class="item">
             <div class="portfolio d-flex flex-column gap-6">
               <div class="portfolio-img position-relative overflow-hidden">
-                <img src="../assets/images/portfolio/portfolio-img-1.jpg" alt="" class="img-fluid">
+                <img src="assets/images/books/general.jpg" alt="" class="img-fluid">
                 <div class="portfolio-overlay">
                   <a href="projects-detail.html"
                     class="position-absolute top-50 start-50 translate-middle bg-primary round-64 rounded-circle hstack justify-content-center">
@@ -170,7 +166,7 @@ include('./includes/tsbar.php');
           <div class="item">
             <div class="portfolio d-flex flex-column gap-6">
               <div class="portfolio-img position-relative overflow-hidden">
-                <img src="../assets/images/portfolio/portfolio-img-2.jpg" alt="" class="img-fluid">
+                <img src="assets/images/books/journal.jpg" alt="" class="img-fluid">
                 <div class="portfolio-overlay">
                   <a href="projects-detail.html"
                     class="position-absolute top-50 start-50 translate-middle bg-primary round-64 rounded-circle hstack justify-content-center">
@@ -191,7 +187,7 @@ include('./includes/tsbar.php');
           <div class="item">
             <div class="portfolio d-flex flex-column gap-6">
               <div class="portfolio-img position-relative overflow-hidden">
-                <img src="../assets/images/portfolio/portfolio-img-3.jpg" alt="" class="img-fluid">
+                <img src="assets/images/books/ebok.jpg" alt="" class="img-fluid">
                 <div class="portfolio-overlay">
                   <a href="projects-detail.html"
                     class="position-absolute top-50 start-50 translate-middle bg-primary round-64 rounded-circle hstack justify-content-center">
@@ -212,7 +208,7 @@ include('./includes/tsbar.php');
           <div class="item">
             <div class="portfolio d-flex flex-column gap-6">
               <div class="portfolio-img position-relative overflow-hidden">
-                <img src="../assets/images/portfolio/portfolio-img-4.jpg" alt="" class="img-fluid">
+                <img src="assets/images/books/arch.jpg" alt="" class="img-fluid">
                 <div class="portfolio-overlay">
                   <a href="projects-detail.html"
                     class="position-absolute top-50 start-50 translate-middle bg-primary round-64 rounded-circle hstack justify-content-center">
@@ -233,7 +229,7 @@ include('./includes/tsbar.php');
           <div class="item">
             <div class="portfolio d-flex flex-column gap-6">
               <div class="portfolio-img position-relative overflow-hidden">
-                <img src="../assets/images/portfolio/portfolio-img-5.jpg" alt="" class="img-fluid">
+                <img src="assets/images/books/aud.jpg" alt="" class="img-fluid">
                 <div class="portfolio-overlay">
                   <a href="projects-detail.html"
                     class="position-absolute top-50 start-50 translate-middle bg-primary round-64 rounded-circle hstack justify-content-center">
@@ -254,7 +250,7 @@ include('./includes/tsbar.php');
           <div class="item">
             <div class="portfolio d-flex flex-column gap-6">
               <div class="portfolio-img position-relative overflow-hidden">
-                <img src="../assets/images/portfolio/portfolio-img-6.jpg" alt="" class="img-fluid">
+                <img src="assets/images/books/spe.jpg" alt="" class="img-fluid">
                 <div class="portfolio-overlay">
                   <a href="projects-detail.html"
                     class="position-absolute top-50 start-50 translate-middle bg-primary round-64 rounded-circle hstack justify-content-center">
