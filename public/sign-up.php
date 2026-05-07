@@ -51,23 +51,16 @@ function old($key) { return $_SESSION['old_input'][$key] ?? ''; }
       <div class="container py-3">
         <div class="sign-in card mx-auto shadow-lg">
           <div class="card-body py-8 px-lg-5">
-            <a href="index" class="mb-8 hstack justify-content-center text-decoration-none" style="font-size: 4.5rem; letter-spacing: -2px;">
+            <a href="index" class="mb-1 hstack justify-content-center text-decoration-none" style="font-size: 4.5rem; letter-spacing: -2px;">
               <span class="fw-light" style="color: #2A3547; text-transform: lowercase;">kmkdt</span>
               <span style="font-weight: 900; color: #97ee5b; margin-left: 10px; text-transform: lowercase;">library</span>
             </a>
 
-            <div class="hstack gap-3">
-              <a href="javascript:void(0)" class="btn btn-outline-light bg-white px-3 py-2 fs-4 text-dark w-50 fw-medium hstack gap-2 lh-lg justify-content-center">
-                Sign Up <img src="/kmkdt-Library/public/assets/images/svgs/icon-google.svg" alt="google" class="img-fluid">
-              </a>
-              <a href="javascript:void(0)" class="btn btn-outline-light bg-white px-3 py-2 fs-4 text-dark w-50 fw-medium hstack gap-2 lh-lg justify-content-center">
-                Sign Up <img src="/kmkdt-Library/public/assets/images/svgs/icon-github.svg" alt="github" class="img-fluid">
-              </a>
-            </div>
-
             <div class="position-relative hstack justify-content-center">
               <hr class="my-8 w-100 d-block">
-              <p class="mb-0 fs-3 bg-body px-3 position-absolute top-50 start-50 translate-middle">OR</p>
+              <p class="mb-0 fs-3 bg-white px-3 position-absolute top-50 start-50 translate-middle" style="z-index: 5; white-space: nowrap; font-size: 1.2rem !important; font-weight: 500;">
+                New Reader? Join us.
+              </p>
             </div>
 
             <form id="signUpForm" class="d-flex flex-column gap-3 needs-validation" 
@@ -127,19 +120,15 @@ function old($key) { return $_SESSION['old_input'][$key] ?? ''; }
                       <input type="text" name="city" class="form-control border-bottom" placeholder="Davao City" value="<?php echo old('city'); ?>" required>
                   </div>
               </div>
-
-              <div class="form-check mt-3">
-                <input class="form-check-input" type="checkbox" name="terms_agreed" id="termsCheck" required>
-                <label class="form-check-label fs-4 text-dark" for="termsCheck">
-                  I agree and accept the <a class="text-dark fw-bold" href="privacy-policy">Terms & Policy</a>
-                </label>
-              </div>
           
               <div class="d-flex flex-column align-items-center w-100"> 
-                <button type="submit" name="registerbutton" class="btn btn-dark w-100 d-flex align-items-center justify-content-center py-3 fw-bold mt-3 fs-4 gap-0">
-                  <span>Sign Up</span>
-                  <iconify-icon icon="lucide:arrow-right" class="fs-5"></iconify-icon>
-                </button>
+              <button type="submit" name="registerbutton" 
+                      class="btn btn-dark w-100 d-flex align-items-center justify-content-between py-3 fw-bold mt-3 fs-4 px-4">
+                <span style="width: 24px;"></span> 
+                <span class="flex-grow-1 text-center">Sign Up</span>
+                <iconify-icon icon="lucide:arrow-right" style="width: 24px; font-size: 1.2rem;"></iconify-icon>
+
+              </button>
               </div>
             </form>
 

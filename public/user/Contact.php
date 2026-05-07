@@ -52,7 +52,7 @@ include('./includes/tsbar.php');
                 <div class="col-xxl-8">
                   <div class="d-flex flex-column gap-6" data-aos="fade-up" data-aos-delay="100"
                     data-aos-duration="1000">
-                    <h2 class="mb-0">Get in touch</h2>
+                    <h2 class="mb-0">Contact the Library</h2>
                   </div>
                 </div>
               </div>
@@ -60,9 +60,7 @@ include('./includes/tsbar.php');
           </div>
           <div class="row justify-content-between gap-7 gap-xl-0">
             <div class="col-xl-3">
-              <p class="mb-0 fs-5" data-aos="fade-right" data-aos-delay="100" data-aos-duration="1000">Let’s collaborate
-                and create something amazing! Tell me about your project—I’m all
-                ears.</p>
+              <p class="mb-0 fs-5" data-aos="fade-right" data-aos-delay="100" data-aos-duration="1000"> Have a question about books or library services? We’re here to help. </p>
             </div>
             <div class="col-xl-8">
               <form class="d-flex flex-column gap-7" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">
@@ -76,7 +74,7 @@ include('./includes/tsbar.php');
                 </div>
                 <div>
                   <textarea class="form-control border-bottom border-dark" id="exampleFormControlTextarea1"
-                    placeholder="Tell us about your project" rows="3"></textarea>
+                    placeholder="Write your message…" rows="3"></textarea>
                 </div>
                 <button type="submit" class="btn w-100 justify-content-center">
                   <span class="btn-text">Submit message</span>
