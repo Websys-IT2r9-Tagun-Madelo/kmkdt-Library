@@ -19,72 +19,130 @@ include('./includes/tsbar.php');
 ?>
 
 <div class="page-wrapper overflow-hidden">
-    <!-- Banner Section -->
     <section class="banner-section banner-inner-section position-relative overflow-hidden d-flex align-items-end"
-        style="background-image: url('assets/images/backgrounds/MMB.jpg');">
-            <div class="container">
-      <div class="d-flex flex-column gap-4 pb-8 position-relative z-1">
-        <div class="row align-items-center">
-          <div class="col-xl-4">
-            <div class="d-flex align-items-center gap-4" data-aos="fade-up" data-aos-delay="100"
-              data-aos-duration="1000">
-              <img src="../assets/images/svgs/primary-leaf.svg" alt="" class="img-fluid animate-spin">
-            </div>
-          </div>
-        </div>
-            <div class="d-flex flex-column gap-4 pb-5 pb-xl-10 position-relative z-1">
-                <div class="d-flex align-items-end gap-3" data-aos="fade-up" data-aos-delay="200">
-                    <h1 class="mb-0 fs-16 text-white lh-1">My Borrowed Books</h1>
+        style="background-image: url('assets/images/backgrounds/MMB.jpg'); min-height: 400px; background-size: cover;">
+        <div class="container text-center"> <div class="d-flex flex-column align-items-center gap-4 pb-5 pb-xl-10 position-relative z-1">
+                <div class="d-flex align-items-center gap-4" data-aos="fade-up" data-aos-delay="100">
+                    <img src="../assets/images/svgs/primary-leaf.svg" alt="" class="img-fluid animate-spin" style="width: 50px;">
+                    <p class="mb-0 text-white fs-5 text-opacity-70">
+                        Manage your current loans and <span class="text-primary">track due dates.</span>.
+                    </p>
                 </div>
+                <h1 class="mb-0 fs-16 text-white lh-1">My Borrowed Books</h1>
             </div>
         </div>
     </section>
 
-    <!-- Project Section -->
-    <section class="project py-5 py-lg-11">
+    <section class="project py-5 py-lg-8 bg-light">
         <div class="container">
-            <div class="row">
+            
+            <?php if (isset($_GET['status'])): ?>
+                <div class="mb-5">
+                    <?php if ($_GET['status'] == 'renewed'): ?>
+                        <div class="alert alert-success rounded-4 border-0 shadow-sm p-3">Book renewed successfully!</div>
+                    <?php elseif ($_GET['status'] == 'limit_reached'): ?>
+                        <div class="alert alert-warning rounded-4 border-0 shadow-sm p-3">Maximum renewal limit reached.</div>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
+            <div class="row g-5">
                 <?php if ($myBooks && $myBooks->num_rows > 0): ?>
-                    <?php while($book = $myBooks->fetch_assoc()): ?>
-                        <div class="col-lg-6 mb-7">
-                            <div class="portfolio d-flex flex-column gap-4 shadow-sm p-3 rounded-4 bg-white" data-aos="fade-up">
-                                
-                                
-                                <div class="portfolio-img position-relative overflow-hidden rounded-4" style="background-color: #f8f9fa;">
-                                    <img src="assets/images/books/<?php echo htmlspecialchars($book['cover_image'] ?? 'one-piece-vol-1.jpg'); ?>" 
-                                         alt="Book Cover" 
-                                         class="img-fluid w-100" 
-                                         style="height: 500px; object-fit: contain; object-position: center;">
-                                    
-                                    <div class="portfolio-overlay">
-                                        <a href="../../app/controller/userController.php?action=renew&book_id=<?php echo $book['id'] ?? 0; ?>" 
-                                           class="position-absolute top-50 start-50 translate-middle bg-primary round-64 rounded-circle hstack justify-content-center">
-                                            <iconify-icon icon="lucide:refresh-cw" class="fs-8 text-dark"></iconify-icon>
-                                        </a>
-                                    </div>
-                                </div>
-                                
-                                <div class="portfolio-details">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h3 class="mb-2 fw-bold"><?php echo htmlspecialchars($book['title']); ?></h3>
+                    <?php while ($book = $myBooks->fetch_assoc()): ?>
+                        <?php
+                        $category = $book['genre'] ?? 'Fiction';
+                        $loanDays = (stripos($category, 'Fiction') !== false) ? 30 : 14;
+                        if (stripos($category, 'Reserve') !== false) { $loanDays = 3; }
+
+                        $dueDate = strtotime($book['borrowed_at'] . " + $loanDays days");
+                        $today = time();
+                        $isOverdue = $today > $dueDate;
+                        $penalty = $isOverdue ? ceil(($today - $dueDate) / 86400) * 5 : 0;
+                        
+                        $renewalsUsed = $book['renewal_count'] ?? 0;
+                        $renewalsLeft = 2 - $renewalsUsed;
+                        ?>
+
+                        <div class="col-12" data-aos="fade-up">
+                            <div class="card border-0 shadow-lg rounded-5 overflow-hidden bg-white" 
+                                 style="border-left: 12px solid <?php echo $isOverdue ? '#ff4d4d' : '#32cd32'; ?> !important;">
+                                <div class="card-body p-0">
+                                    <div class="row g-0">
+                                        <div class="col-lg-4 col-md-5 bg-white d-flex align-items-center justify-content-center p-5 border-end">
+                                            <img src="assets/images/books/<?php echo htmlspecialchars($book['cover_image'] ?? 'default.jpg'); ?>"
+                                                 alt="Book" class="img-fluid rounded-4 shadow-lg"
+                                                 style="max-height: 350px; width: auto; object-fit: contain;">
                                         </div>
 
-                                      <div class="d-flex gap-2">
-                                          <!-- Renew Button: links to renew_process -->
-                                          <a href="process/renew_process?id=<?php echo $book['id']; ?>" 
-                                            class="btn rounded-pill px-4 fw-bold"
-                                            style="background-color: #CCFF66; color: #000; border: none;">
-                                            Renew
-                                          </a>
+                                        <div class="col-lg-8 col-md-7 p-4 p-lg-5 d-flex flex-column justify-content-center">
+                                            <div class="d-flex justify-content-between align-items-start mb-4">
+                                                <div>
+                                                    <span class="badge mb-2 px-3 py-2 rounded-pill text-uppercase"
+                                                          style="background-color: rgba(50, 205, 50, 0.1); color: #32cd32; font-weight: 700;">
+                                                        <?php echo htmlspecialchars($category); ?>
+                                                    </span>
+                                                    <h2 class="display-5 fw-bold text-dark mt-2" style="font-size: 2.2rem;">
+                                                        <?php echo htmlspecialchars($book['title']); ?>
+                                                    </h2>
+                                                </div>
+                                                <div class="pt-2">
+                                                    <?php if ($isOverdue): ?>
+                                                        <span class="badge bg-danger rounded-pill px-4 py-2 fs-6">OVERDUE</span>
+                                                    <?php else: ?>
+                                                        <span class="badge rounded-pill px-4 py-2 fs-6 text-white" style="background-color: #32cd32;">ON TIME</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
 
-                                          <!-- Return Button: links to return_process -->
-                                          <a href="process/return_process?id=<?php echo $book['id']; ?>" 
-                                            class="btn btn-outline-danger rounded-pill px-4 fw-bold"
-                                            onclick="return confirm('Are you sure you want to return this book?');">
-                                            Return
-                                          </a>
-                                      </div>
+                                            <div class="row bg-dark rounded-4 p-4 mb-4 g-3 text-white">
+                                                <div class="col-sm-4 border-end border-secondary">
+                                                    <small class="text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; color: #32cd32;">Return Date</small>
+                                                    <p class="mb-0 fw-bold h4 <?php echo $isOverdue ? 'text-danger' : 'text-white'; ?>">
+                                                        <?php echo date('M d, Y', $dueDate); ?>
+                                                    </p>
+                                                </div>
+                                                
+                                                <div class="col-sm-4 border-end border-secondary ps-sm-4">
+                                                    <small class="text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; color: #32cd32;">Renewals</small>
+                                                    <p class="mb-0 fw-bold h4 text-white"><?php echo $renewalsLeft; ?> Available</p>
+                                                    
+                                                    <?php if ($renewalsLeft == 1): ?>
+                                                        <small class="text-warning fw-bold d-flex align-items-center gap-1 mt-1">
+                                                            <iconify-icon icon="lucide:alert-circle"></iconify-icon> Final Renewal!
+                                                        </small>
+                                                    <?php elseif ($renewalsLeft <= 0): ?>
+                                                        <small class="text-danger fw-bold d-flex align-items-center gap-1 mt-1">
+                                                            <iconify-icon icon="lucide:info"></iconify-icon> Limit reached
+                                                        </small>
+                                                    <?php endif; ?>
+                                                </div>
+
+                                                <div class="col-sm-4 ps-sm-4">
+                                                    <small class="text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; color: #32cd32;">Late Fee</small>
+                                                    <p class="mb-0 fw-bold h4 <?php echo $penalty > 0 ? 'text-danger' : 'text-white'; ?>">
+                                                        ₱<?php echo $penalty; ?>
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex flex-wrap gap-3">
+                                                <?php if ($renewalsLeft > 0): ?>
+                                                    <a href="process/renew_process?id=<?php echo $book['id']; ?>"
+                                                       class="btn btn-lg rounded-pill px-5 fw-bold"
+                                                       style="background-color: #CCFF66; color: #000; border: none;">
+                                                       Renew Now
+                                                    </a>
+                                                <?php else: ?>
+                                                    <button class="btn btn-lg rounded-pill px-5 fw-bold btn-secondary" disabled>Renew Locked</button>
+                                                <?php endif; ?>
+
+                                                <a href="process/return_process?id=<?php echo $book['id']; ?>"
+                                                   class="btn btn-lg btn-outline-dark rounded-pill px-5 fw-bold"
+                                                   onclick="return confirm('Ready to return this book?');">
+                                                   Return Book
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -92,7 +150,11 @@ include('./includes/tsbar.php');
                     <?php endwhile; ?>
                 <?php else: ?>
                     <div class="col-12 text-center py-5">
-                        <h3 class="text-muted">No books currently borrowed.</h3>
+                        <div class="bg-white p-5 rounded-5 shadow-sm border">
+                            <iconify-icon icon="lucide:book-open" style="font-size: 5rem; color: #32cd32;"></iconify-icon>
+                            <h2 class="mt-4 fw-bold text-dark">No books currently borrowed.</h2>
+                            <a href="BrowBoks" class="btn btn-primary rounded-pill px-5 py-3 mt-3 fw-bold">Browse Books</a>
+                        </div>
                     </div>
                 <?php endif; ?>
             </div>
@@ -101,3 +163,11 @@ include('./includes/tsbar.php');
 </div>
 
 <?php include('./includes/footer.php'); ?>
+
+<style>
+    .card { transition: all 0.3s ease; }
+    .card:hover { transform: translateY(-8px); box-shadow: 0 1.5rem 4rem rgba(0,0,0,0.15) !important; }
+    .bg-dark { background-color: #1a1d21 !important; }
+    /* Fix for the "unseen text" issue by forcing clear contrast */
+    .bg-dark p, .bg-dark h4 { color: #ffffff !important; }
+</style>

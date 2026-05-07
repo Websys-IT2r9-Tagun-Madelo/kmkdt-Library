@@ -106,7 +106,7 @@ include('./includes/tsbar.php');
                                 <a href="MBB"
                                    class="btn rounded-pill px-4 fw-bold"
                                    style="background-color: #CCFF66; color: #000; border: none;">
-                                    Go to MMB
+                                    Go to MBB
                                 </a>
                             </div>
                         <?php endwhile; ?>

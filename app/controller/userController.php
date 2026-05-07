@@ -24,20 +24,37 @@ if (isset($_POST['logoutButton'])) {
 }
 
 /**
- * Fetch books for the Browse catalog
+ * Fetch books for the Browse catalog - CORRECT VERSION
  */
-function getAllBooks($conn, $searchTerm = "") {
-    if (!empty($searchTerm)) {
-        $query = "SELECT * FROM books WHERE title LIKE ? OR author LIKE ? OR genre LIKE ?";
-        $stmt = $conn->prepare($query);
-        $search = "%$searchTerm%";
-        $stmt->bind_param("sss", $search, $search, $search);
-        $stmt->execute();
-        return $stmt->get_result();
-    } else {
-        $query = "SELECT * FROM books";
-        return $conn->query($query);
+function getAllBooks($conn, $search = '') {
+    $search = trim($search);
+    
+    if (empty($search)) {
+        return $conn->query("SELECT * FROM books");
     }
+
+    // List of your exact categories to prevent overlap (Fiction vs Non-Fiction)
+    $categories = ['Fiction', 'Non-Fiction', 'Manga', 'Technology'];
+
+    if (in_array($search, $categories)) {
+        // EXACT match for category buttons so "Fiction" doesn't catch "Non-Fiction"
+        $sql = "SELECT * FROM books WHERE category = ? OR genre = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ss", $search, $search);
+    } else {
+        // BROAD match for the manual search bar
+        $sql = "SELECT * FROM books WHERE 
+                title LIKE ? OR 
+                author LIKE ? OR 
+                genre LIKE ? OR 
+                category LIKE ?";
+        $searchTerm = "%$search%";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);
+    }
+    
+    $stmt->execute();
+    return $stmt->get_result();
 }
 
 /**
@@ -49,15 +66,13 @@ function processBookBorrow($conn, $userId, $bookId) {
 
     $conn->begin_transaction();
     try {
-        // Update books table to assign the book to the user
         $query1 = "UPDATE books SET user_id = ? WHERE id = ? AND user_id IS NULL";
         $stmt1 = $conn->prepare($query1);
         $stmt1->bind_param("ii", $userId, $bookId);
         $stmt1->execute();
 
         if ($stmt1->affected_rows > 0) {
-            // Log the action in history
-            $query2 = "INSERT INTO borrowing_history (user_id, book_id, status, borrowed_at) VALUES (?, ?, 'borrowed', NOW())";
+            $query2 = "INSERT INTO borrowing_history (user_id, book_id, status, borrowed_at, renewal_count) VALUES (?, ?, 'borrowed', NOW(), 0)";
             $stmt2 = $conn->prepare($query2);
             $stmt2->bind_param("ii", $userId, $bookId);
             $stmt2->execute();
@@ -74,11 +89,11 @@ function processBookBorrow($conn, $userId, $bookId) {
 }
 
 /**
- * Fetches books currently held by the user
+ * Fetches user books for MBB.php
  */
 function getMyBooks($conn, $userId) {
     $userId = intval($userId);
-    $query = "SELECT b.id, b.title, b.genre, b.cover_image, bh.borrowed_at 
+    $query = "SELECT b.id, b.title, b.genre, b.cover_image, bh.borrowed_at, bh.renewal_count 
               FROM books b 
               JOIN borrowing_history bh ON b.id = bh.book_id 
               WHERE bh.user_id = ? AND bh.status = 'borrowed'";
@@ -92,14 +107,24 @@ function getMyBooks($conn, $userId) {
 }
 
 /**
- * Extends the borrowing period (Renewal)
+ * Extends the borrowing period (MAX 2)
  */
 function processBookRenewal($conn, $userId, $bookId) {
     $userId = intval($userId);
     $bookId = intval($bookId);
 
+    $checkQuery = "SELECT renewal_count FROM borrowing_history WHERE user_id = ? AND book_id = ? AND status = 'borrowed'";
+    $stmtCheck = $conn->prepare($checkQuery);
+    $stmtCheck->bind_param("ii", $userId, $bookId);
+    $stmtCheck->execute();
+    $result = $stmtCheck->get_result()->fetch_assoc();
+    
+    if ($result && $result['renewal_count'] >= 2) {
+        return false; 
+    }
+
     $query = "UPDATE borrowing_history 
-              SET borrowed_at = NOW() 
+              SET borrowed_at = NOW(), renewal_count = renewal_count + 1 
               WHERE user_id = ? AND book_id = ? AND status = 'borrowed'";
     
     $stmt = $conn->prepare($query);
@@ -116,15 +141,13 @@ function processBookReturn($conn, $userId, $bookId) {
 
     $conn->begin_transaction();
     try {
-        // Clear user_id from books table
         $query1 = "UPDATE books SET user_id = NULL WHERE id = ? AND user_id = ?";
         $stmt1 = $conn->prepare($query1);
         $stmt1->bind_param("ii", $bookId, $userId);
         $stmt1->execute();
 
-        // Update history status
         $query2 = "UPDATE borrowing_history SET status = 'returned', returned_at = NOW() 
-                   WHERE user_id = ? AND book_id = ? AND status = 'borrowed'";
+                    WHERE user_id = ? AND book_id = ? AND status = 'borrowed'";
         $stmt2 = $conn->prepare($query2);
         $stmt2->bind_param("ii", $userId, $bookId);
         $stmt2->execute();
@@ -138,46 +161,26 @@ function processBookReturn($conn, $userId, $bookId) {
 }
 
 /**
- * Fetch stats for the Profile dashboard
- */
-/**
- * Fetch user borrowing statistics including total returned
+ * Fetch user stats for the Dashboard
  */
 function getUserStats($conn, $userId) {
     $userId = intval($userId);
-    $stats = [
-        'total_borrowed' => 0, 
-        'current_holdings' => 0,
-        'total_returned' => 0 
+    $stats = ['total_borrowed' => 0, 'current_holdings' => 0, 'total_returned' => 0];
+
+    $queries = [
+        'total_borrowed' => "SELECT COUNT(*) as total FROM borrowing_history WHERE user_id = ?",
+        'current_holdings' => "SELECT COUNT(*) as total FROM borrowing_history WHERE user_id = ? AND status = 'borrowed'",
+        'total_returned' => "SELECT COUNT(*) as total FROM borrowing_history WHERE user_id = ? AND status = 'returned'"
     ];
 
-    // 1. Total Borrowed (All time)
-    $totalQuery = "SELECT COUNT(*) as total FROM borrowing_history WHERE user_id = ?";
-    if ($stmt = $conn->prepare($totalQuery)) {
-        $stmt->bind_param("i", $userId);
-        $stmt->execute();
-        $res = $stmt->get_result()->fetch_assoc();
-        $stats['total_borrowed'] = $res['total'] ?? 0;
+    foreach ($queries as $key => $sql) {
+        if ($stmt = $conn->prepare($sql)) {
+            $stmt->bind_param("i", $userId);
+            $stmt->execute();
+            $res = $stmt->get_result()->fetch_assoc();
+            $stats[$key] = $res['total'] ?? 0;
+        }
     }
-
-    // 2. Currently Holding (Active borrows)
-    $currentQuery = "SELECT COUNT(*) as total FROM borrowing_history WHERE user_id = ? AND status = 'borrowed'";
-    if ($stmt = $conn->prepare($currentQuery)) {
-        $stmt->bind_param("i", $userId);
-        $stmt->execute();
-        $res = $stmt->get_result()->fetch_assoc();
-        $stats['current_holdings'] = $res['total'] ?? 0;
-    }
-
-    // 3. NEW: Total Returned
-    $returnedQuery = "SELECT COUNT(*) as total FROM borrowing_history WHERE user_id = ? AND status = 'returned'";
-    if ($stmt = $conn->prepare($returnedQuery)) {
-        $stmt->bind_param("i", $userId);
-        $stmt->execute();
-        $res = $stmt->get_result()->fetch_assoc();
-        $stats['total_returned'] = $res['total'] ?? 0;
-    }
-
     return $stats;
 }
 ?>
