@@ -31,8 +31,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
               <div class="d-flex flex-column gap-3">
                 <ul class="header-menu list-unstyled mb-0 d-flex flex-column gap-2">
+
+
                   <li class="header-item">
-                    <a href="index" class="header-link active hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="index" class="header-link  hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
                         class="img-fluid animate-spin"> Home</a>
                   </li>

@@ -16791,6 +16791,197 @@ ul {
   background-color: var(--bs-white);
 
 
+  /* Color Palette Variables */
+  :root {
+    --lime-theme: #32cd32;
+    --lime-hover: #28a428;
+  }
+
+  .action-card {
+    background: #ffffff;
+    border: 1px solid #f0f0f0 !important;
+    border-radius: 1.25rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  }
+
+  .action-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
+    border-color: var(--lime-theme) !important;
+  }
+
+  .icon-box {
+    width: 56px;
+    height: 56px;
+    background: rgba(50, 205, 50, 0.1);
+    transition: background 0.3s ease;
+  }
+
+  .action-card:hover .icon-box {
+    background: var(--lime-theme);
+  }
+
+  .action-card:hover .icon-box iconify-icon {
+    color: #fff !important;
+  }
+
+  .btn-lime-action {
+    background-color: var(--lime-theme);
+    color: #000 !important;
+    font-weight: 700;
+    border: none;
+  }
+
+  .btn-lime-action:hover {
+    background-color: #1a1d21;
+    color: #fff !important;
+  }
+
+  .active-glow {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .active-glow::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: var(--lime-theme);
+  }
+
+  .fs-8 { font-size: 1.75rem; }
+  .fw-extrabold { font-weight: 800; }
+  /* Section Indicators (02, 05) */
+  .step-number {
+    width: 40px;
+    height: 40px;
+    background: var(--lime-theme);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #000;
+  }
+  
+  .step-line {
+    height: 1px;
+    width: 60px;
+    background: #e0e0e0;
+  }
+
+  /* Portfolio Card Improvements */
+  .portfolio-card {
+    transition: transform 0.3s ease;
+  }
+  
+  .portfolio-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .portfolio-img-wrapper {
+    height: 250px;
+    overflow: hidden;
+  }
+  
+  .portfolio-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .portfolio-hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(50, 205, 50, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .portfolio-card:hover .portfolio-hover-overlay {
+    opacity: 1;
+  }
+
+  .btn-view-circle {
+    width: 60px;
+    height: 60px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-size: 1.5rem;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+  }
+
+  .btn-view-circle:hover {
+    transform: scale(1.1);
+    color: var(--lime-theme);
+  }
+
+/* FAQ Specific Styles */
+  .custom-accordion .accordion-button {
+    font-size: 1.15rem;
+    color: #1a1d21;
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+  
+  .custom-accordion .accordion-button:not(.collapsed) {
+    color: var(--lime-theme);
+  }
+
+  .custom-accordion .accordion-button::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+
+  /* News Card Enhancements */
+  .news-card {
+    transition: all 0.3s ease;
+    border: 1px solid #f0f0f0;
+  }
+
+  .news-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--lime-theme);
+  }
+
+  .news-img-wrapper {
+    height: 300px;
+    overflow: hidden;
+  }
+
+  .news-img-wrapper.sm {
+    height: 180px;
+  }
+
+  .news-img-wrapper img {
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .news-card:hover .news-img-wrapper img {
+    transform: scale(1.05);
+  }
+
+  .text-lime { color: #32cd32; }
+  
+  .hover-lime:hover {
+    color: var(--lime-theme) !important;
+  }
 
 
 }/*# sourceMappingURL=styles.css.map */
+

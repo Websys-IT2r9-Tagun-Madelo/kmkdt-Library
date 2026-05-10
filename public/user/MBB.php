@@ -151,9 +151,12 @@ include('./includes/tsbar.php');
                 <?php else: ?>
                     <div class="col-12 text-center py-5">
                         <div class="bg-white p-5 rounded-5 shadow-sm border">
-                            <iconify-icon icon="lucide:book-open" style="font-size: 5rem; color: #32cd32;"></iconify-icon>
+                            <iconify-icon icon="lucide:book-open" style="font-size: 5rem; color: #CCFF66;"></iconify-icon>
                             <h2 class="mt-4 fw-bold text-dark">No books currently borrowed.</h2>
-                            <a href="BrowBoks" class="btn btn-primary rounded-pill px-5 py-3 mt-3 fw-bold">Browse Books</a>
+                            <a href="BrowBoks" class="btn btn-primary rounded-pill px-5 py-3 mt-3 fw-bold"
+                            
+                                   style="background-color: #CCFF66; color: #000; border: none;">
+                            Browse Books</a>
                         </div>
                     </div>
                 <?php endif; ?>
