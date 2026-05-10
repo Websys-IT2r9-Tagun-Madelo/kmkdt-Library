@@ -259,7 +259,9 @@ loadInclude('tsbar.php', $searchPaths);
                     <div class="col-12 text-center py-5">
                         <iconify-icon icon="lucide:search-x" class="display-1 text-muted opacity-25"></iconify-icon>
                         <h3 class="text-muted mt-3">No matches found for "<?= htmlspecialchars($search) ?>"</h3>
-                        <a href="BrowBoks" class="btn btn-link text-success">Clear filters</a>
+                        <a href="BrowBoks" class="btn btnd-flex align-items-center justify-content-between py-3 fw-bold my-7 fs-4 px-4 text-success">Clear filters</a>
+                        
+                
                     </div>
                 <?php endif; ?>
             </div>
