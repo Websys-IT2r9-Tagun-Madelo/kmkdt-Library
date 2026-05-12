@@ -31,7 +31,7 @@ loadInclude('tsbar.php', $searchPaths);
 ?>
 
 <div class="page-wrapper">
-    <!-- Hero Header -->
+    <!--Banner -->
     <header class="hero-banner text-center text-white">
         <div class="container">
             <!-- Leaf and Title Wrapper -->
@@ -68,7 +68,7 @@ loadInclude('tsbar.php', $searchPaths);
                 <!-- Quick Categories -->
                 <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
                     <?php 
-                    $filters = ['' => 'All', 'Fiction' => 'Fiction', 'Non-Fiction' => 'Non-Fiction', 'Manga' => 'Manga', 'Technology' => 'Tech'];
+                    $filters = ['' => 'All', 'Fiction' => 'Fiction', 'Non-Fiction' => 'Non-Fiction', 'Research' => 'Research', 'Online' => 'Online'];
                     foreach($filters as $key => $label): 
                         $active = ($search == $key) ? 'active' : '';
                         $link = ($key == '') ? 'BrowBoks' : "?search=$key";
@@ -126,147 +126,12 @@ loadInclude('tsbar.php', $searchPaths);
                     <div class="col-12 text-center py-5">
                         <iconify-icon icon="lucide:search-x" class="display-1 text-muted opacity-25"></iconify-icon>
                         <h3 class="text-muted mt-3">No matches found for "<?= htmlspecialchars($search) ?>"</h3>
-                        <a href="BrowBoks" class="btn btnd-flex align-items-center justify-content-between py-3 fw-bold my-7 fs-4 px-4 text-success">Clear filters</a>
-                        
-                
+                        <a href="BrowBoks" class="btn btn-outline-success py-3 fw-bold my-4 fs-4 px-5 d-inline-flex align-items-center justify-content-center">Clear filters</a>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
     </section>
 </div>
-
-<style>
-    :root {
-        --primary: #57cb57;
-        --primary-dark: #28a428;
-        --bg-soft: #f4f7f6;
-        --text-main: #2d3436;
-        --text-muted: #636e72;
-    }
-
-    body { background-color: var(--bg-soft); color: var(--text-main); font-family: 'Inter', sans-serif; }
-
-    /* Modern Hero Section */
-    .hero-banner {
-        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('assets/images/backgrounds/BrowBoks.jpg');
-        background-size: cover;
-        background-position: center;
-        padding: 120px 0 150px 0;
-        clip-path: ellipse(150% 100% at 50% 0%);
-    }
-
-    /* Floating Search Bar */
-    .search-wrapper {
-        margin-top: -80px;
-        position: relative;
-        z-index: 5;
-    }
-
-    .search-glass {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        border-radius: 30px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    }
-
-    .form-control:focus { box-shadow: none; border-color: var(--primary); }
-
-    /* Book Card Evolution */
-    .modern-book-card {
-        background: #fff;
-        border: none;
-        border-radius: 24px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        padding: 20px;
-    }
-
-    .modern-book-card:hover {
-        transform: translateY(-12px);
-        box-shadow: 0 30px 60px rgba(0,0,0,0.12);
-    }
-
-    .img-container {
-        position: relative;
-        border-radius: 18px;
-        overflow: hidden;
-        aspect-ratio: 2/3;
-        margin-bottom: 20px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-
-    .img-container img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-
-    .modern-book-card:hover .img-container img { transform: scale(1.1); }
-
-    /* Small components */
-    .badge-category {
-        background: #e8f5e9;
-        color: var(--primary-dark);
-        font-weight: 600;
-        font-size: 0.75rem;
-        padding: 6px 12px;
-        border-radius: 10px;
-    }
-
-    .loan-tag {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .book-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        line-height: 1.3;
-        margin: 10px 0 5px 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        min-height: 2.6rem;
-    }
-
-    .btn-borrow {
-        background: var(--text-main);
-        color: white;
-        border-radius: 12px;
-        padding: 10px;
-        font-weight: 600;
-        width: 100%;
-        margin-top: 15px;
-        transition: 0.3s;
-    }
-
-    .btn-borrow:hover { background: var(--primary); color: white; border-color: var(--primary); }
-
-    /* Filter Pill */
-    .filter-pill {
-        border: 1.5px solid #eee;
-        background: white;
-        color: var(--text-muted);
-        padding: 8px 20px;
-        font-size: 0.9rem;
-        border-radius: 50px;
-        transition: 0.3s;
-    }
-
-    .filter-pill.active, .filter-pill:hover {
-        background: var(--primary);
-        border-color: var(--primary);
-        color: white;
-    }
-</style>
 
 <?php loadInclude('footer.php', $searchPaths); ?>
