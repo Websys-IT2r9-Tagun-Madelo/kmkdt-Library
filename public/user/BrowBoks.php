@@ -138,7 +138,7 @@ loadInclude('tsbar.php', $searchPaths);
 
 <style>
     :root {
-        --primary: #32cd32;
+        --primary: #57cb57;
         --primary-dark: #28a428;
         --bg-soft: #f4f7f6;
         --text-main: #2d3436;

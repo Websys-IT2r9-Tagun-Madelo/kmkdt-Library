@@ -98,7 +98,7 @@ include('./includes/tsbar.php');
                     <?php if ($myBooks && $myBooks->num_rows > 0): ?>
                         <?php while($book = $myBooks->fetch_assoc()): ?>
                             <div class="p-4 rounded-4 border-start border-5 mb-3 d-flex justify-content-between align-items-center shadow-sm bg-white" 
-                                 style="border-color: #32cd32">
+                                 style="border-color: #32cd32 !important;">
                                 <div>
                                     <h4 class="mb-1"><?php echo htmlspecialchars($book['title']); ?></h4>
                                     <p class="mb-0 text-muted small">Category: <?php echo htmlspecialchars($book['genre']); ?></p>
@@ -112,7 +112,7 @@ include('./includes/tsbar.php');
                         <?php endwhile; ?>
                     <?php else: ?>
                         <div class="p-5 text-center border rounded-4 bg-light">
-                            <p class="text-muted mb-0">You don't have any books checked out right now.</p>
+                            <p class="text-white-50 mb-0">You don't have any books checked out right now.</p>
                         </div>
                     <?php endif; ?>
                 </div>

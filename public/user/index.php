@@ -4,124 +4,6 @@ include('./includes/header.php');
 include('./includes/tsbar.php');
 ?>
 
-<style>
-  :root {
-    --lime-theme: #32cd32;
-    --lime-hover: #28a428;
-    --transition-smooth: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  /* Global Consistency */
-  .section-label {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .step-number {
-    width: 42px;
-    height: 42px;
-    background: var(--lime-theme);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    color: #000;
-  }
-
-  .step-line {
-    height: 1px;
-    width: 50px;
-    background: rgba(0, 0, 0, 0.1);
-  }
-
-  .bg-dark .step-line {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  .portal-card {
-    border: 1px solid #f0f0f0 !important;
-    border-radius: 1.5rem;
-    transition: var(--transition-smooth);
-    background: #fff;
-    height: 100%;
-  }
-
-  .portal-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important;
-    border-color: var(--lime-theme) !important;
-  }
-
-  .icon-box {
-    width: 60px;
-    height: 60px;
-    background: rgba(50, 205, 50, 0.1);
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition-smooth);
-  }
-
-  .portal-card:hover .icon-box {
-    background: var(--lime-theme);
-    color: #fff !important;
-  }
-
-  .portal-card:hover .icon-box iconify-icon {
-    color: #fff !important;
-  }
-
-  .btn-portal {
-    background-color: var(--lime-theme);
-    color: #000 !important;
-    font-weight: 700;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    transition: 0.3s;
-  }
-
-  .btn-portal:hover {
-    background-color: #1a1d21;
-    color: #fff !important;
-  }
-
-  .img-container {
-    height: 250px;
-    overflow: hidden;
-    position: relative;
-    border-radius: 1.5rem 1.5rem 0 0;
-  }
-
-  .img-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: 0.6s;
-  }
-
-  .portal-card:hover .img-container img {
-    transform: scale(1.08);
-  }
-
-  .custom-accordion .accordion-item {
-    border: none;
-    margin-bottom: 0.5rem;
-  }
-
-  .custom-accordion .accordion-button:not(.collapsed) {
-    color: var(--lime-theme);
-    background: none;
-  }
-
-  .text-lime {
-    color: var(--lime-theme);
-  }
-</style>
-
 <div class="page-wrapper overflow-hidden bg-white">
 
   <!-- Hero Section -->
@@ -133,10 +15,10 @@ include('./includes/tsbar.php');
         <div class="col-lg-7">
           <div class="position-relative z-1" data-aos="fade-up">
             <div class="d-flex align-items-center gap-2 mb-3">
-              <iconify-icon icon="lucide:asterisk" style="color: #CCFF66;" class="fs-7"></iconify-icon>
+              <iconify-icon icon="lucide:asterisk" style="color: #57cb57;" class="fs-7"></iconify-icon>
               <span class="text-white fw-bold tracking-wider text-uppercase fs-2">kmkdt-Library Portal</span>
             </div>
-            <h1 class="display-3 fw-extrabold text-white mb-3"> Explore a World of <span style="color: #CCFF66;">Knowledge</span></h1>
+            <h1 class="display-3 fw-extrabold text-white mb-3"> Explore a World of <span style="color: #7ce87c;">Knowledge</span></h1>
             <p class="text-white-50 fs-5 mb-0">Your gateway to digital resources and academic management. All your active loans and profile tools in one place.</p>
           </div>
         </div>
@@ -203,7 +85,7 @@ include('./includes/tsbar.php');
   <section class="py-5 text-center bg-dark">
     <div class="container">
       <span class="text-uppercase fw-bold opacity-50 text-white ls-2">Digital Hub</span>
-      <h1 class="display-2 fw-black text-white mt-2">Discover <span class="text-lime">Resources</span></h1>
+      <h1 class="display-2 fw-black text-white mt-2">Discover <span style="color: #28a745;">Resources</span></h1>
       <p class="text-white-50 mx-auto" style="max-width: 600px;">Access a streamlined collection of books, research
         materials, and digital archives designed for modern academic excellence.</p>
     </div>
@@ -215,9 +97,9 @@ include('./includes/tsbar.php');
       <div class="row align-items-center mb-5" data-aos="fade-up">
         <div class="col-lg-12">
           <div class="section-label">
-            <span class="step-number">01</span>
-            <div class="step-line"></div>
-            <span class="badge bg-dark text-white px-3 py-2">Library</span>
+                <span class="round-36 flex-shrink-0 text-dark rounded-circle bg-primary hstack justify-content-center fw-medium">01</span>
+                <hr class="border-line bg-white">
+            <span class="badge bg-white text-dark px-3 py-2">Library</span>
           </div>
           <h2 class="display-6 fw-bold text-white">Featured Library Collections</h2>
           <p class="text-white-50 fs-4">Explore curated books and research materials available in our system.</p>
@@ -290,9 +172,8 @@ include('./includes/tsbar.php');
   <section class="py-5 py-lg-8 bg-white">
     <div class="container">
       <div class="section-label" data-aos="fade-up">
-        <span class="step-number">02</span>
-        <div class="step-line">
-        </div>
+        <span class="round-36 flex-shrink-0 text-white rounded-circle bg-primary hstack justify-content-center fw-medium">02</span>
+        <hr class="border-line bg-white">
         <span class="badge bg-dark text-white px-3 py-2">Testimonials</span>
       </div>
       <h2 class="display-6 fw-bold text-dark">Reader Feedback</h2>
@@ -342,10 +223,10 @@ include('./includes/tsbar.php');
   <!-- News Section -->
   <section class="py-5 py-lg-8 bg-light">
     <div class="container">
-      <div class="section-label">
-        <span class="step-number">03</span>
-        <div class="step-line"></div>
-        <span class="badge bg-dark text-white px-3 py-2">Library News</span>
+      <div class="section-label" data-aos="fade-up">
+        <span class="round-36 flex-shrink-0 text-dark rounded-circle bg-primary hstack justify-content-center fw-medium">03</span>
+        <hr class="border-line bg-white">
+        <span class="badge bg-white text-dark px-3 py-2">Library News</span>
       </div>
       <h2 class="display-6 fw-bold text-white">Library Updates</h2>
       <p class="text-white-50 fs-4"> Stay informed about new book arrivals, upcoming events, and important announcements from our library.</p>
@@ -386,9 +267,9 @@ include('./includes/tsbar.php');
   <!-- FAQ Section -->
   <section class="py-5 py-lg-8 bg-white">
     <div class="container">
-      <div class="section-label">
-        <span class="step-number">04</span>
-        <div class="step-line"></div>
+      <div class="section-label" data-aos="fade-up">
+        <span class="round-36 flex-shrink-0 text-white rounded-circle bg-primary hstack justify-content-center fw-medium">04</span>
+        <hr class="border-line bg-white">
         <span class="badge bg-dark text-white px-3 py-2">Library Support</span>
       </div>
       <h2 class="display-6 fw-bold text-dark mb-4">Frequently asked questions</h2>
@@ -490,7 +371,7 @@ include('./includes/tsbar.php');
 
 
   <!-- Footer Break -->
-  <section class="py-5 bg-dark text-center">
+  <section class="py-1 bg-dark text-center">
     <div class="container"><span class="text-uppercase fw-bold opacity-50 text-white ls-2">you reach the end..</span>
     </div>
   </section>

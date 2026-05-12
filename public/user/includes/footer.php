@@ -1,22 +1,13 @@
-<footer class="footer bg-dark py-5 py-lg-11 py-xl-12">
-  <div class="container">
+<!-- Remove py-lg-11 and py-xl-12 to stop the stretching -->
+<footer class="footer bg-dark py-5">
+  <div class="container pt-8"> 
     <div class="row">
       <div class="col-xl-5 mb-8 mb-xl-0">
         <div class="d-flex flex-column gap-8 pe-xl-5">
           <h2 class="mb-0 text-white">Have a great day!</h2>
-          <!-- <div class="d-flex flex-column gap-2">
-            <a href="https://www.wrappixel.com/" target="_blank" class="link-hover hstack gap-3 text-white fs-5">
-              <iconify-icon icon="lucide:arrow-up-right" class="fs-7 text-primary"></iconify-icon>
-              info@wrappixel.com
-            </a>
-            <a href="https://maps.app.goo.gl/hpDp81fqzGt5y4bC8" target="_blank"
-              class="link-hover hstack gap-3 text-white fs-5">
-              <iconify-icon icon="lucide:map-pin" class="fs-7 text-primary"></iconify-icon>
-              info@wrappixel.com
-            </a>
-          </div> -->
         </div>
       </div>
+      
       <div class="col-md-4 col-xl-2 mb-8 mb-xl-0">
         <ul class="footer-menu list-unstyled mb-0 d-flex flex-column gap-2">
           <li><a class="link-hover fs-5 text-white" href="index">Home</a></li>
@@ -26,6 +17,7 @@
           <li><a class="link-hover fs-5 text-white" href="Contact">Contact Us</a></li>
         </ul>
       </div>
+
       <div class="col-md-4 col-xl-2 mb-8 mb-xl-0">
         <ul class="footer-menu list-unstyled mb-0 d-flex flex-column gap-2">
           <li><a class="link-hover fs-5 text-white" href="https://www.facebook.com/">Facebook</a></li>
@@ -33,6 +25,7 @@
           <li><a class="link-hover fs-5 text-white" href="https://x.com/">Twitter</a></li>
         </ul>
       </div>
+
       <div class="col-md-4 col-xl-3 mb-8 mb-xl-0">
         <p class="mb-0 text-white text-opacity-70 text-md-end">© Studiova copyright 2025</p>
       </div>
@@ -40,9 +33,7 @@
   </div>
 </footer>
 
-<div class="get-template hstack gap-2">
-  <!-- <a class="bg-primary px-3 py-2 rounded fs-3 fw-semibold text-dark" target="_blank"
-      href="https://www.wrappixel.com/templates/">Get This Template</a> -->
+<div class="get-template hstack gap-2"> 
   <button class="btn bg-primary p-2 round-52 rounded-circle hstack justify-content-center flex-shrink-0"
     id="scrollToTopBtn">
     <iconify-icon icon="lucide:arrow-up" class="fs-7 text-dark"></iconify-icon>
@@ -81,7 +72,7 @@ if (isset($_SESSION['message']) && $_SESSION['code'] != '') {
       title: "<?php echo $_SESSION['message']; ?>"
     });
   </script>
-  <?php
+  <?php 
   unset($_SESSION['message']);
   unset($_SESSION['code']);
 }

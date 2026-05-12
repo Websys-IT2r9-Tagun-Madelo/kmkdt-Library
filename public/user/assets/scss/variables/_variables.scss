@@ -2,28 +2,31 @@
 // Variables Style
 // ----------------------------------------------
 
-// colors
+// 1. Core Colors
 $white: #fff !default;
+$black: #000 !default;
 $gray-100: rgba(31, 42, 46, 0.12) !default;
 $gray-200: #F4F8FA !default;
 $gray-300: rgba(31, 42, 46, 0.6) !default;
 $gray-400: rgba(31, 42, 46, 0.7) !default;
 $gray-500: #1F2A2E !default;
-$black: #000 !default;
 
-// Color
-$blue: #C1FF72 !default;
+// Lime Theme Configuration
+$lime-theme: #57cb57; // Your preferred accent
+$lime-hover: #356635; 
+$transition-smooth: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-// Main Colors
-$primary: $blue !default;
+// 2. Main Color Hooks
+$blue:      $lime-theme !default; 
+$primary:   $lime-theme !default; 
 $secondary: #1f2a2e !default;
-$light: $gray-100 !default;
-$muted: $gray-300 !default;
-$dark: $gray-500 !default;
+$light:     $gray-100 !default;
+$muted:     $gray-300 !default;
+$dark:      $gray-500 !default;
 $dark-light: $gray-400 !default;
 $light-gray: $gray-200 !default; 
 
-// Theme Colorss
+// 3. Theme Color Mapping
 $theme-colors: (
   "primary": $primary,
   "secondary": $secondary,
@@ -31,8 +34,8 @@ $theme-colors: (
   "dark": $dark,
   "muted": $muted,
   "dark-light": $dark-light,
-  "light-gray": $light-gray,
-  ) !default;
+  "light-gray": $light-gray
+) !default;
 
 // Spacer
 $spacer: 1rem !default;
