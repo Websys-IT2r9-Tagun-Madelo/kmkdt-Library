@@ -183,4 +183,18 @@ function getUserStats($conn, $userId) {
     }
     return $stats;
 }
+/**
+ * Fetches full user details by ID for the profile update modal
+ */
+function getUserById($conn, $userId) {
+    $userId = intval($userId);
+    $sql = "SELECT username, emailAddress, street, barangay, city, fullName FROM user WHERE id = ?";
+    
+    if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc(); 
+    }
+    return null;
+}
 ?>

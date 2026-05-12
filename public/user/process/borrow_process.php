@@ -21,7 +21,6 @@ if ($success) {
     
     header("Location: ../MBB?status=borrowed");
 } else {
-    
     header("Location: ../BrowBoks?status=unavailable");
 }
 exit();

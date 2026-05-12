@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="/kmkdt-Library/public/assets/libs/aos-master/dist/aos.css">
   <link rel="stylesheet" href="/kmkdt-Library/public/assets/css/styles.css" />
 
-  <!-- FIX: Bootstrap Icons CDN -->
+  <!-- Bootstrap Icons CDN -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
@@ -24,54 +24,162 @@
 
   <div class="page-wrapper overflow-hidden">
     <section class="bg-light-gray border-top border-4 d-flex align-items-center justify-content-center min-vh-100"
-      style="border-top-color: #97ee5b !important;">
+      style="border-top-color: #57cb57 !important;">
+
       <div class="container py-3">
         <div class="sign-in card mx-auto shadow-lg" style="max-width: 500px;">
           <div class="card-body py-8 px-lg-5">
 
-          <a href="index" class="mb-2 hstack justify-content-center text-decoration-none gap-3" style="font-size: 4.5rem; letter-spacing: -2px;">
-              <span class="fw-light" style="color: #2A3547; text-transform: lowercase;">kmkdt</span>
-              <span style="font-weight: 900; color: #97ee5b; text-transform: lowercase;">library</span>
-          </a>
+            <a href="index"
+              class="mb-2 hstack justify-content-center text-decoration-none gap-3"
+              style="font-size: 4.5rem; letter-spacing: -2px;">
 
-          <div class="position-relative hstack justify-content-center mt-4 mb-6">
+              <span class="fw-light"
+                style="color: #2A3547; text-transform: lowercase;">
+                kmkdt
+              </span>
+
+              <span
+                style="font-weight: 900; color: #57cb57; text-transform: lowercase;">
+                library
+              </span>
+            </a>
+
+            <div class="position-relative hstack justify-content-center mt-4 mb-6">
               <hr class="w-100 d-block">
-              <p class="mb-0 fs-3 bg-white px-3 position-absolute top-50 start-50 translate-middle" style="z-index: 5; white-space: nowrap; font-size: 1.2rem !important; font-weight: 500;">
-                  Welcome Back, Reader!
+
+              <p class="mb-0 fs-3 bg-white px-3 position-absolute top-50 start-50 translate-middle"
+                style="z-index: 5; white-space: nowrap; font-size: 1.2rem !important; font-weight: 500;">
+
+                Welcome Back, Reader!
               </p>
-          </div>
+            </div>
 
             <form class="d-flex flex-column gap-3 needs-validation"
-              action="/kmkdt-Library/app/controller/loginController.php" method="POST" autocomplete="off" novalidate>
+              action="/kmkdt-Library/app/controller/loginController.php"
+              method="POST"
+              autocomplete="off"
+              novalidate>
 
               <div>
-                <input type="text" name="username" class="form-control border-bottom" id="exampleInputUsername"
-                  placeholder="Username" required autocomplete="off" autocorrect="off" autocapitalize="none"
+                <input type="text"
+                  name="username"
+                  class="form-control border-bottom"
+                  id="exampleInputUsername"
+                  placeholder="Username"
+                  required
+                  autocomplete="off"
+                  autocorrect="off"
+                  autocapitalize="none"
                   spellcheck="false">
-                <div class="invalid-feedback">Please enter a valid username.</div>
+
+                <div class="invalid-feedback">
+                  Please enter a valid username.
+                </div>
               </div>
 
               <div>
-                <input type="password" name="password" class="form-control border-bottom" id="inputPassword"
-                  placeholder="Password" required autocomplete="new-password" autocorrect="off" autocapitalize="none"
+                <input type="password"
+                  name="password"
+                  class="form-control border-bottom"
+                  id="inputPassword"
+                  placeholder="Password"
+                  required
+                  autocomplete="new-password"
+                  autocorrect="off"
+                  autocapitalize="none"
                   spellcheck="false">
-                <div class="invalid-feedback">Please enter a password.</div>
+
+                <div class="invalid-feedback">
+                  Please enter a password.
+                </div>
               </div>
 
-              <button type="submit" name="loginbutton" 
-                      class="btn btn-dark w-100 d-flex align-items-center justify-content-between py-3 fw-bold my-7 fs-4 px-4">
-                
-               
-                <span style="width: 24px;"></span> 
-                <span class="flex-grow-1 text-center">Login</span>
+              <button type="submit"
+                name="loginbutton"
+                class="btn btn-dark w-100 d-flex align-items-center justify-content-between py-3 fw-bold my-7 fs-4 px-4">
+
                 <span style="width: 24px;"></span>
 
+                <span class="flex-grow-1 text-center">
+                  Login
+                </span>
+
+                <span style="width: 24px;"></span>
               </button>
             </form>
 
-            <a class="text-center mb-1 d-block text-dark fw-medium" href="#">Forget Password?</a>
-            <div style="height: 10px;"></div>
-            <p class="mb-0 fw-medium text-center">Not a member yet? <a class="text-dark" href="sign-up">Sign Up</a></p>
+            <a class="text-center mb-1 d-block text-dark fw-medium"
+              href="javascript:void(0)"
+              data-bs-toggle="modal"
+              data-bs-target="#forgotPasswordModal">
+
+              Forget Password?
+            </a>
+
+            <!-- Forgot Password Modal -->
+            <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+
+                  <div class="modal-header border-0" style="background-color: #57cb57;">
+                    <h5 class="modal-title fw-bold text-dark">
+                      Reset Password
+                    </h5>
+
+                    <button type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close">
+                    </button>
+                  </div>
+
+                  <!-- Form -->
+                  <form action="/kmkdt-Library/app/controller/loginController.php" method="POST">
+
+                    <div class="modal-body py-4">
+
+                      <p class="text-muted mb-4">
+                        Enter your registered email address to generate a reset link.
+                      </p>
+
+                      <div class="mb-3">
+                        <input type="email"
+                          name="emailAddress"
+                          class="form-control border-bottom"
+                          placeholder="Enter Email Address"
+                          required>
+                      </div>
+                    </div>
+
+                    <div class="modal-footer border-0">
+
+                      <button type="button"
+                        class="btn btn-light px-4"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+                      </button>
+
+                      <button type="submit"
+                        name="forgotPasswordButton"
+                        class="btn btn-dark px-4">
+
+                        Send Reset Link
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <p class="mb-0 fw-medium text-center">
+              Not a member yet?
+              <a class="text-dark" href="sign-up">
+                Sign Up
+              </a>
+            </p>
+
           </div>
         </div>
       </div>
@@ -79,8 +187,10 @@
   </div>
 
   <div class="get-template hstack gap-2">
-    <button class="btn bg-primary p-2 round-52 rounded-circle hstack justify-content-center flex-shrink-0"
+    <button
+      class="btn bg-primary p-2 round-52 rounded-circle hstack justify-content-center flex-shrink-0"
       id="scrollToTopBtn">
+
       <iconify-icon icon="lucide:arrow-up" class="fs-7 text-dark"></iconify-icon>
     </button>
   </div>
@@ -92,7 +202,7 @@
 
   <?php
   if (isset($_SESSION['message']) && !empty($_SESSION['code'])) {
-    ?>
+  ?>
     <script>
       const Toast = Swal.mixin({
         toast: true,
@@ -100,6 +210,7 @@
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,
+
         didOpen: (toast) => {
           toast.onmouseenter = Swal.stopTimer;
           toast.onmouseleave = Swal.resumeTimer;
@@ -111,7 +222,7 @@
         title: "<?php echo $_SESSION['message']; ?>"
       });
     </script>
-    <?php
+  <?php
     unset($_SESSION['message']);
     unset($_SESSION['code']);
   }

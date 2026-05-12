@@ -546,4 +546,28 @@
     }
 }
 
+.primary-spinning-leaf {
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    
+    
+    background-color: $primary !important;
+    
+    -webkit-mask-image: url("../../assets/images/svgs/primary-leaf.svg");
+    mask-image: url("../../assets/images/svgs/primary-leaf.svg");
+    
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
 
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

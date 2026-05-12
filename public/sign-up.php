@@ -36,7 +36,7 @@ function old($key) { return $_SESSION['old_input'][$key] ?? ''; }
     /* 3. Focus state: Highlights the line in Lime Green when clicked */
     .form-control.border-bottom:focus {
       box-shadow: none;
-      border-bottom-color: #97ee5b !important;
+      border-bottom-color: #57cb57 !important;
     }
 
     /* Ensure label colors match the brand Navy */
@@ -47,13 +47,13 @@ function old($key) { return $_SESSION['old_input'][$key] ?? ''; }
 </head>
 <body>
   <div class="page-wrapper overflow-hidden">
-    <section class="bg-light-gray border-top border-4 d-flex align-items-center justify-content-center min-vh-100" style="border-top-color: #97ee5b !important;">
+    <section class="bg-light-gray border-top border-4 d-flex align-items-center justify-content-center min-vh-100" style="border-top-color: #57cb57 !important;">
       <div class="container py-3">
         <div class="sign-in card mx-auto shadow-lg">
           <div class="card-body py-8 px-lg-5">
             <a href="index" class="mb-1 hstack justify-content-center text-decoration-none" style="font-size: 4.5rem; letter-spacing: -2px;">
               <span class="fw-light" style="color: #2A3547; text-transform: lowercase;">kmkdt</span>
-              <span style="font-weight: 900; color: #97ee5b; margin-left: 10px; text-transform: lowercase;">library</span>
+              <span style="font-weight: 900; color: #57cb57; margin-left: 10px; text-transform: lowercase;">library</span>
             </a>
 
             <div class="position-relative hstack justify-content-center">

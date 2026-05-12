@@ -1,33 +1,13 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 
-$currentUserId = $_SESSION['user_id'] ?? null;
 require_once dirname(__DIR__, 2) . '/app/controller/userController.php';
 
 $search = $_GET['search'] ?? '';
 $booksResult = getAllBooks($conn, $search);
 
-$root = dirname(__DIR__, 2);
-$searchPaths = [
-    $root . '/public/user/includes/', 
-    $root . '/public/includes/',      
-    $root . '/public/user/', 
-];
-
-function loadInclude($file, $paths) {
-    foreach ($paths as $path) {
-        if (file_exists($path . $file)) {
-            include_once $path . $file;
-            return true;
-        }
-    }
-    return false;
-}
-
-loadInclude('header.php', $searchPaths);
-loadInclude('tsbar.php', $searchPaths);
+include_once 'includes/header.php';
+include_once 'includes/tsbar.php';
 ?>
 
 <div class="page-wrapper">
@@ -36,9 +16,7 @@ loadInclude('tsbar.php', $searchPaths);
         <div class="container">
             <!-- Leaf and Title Wrapper -->
             <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
-                <img src="../assets/images/svgs/primary-leaf.svg" alt="Leaf Icon" 
-                    class="img-fluid animate-spin" 
-                    style="width: 45px; filter: brightness(0) invert(1);"> 
+                <div class="primary-spinning-leaf"></div>
                 <h1 class="mb-0 fs-14 text-white lh-1">Browse Books</h1>
             </div>
             
@@ -134,4 +112,6 @@ loadInclude('tsbar.php', $searchPaths);
     </section>
 </div>
 
-<?php loadInclude('footer.php', $searchPaths); ?>
+<?php
+include('./includes/footer.php');
+?>

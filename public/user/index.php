@@ -6,7 +6,7 @@ include('./includes/tsbar.php');
 
 <div class="page-wrapper overflow-hidden bg-white">
 
-  <!-- Hero Section -->
+  <!-- Banner Section -->
   <section class="banner-section position-relative d-flex align-items-center py-10"
     style="background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, rgba(255,255,255,0.1) 100%), url('assets/images/backgrounds/home.jpg'); background-size: cover; background-position: center; min-height: 45vh;">
     <div class="container">
@@ -18,8 +18,10 @@ include('./includes/tsbar.php');
               <iconify-icon icon="lucide:asterisk" style="color: #57cb57;" class="fs-7"></iconify-icon>
               <span class="text-white fw-bold tracking-wider text-uppercase fs-2">kmkdt-Library Portal</span>
             </div>
-            <h1 class="display-3 fw-extrabold text-white mb-3"> Explore a World of <span style="color: #7ce87c;">Knowledge</span></h1>
-            <p class="text-white-50 fs-5 mb-0">Your gateway to digital resources and academic management. All your active loans and profile tools in one place.</p>
+            <h1 class="display-3 fw-extrabold text-white mb-3"> Explore a World of <span
+                style="color: #7ce87c;">Knowledge</span></h1>
+            <p class="text-white-50 fs-5 mb-0">Your gateway to digital resources and academic management. All your
+              active loans and profile tools in one place.</p>
           </div>
         </div>
       </div>
@@ -97,8 +99,9 @@ include('./includes/tsbar.php');
       <div class="row align-items-center mb-5" data-aos="fade-up">
         <div class="col-lg-12">
           <div class="section-label">
-                <span class="round-36 flex-shrink-0 text-dark rounded-circle bg-primary hstack justify-content-center fw-medium">01</span>
-                <hr class="border-line bg-white">
+            <span
+              class="round-36 flex-shrink-0 text-dark rounded-circle bg-primary hstack justify-content-center fw-medium">01</span>
+            <hr class="border-line bg-white">
             <span class="badge bg-white text-dark px-3 py-2">Library</span>
           </div>
           <h2 class="display-6 fw-bold text-white">Featured Library Collections</h2>
@@ -172,12 +175,14 @@ include('./includes/tsbar.php');
   <section class="py-5 py-lg-8 bg-white">
     <div class="container">
       <div class="section-label" data-aos="fade-up">
-        <span class="round-36 flex-shrink-0 text-white rounded-circle bg-primary hstack justify-content-center fw-medium">02</span>
+        <span
+          class="round-36 flex-shrink-0 text-white rounded-circle bg-primary hstack justify-content-center fw-medium">02</span>
         <hr class="border-line bg-white">
         <span class="badge bg-dark text-white px-3 py-2">Testimonials</span>
       </div>
       <h2 class="display-6 fw-bold text-dark">Reader Feedback</h2>
-       <p class="text-dark-50 fs-4"> Hear from our community about their reading experience, library services, and how we help them discover new books.</p>
+      <p class="text-dark-50 fs-4"> Hear from our community about their reading experience, library services, and how we
+        help them discover new books.</p>
       <div class="row g-4">
         <div class="col-lg-4">
           <div class="card border-0 rounded-4 p-4 h-100" style="background-color: #7ce87c;">
@@ -224,12 +229,14 @@ include('./includes/tsbar.php');
   <section class="py-5 py-lg-8 bg-light">
     <div class="container">
       <div class="section-label" data-aos="fade-up">
-        <span class="round-36 flex-shrink-0 text-dark rounded-circle bg-primary hstack justify-content-center fw-medium">03</span>
+        <span
+          class="round-36 flex-shrink-0 text-dark rounded-circle bg-primary hstack justify-content-center fw-medium">03</span>
         <hr class="border-line bg-white">
         <span class="badge bg-white text-dark px-3 py-2">Library News</span>
       </div>
       <h2 class="display-6 fw-bold text-white">Library Updates</h2>
-      <p class="text-white-50 fs-4"> Stay informed about new book arrivals, upcoming events, and important announcements from our library.</p>
+      <p class="text-white-50 fs-4"> Stay informed about new book arrivals, upcoming events, and important announcements
+        from our library.</p>
       <div class="row g-4">
         <div class="col-xl-6">
           <div class="card portal-card overflow-hidden">
@@ -268,7 +275,8 @@ include('./includes/tsbar.php');
   <section class="py-5 py-lg-8 bg-white">
     <div class="container">
       <div class="section-label" data-aos="fade-up">
-        <span class="round-36 flex-shrink-0 text-white rounded-circle bg-primary hstack justify-content-center fw-medium">04</span>
+        <span
+          class="round-36 flex-shrink-0 text-white rounded-circle bg-primary hstack justify-content-center fw-medium">04</span>
         <hr class="border-line bg-white">
         <span class="badge bg-dark text-white px-3 py-2">Library Support</span>
       </div>
@@ -279,8 +287,8 @@ include('./includes/tsbar.php');
       <div class="row justify-content-end">
         <div class="col-xl-7">
           <div class="accordion custom-accordion" id="libraryFaq">
-           
-          <!-- Question 1 -->
+
+            <!-- Question 1 -->
             <div class="accordion-item border-top">
               <h2 class="accordion-header">
                 <button class="accordion-button collapsed fw-bold py-4" type="button" data-bs-toggle="collapse"
@@ -377,19 +385,5 @@ include('./includes/tsbar.php');
   </section>
 
 </div>
-
-<script>
-  // Simple check for Portfolio card hover effect logic if needed
-  document.querySelectorAll('.portal-card').forEach(card => {
-    card.addEventListener('mouseenter', () => {
-      const overlay = card.querySelector('.portfolio-hover-overlay');
-      if (overlay) overlay.style.opacity = '1';
-    });
-    card.addEventListener('mouseleave', () => {
-      const overlay = card.querySelector('.portfolio-hover-overlay');
-      if (overlay) overlay.style.opacity = '0';
-    });
-  });
-</script>
 
 <?php include('./includes/footer.php'); ?>

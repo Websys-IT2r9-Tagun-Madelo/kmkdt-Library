@@ -10,7 +10,6 @@ if ($currentUserId && $bookId) {
         header("Location: ../MBB?status=renewed");
         exit();
     } else {
-        // NEW: Specific error for maximum renewal limit
         header("Location: ../MBB?status=limit_reached");
         exit();
     }

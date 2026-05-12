@@ -158,3 +158,77 @@ if (isset($_POST['registerbutton'])) {
     }
     exit();
 }
+// --- 1. REQUEST RESET LINK (From Login Modal) ---
+if (isset($_POST['forgotPasswordButton'])) {
+    global $conn;
+    
+    // Sanitize the input to match your Midterm security requirements
+    $email = mysqli_real_escape_string($conn, trim($_POST['emailAddress']));
+
+    // Check if the user exists in your MySQL 'user' table
+    $query = "SELECT id FROM user WHERE emailAddress = ? LIMIT 1";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        // Generate a secure 32-byte token and set 1-hour expiration
+        $token = bin2hex(random_bytes(32));
+        $expire = date("Y-m-d H:i:s", strtotime('+1 hour'));
+
+        // Update the user record with the token
+        $updateQuery = "UPDATE user SET reset_token = ?, token_expire = ? WHERE emailAddress = ?";
+        $upStmt = $conn->prepare($updateQuery);
+        $upStmt->bind_param("sss", $token, $expire, $email);
+        
+        if ($upStmt->execute()) {
+            $_SESSION['message'] = "Reset link generated.";
+            $_SESSION['code'] = "success";
+            
+            // Absolute path redirect to prevent the blank page issue
+            header("Location: /kmkdt-Library/public/reset-password?token=" . $token);
+            exit(); 
+        }
+    } else {
+        $_SESSION['message'] = "Email address not found.";
+        $_SESSION['code'] = "error";
+        header("Location: /kmkdt-Library/public/login");
+        exit();
+    }
+}
+
+// --- 2. FINALIZE PASSWORD RESET (From Reset Page) ---
+if (isset($_POST['updatePasswordButton'])) {
+    global $conn;
+    $token = $_POST['token'];
+    $newPass = $_POST['newPassword'];
+    $confirmPass = $_POST['confirmPassword'];
+
+    // Validate that passwords match
+    if ($newPass !== $confirmPass) {
+        $_SESSION['message'] = "Passwords do not match!";
+        $_SESSION['code'] = "error";
+        header("Location: /kmkdt-Library/public/reset-password?token=" . $token);
+        exit();
+    }
+
+    // Hash the password (using PASSWORD_DEFAULT for your technical assessment)
+    $hashed = password_hash($newPass, PASSWORD_DEFAULT);
+
+    // Update password and CLEAR the token so it cannot be used again
+    $sql = "UPDATE user SET password = ?, reset_token = NULL, token_expire = NULL WHERE reset_token = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $hashed, $token);
+
+    if ($stmt->execute()) {
+        $_SESSION['message'] = "Password updated! You can now login.";
+        $_SESSION['code'] = "success";
+        header("Location: /kmkdt-Library/public/login");
+    } else {
+        $_SESSION['message'] = "Database error. Reset failed.";
+        $_SESSION['code'] = "error";
+        header("Location: /kmkdt-Library/public/login");
+    }
+    exit();
+}
