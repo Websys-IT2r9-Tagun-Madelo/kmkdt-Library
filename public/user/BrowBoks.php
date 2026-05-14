@@ -109,10 +109,11 @@ include_once 'includes/tsbar.php';
 
                             <div class="card-footer-custom p-3 mt-auto">
                                 <?php if ($isOnline): ?>
-                                    <a href="Ebook.php?id=<?= $row['id']; ?>" class="btn rounded-pill w-100 mt-2" style="background-color: #07427a; color: white;">Read Online</a>
+                                    <a href="/kmkdt-Library/public/user/Ebook?id=<?= $row['id']; ?>" class="btn rounded-pill w-100 mt-2" style="background-color: #07427a; color: white;">Read Online</a>
                                 <?php elseif ($status === 'available'): ?>
                                     <a href="/kmkdt-Library/app/controller/process/borrowProcess.php?id=<?= $row['id']; ?>"
-                                    class="btn btn-success w-100 rounded-pill fw-bold">
+                                    class="btn btn-success w-100 rounded-pill fw-bold"
+                                    onclick="return confirm('Are you sure you want to borrow this book for <?= $loanPeriod; ?>?');">
                                     Borrow Book
                                     </a>
                                 <?php elseif ($status === 'owned'): ?>
@@ -129,7 +130,7 @@ include_once 'includes/tsbar.php';
         </div>
     </section>
 
-</div> <!-- ✅ FIXED missing closing page-wrapper -->
+</div> 
 
 <!-- Book Details Modal -->
 <div class="modal fade" id="bookModal" tabindex="-1" aria-hidden="true">

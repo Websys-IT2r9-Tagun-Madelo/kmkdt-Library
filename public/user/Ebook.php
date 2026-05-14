@@ -26,8 +26,8 @@ include('./includes/tsbar.php');
             <hr class="my-4">
             <div class="alert alert-light border">
                 <p class="mb-0">Digital Content Loading for Book ID: <?= htmlspecialchars($bookId); ?></p>
-                <div class="mt-3 p-5 bg-light border-dashed" style="border: 2px dashed #ddd; border-radius: 10px;">
-                    <p>PDF/EPUB Viewer Integration Point</p>
+                <div class="mt-3 p-5 bg-light" style="border: 2px dashed #ddd; border-radius: 10px;">
+                    <p class="text-white">PDF/EPUB Viewer Integration Point</p>
                 </div>
             </div>
             <a href="BrowBoks" class="btn btn-success rounded-pill px-5 mt-3" style="background-color: #57cb57; border: none;">
