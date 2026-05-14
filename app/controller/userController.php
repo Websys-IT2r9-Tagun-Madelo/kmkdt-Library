@@ -130,10 +130,11 @@ function processBookBorrow($conn, $userId, $bookId) {
  */
 function getMyBooks($conn, $userId) {
     $userId = intval($userId);
-    // Use GROUP BY b.id to prevent the duplication seen in Screenshot 2026-05-14 170929.jpg
+    
     $query = "SELECT b.id, b.title, b.genre, b.cover_image, 
                      MAX(bh.borrowed_at) as borrowed_at, 
-                     bh.renewal_count 
+                     MAX(bh.due_date) as due_date, 
+                     MAX(bh.renewal_count) as renewal_count 
               FROM books b 
               JOIN borrowing_history bh ON b.id = bh.book_id 
               WHERE bh.user_id = ? AND bh.status IN ('borrowed', 'overdue')

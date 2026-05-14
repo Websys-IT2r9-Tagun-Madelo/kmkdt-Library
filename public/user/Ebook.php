@@ -36,7 +36,7 @@ include('./includes/tsbar.php');
     <?php endif; ?>
 
     <div class="row justify-content-center">
-        <!-- Main Reader Column (Set to col-lg-10 for a centered, focused look) -->
+        <!-- Main Reader Column -->
         <div class="col-lg-10 col-12">
             <div class="container text-center bg-white p-5 shadow" style="border-radius: 20px; border-top: 5px solid #32cd32;">
                 <?php if ($book): ?>
@@ -50,7 +50,7 @@ include('./includes/tsbar.php');
                         <div class="mt-2 p-4 bg-light d-flex align-items-center justify-content-center" style="border: 2px dashed #ddd; border-radius: 10px; min-height: 550px;">
                              <div class="text-center">
                                 <iconify-icon icon="line-md:loading-twotone-loop" style="font-size: 50px; color: #32cd32;"></iconify-icon>
-                                <p class="mt-2 text-muted">Loading Secure Digital Reader...</p>
+                                <p class="mt-2 text-white-50">Loading Secure Digital Reader...</p>
                              </div>
                         </div>
                     </div>
