@@ -3,6 +3,8 @@ session_start();
 
 require_once dirname(__DIR__, 2) . '/app/controller/userController.php';
 
+$currentUserId = $_SESSION['user_id'] ?? null;
+
 $search = $_GET['search'] ?? '';
 $booksResult = getAllBooks($conn, $search);
 
@@ -11,18 +13,20 @@ include_once 'includes/tsbar.php';
 ?>
 
 <div class="page-wrapper">
-    <!--Banner -->
+
+    <!-- Banner -->
     <header class="hero-banner text-center text-white">
         <div class="container">
-            <!-- Leaf and Title Wrapper -->
+
             <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
                 <div class="primary-spinning-leaf"></div>
                 <h1 class="mb-0 fs-14 text-white lh-1">Browse Books</h1>
             </div>
-            
+
             <p class="lead opacity-75 mx-auto" style="max-width: 600px;">
                 Access thousands of books from our digital and physical library.
             </p>
+
         </div>
     </header>
 
@@ -49,7 +53,7 @@ include_once 'includes/tsbar.php';
                     $filters = ['' => 'All', 'Fiction' => 'Fiction', 'Non-Fiction' => 'Non-Fiction', 'Research' => 'Research', 'Online' => 'Online'];
                     foreach($filters as $key => $label): 
                         $active = ($search == $key) ? 'active' : '';
-                        $link = ($key == '') ? 'BrowBoks' : "?search=$key";
+                        $link = ($key == '') ? 'BrowBoks.php' : "?search=$key";
                     ?>
                         <a href="<?= $link ?>" class="filter-pill text-decoration-none <?= $active ?>"><?= $label ?></a>
                     <?php endforeach; ?>
@@ -63,55 +67,107 @@ include_once 'includes/tsbar.php';
         <div class="container">
             <div class="row g-4">
                 <?php if ($booksResult && $booksResult->num_rows > 0): ?>
-                    <?php while($row = $booksResult->fetch_assoc()): 
-                        $genre = $row['genre'] ?? 'General';
-                        $loanPeriod = (stripos($genre, 'Fiction') !== false || stripos($genre, 'Manga') !== false) ? "30 Days" : "14 Days";
-                        if (stripos($genre, 'Reserve') !== false) $loanPeriod = "3 Days";
+                    <?php while ($row = $booksResult->fetch_assoc()): 
+                        $category = $row['category'] ?? 'General';
+                        $isOnline = (stripos($category, 'Online') !== false);
+                        $status = is_null($row['user_id']) ? 'available' : ($row['user_id'] == $currentUserId ? 'owned' : 'taken');
+                        
+                        // Loan Period Logic
+                        if ($isOnline) { $loanPeriod = "Unlimited (E-Book)"; } 
+                        elseif (stripos($category, 'Reserve') !== false) { $loanPeriod = "3 Days"; }
+                        elseif (stripos($category, 'Non-Fiction') !== false) { $loanPeriod = "14 Days"; }  
+                        elseif (stripos($category, 'Research') !== false) { $loanPeriod = "7 Days"; }
+                        else { $loanPeriod = "18 Days"; }
                     ?>
-                        <div class="col-sm-6 col-lg-4 col-xl-3">
-                            <div class="modern-book-card">
-                                <div class="img-container">
-                                    <img src="assets/images/books/<?= htmlspecialchars($row['cover_image'] ?? 'default-cover.jpg'); ?>" alt="Cover">
-                                </div>
-                                
-                                <div class="card-body-custom flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <span class="badge-category"><?= htmlspecialchars($row['category'] ?? 'Book'); ?></span>
-                                        <div class="loan-tag">
-                                            <iconify-icon icon="lucide:clock"></iconify-icon> <?= $loanPeriod ?>
-                                        </div>
-                                    </div>
-                                    
-                                    <h3 class="book-title"><?= htmlspecialchars($row['title']); ?></h3>
-                                    <p class="text-muted small mb-0">by <?= htmlspecialchars($row['author']); ?></p>
-                                </div>
 
-                                <div class="card-footer-custom">
-                                    <?php if (is_null($row['user_id'])): ?>
-                                        <a href="process/borrow_process?id=<?= $row['id']; ?>" 
-                                           class="btn btn-borrow text-decoration-none d-block text-center"
-                                           onclick="return confirm('Borrow for <?= $loanPeriod ?>?')">Borrow Book</a>
-                                    <?php elseif ($row['user_id'] == $currentUserId): ?>
-                                        <button class="btn btn-success w-100 rounded-pill disabled mt-3 py-2">Owned</button>
-                                    <?php else: ?>
-                                        <button class="btn btn-light w-100 rounded-pill text-muted disabled mt-3 py-2">Unavailable</button>
-                                    <?php endif; ?>
+                    <div class="col-sm-6 col-lg-4 col-xl-3">
+                        <div class="modern-book-card h-100 d-flex flex-column"
+                            style="cursor: pointer;"
+                            data-bs-toggle="modal"
+                            data-bs-target="#bookModal"
+                            data-title="<?= htmlspecialchars($row['title']); ?>"
+                            data-author="<?= htmlspecialchars($row['author']); ?>"
+                            data-category="<?= htmlspecialchars($category); ?>"
+                            data-desc="<?= htmlspecialchars($row['description'] ?? 'No description available.'); ?>"
+                            data-img="assets/images/books/<?= htmlspecialchars($row['cover_image'] ?? 'default-cover.jpg'); ?>"
+                            data-id="<?= $row['id']; ?>"
+                            data-status="<?= $status; ?>"
+                            data-online="<?= $isOnline ? 'true' : 'false'; ?>">
+
+                            <div class="img-container">
+                                <img src="assets/images/books/<?= htmlspecialchars($row['cover_image'] ?? 'default-cover.jpg'); ?>" alt="Cover">
+                            </div>
+
+                            <div class="card-body-custom flex-grow-1 p-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge-category"><?= htmlspecialchars($category); ?></span>
+                                    <div class="loan-tag"><iconify-icon icon="lucide:clock"></iconify-icon> <?= $loanPeriod; ?></div>
                                 </div>
+                                <h3 class="book-title h5 mb-1"><?= htmlspecialchars($row['title']); ?></h3>
+                                <p class="text-muted small mb-2">by <?= htmlspecialchars($row['author']); ?></p>
+                            </div>
+
+                            <div class="card-footer-custom p-3 mt-auto">
+                                <?php if ($isOnline): ?>
+                                    <a href="Ebook.php?id=<?= $row['id']; ?>" class="btn rounded-pill w-100 mt-2" style="background-color: #07427a; color: white;">Read Online</a>
+                                <?php elseif ($status === 'available'): ?>
+                                    <a href="/kmkdt-Library/app/controller/process/borrow_process.php?id=<?= $row['id']; ?>"
+                                    class="btn btn-success w-100 rounded-pill fw-bold">
+                                    Borrow Book
+                                    </a>
+                                <?php elseif ($status === 'owned'): ?>
+                                    <button class="btn btn-secondary w-100 rounded-pill disabled">In Your Shelf</button>
+                                <?php else: ?>
+                                    <button class="btn btn-light w-100 rounded-pill text-muted disabled">Unavailable</button>
+                                <?php endif; ?>
                             </div>
                         </div>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <div class="col-12 text-center py-5">
-                        <iconify-icon icon="lucide:search-x" class="display-1 text-muted opacity-25"></iconify-icon>
-                        <h3 class="text-muted mt-3">No matches found for "<?= htmlspecialchars($search) ?>"</h3>
-                        <a href="BrowBoks" class="btn btn-outline-success py-3 fw-bold my-4 fs-4 px-5 d-inline-flex align-items-center justify-content-center">Clear filters</a>
                     </div>
+                    <?php endwhile; ?>
                 <?php endif; ?>
             </div>
         </div>
     </section>
+
+</div> <!-- ✅ FIXED missing closing page-wrapper -->
+
+<!-- Book Details Modal -->
+<div class="modal fade" id="bookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+
+            <div class="modal-header border-0 bg-light" style="border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title fw-bold" id="modalTitle">Book Overview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <div class="row">
+
+                    <div class="col-md-5 mb-3 text-center">
+                        <img id="modalImg" src="" class="img-fluid rounded shadow" style="max-height: 400px;">
+                    </div>
+
+                    <div class="col-md-7">
+                        <span id="modalCategory" class="badge mb-2" style="background-color:#32cd32;"></span>
+                        <h2 id="modalBookTitle" class="fw-bold mb-1"></h2>
+                        <p id="modalAuthor" class="text-muted fs-5 mb-3"></p>
+                        <hr>
+                        <h6 class="fw-bold">About this book</h6>
+                        <p id="modalDesc" class="text-secondary" style="line-height:1.6;font-size:0.95rem;"></p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 bg-light p-3" style="border-radius: 0 0 20px 20px;">
+                <div id="modalActionContainer" class="w-100"></div>
+            </div>
+
+        </div>
+
+    </div>
 </div>
 
-<?php
-include('./includes/footer.php');
-?>
+<?php include('./includes/footer.php'); ?>

@@ -50,6 +50,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         class="img-fluid animate-spin"> My Borrowed Books</a>
                   </li>
                   <li class="header-item">
+                    <a href="Ebook" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
+                        src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
+                        class="img-fluid animate-spin"> My E-Books</a>
+                  </li>
+                  <li class="header-item">
                     <a href="BrowBoks" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
                         class="img-fluid animate-spin"> Browse Books</a>

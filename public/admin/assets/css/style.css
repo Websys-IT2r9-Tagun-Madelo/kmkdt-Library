@@ -1,16 +1,33 @@
 
 :root {
 
-  --primary: #32cd32 !important;
-  --blue: #32cd32 !important;
-  --success: #28a745;
-
-  --primary-lime: #32cd32;
-  --hover-lime: #76ff03;
-  --deep-lime: #012970;
+  --primary: #61b861;
+  --primary-lime:#53a553;
+  --hover-lime: #57cb57;
   --bg-lime: #f6f9ff;
+
+  --bs-warning: #ff8f07 !important; 
+  --borrowed: #1da5ff;
 }
 
+
+.bg-warning {
+    background-color: var(--bs-warning) !important;
+    color: #ffffff !important; 
+}
+
+
+.bg-success, .btn-success {
+    background-color: var(--primary-lime) !important;
+    border-color: var(--primary-lime) !important;
+    color: #fff !important;
+}
+
+
+.bg-primary, .btn-primary {
+    background-color: var(--primary-lime) !important;
+    border-color: var(--primary-lime) !important;
+}
 
 .btn-primary {
   background-color: var(--primary-lime) !important;
@@ -89,7 +106,7 @@ h6 {
   right: 15px;
   bottom: 15px;
   z-index: 99999;
-  background: #32cd32;
+  background: #356635;
   /* Swapped to Lime */
   width: 40px;
   height: 40px;
@@ -186,22 +203,22 @@ h6 {
 
 .accordion-flush .accordion-button:not(.collapsed) {
   box-shadow: none;
-  color: #32cd32;
+  color: #356635;
   /* Primary Lime */
 }
 
 /* Bordered Tabs */
 .nav-tabs-bordered .nav-link:hover,
 .nav-tabs-bordered .nav-link:focus {
-  color: #32cd32;
+  color: #356635;
   /* Swapped to Lime */
 }
 
 .nav-tabs-bordered .nav-link.active {
   background-color: #fff;
-  color: #32cd32;
+  color: #356635;
   /* Swapped to Lime */
-  border-bottom: 2px solid #32cd32;
+  border-bottom: 2px solid #356635;
   /* Swapped to Lime */
 }
 
@@ -492,7 +509,7 @@ h6 {
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  background-color: #32cd32;
+  background-color: #356635;
 }
 
 @media (min-width: 1200px) {
@@ -516,7 +533,7 @@ h6 {
   align-items: center;
   font-size: 15px;
   font-weight: 600; 
-  color: #32cd32;
+  color: #356635;
   transition: 0.3s;
   background: #f0fdf4;
   padding: 10px 18px;
@@ -540,12 +557,12 @@ h6 {
 }
 
 .sidebar-nav .nav-link:hover {
-  color: #32cd32;
+  color: #356635;
   background: #f0fdf4;
 }
 
 .sidebar-nav .nav-link:hover i {
-  color: #32cd32;
+  color: #356635;
 }
       
 .sidebar-nav .nav-content a {
@@ -554,11 +571,11 @@ h6 {
 
 .sidebar-nav .nav-content a:hover,
 .sidebar-nav .nav-content a.active {
-  color: #32cd32;
+  color: #356635;
 }
 
 .sidebar-nav .nav-content a.active i {
-  background-color: #32cd32;
+  background-color: #356635;
 }
 
 /*--------------------------------------------------------------
@@ -789,7 +806,7 @@ h6 {
 
 /* Optional: if you want icons to turn lime when hovered */
 .iconslist .icon:hover i {
-  color: #32cd32;
+  color: #356635;
 }
 
 .iconslist .label {
@@ -833,7 +850,7 @@ h6 {
 }
 
 .profile .profile-card .social-links a:hover {
-  color: #32cd32;
+  color: #356635;
   /* Swapped to Lime */
 }
 
@@ -867,7 +884,7 @@ h6 {
 .faq .basic h6 {
   font-size: 18px;
   font-weight: 600;
-  color: #32cd32;
+  color: #356635;
   /* Swapped from #4154f1 to Lime */
 }
 
@@ -886,7 +903,7 @@ h6 {
 .contact .info-box i {
   font-size: 38px;
   line-height: 0;
-  color: #32cd32;
+  color: #356635;
   /* Swapped from Blue to Lime */
 }
 
@@ -918,7 +935,7 @@ h6 {
 .contact .php-email-form .sent-message {
   display: none;
   color: #fff;
-  background: #32cd32;
+  background: #356635;
   /* Swapped to Lime for consistency */
   text-align: center;
   padding: 15px;
@@ -933,7 +950,7 @@ h6 {
   width: 24px;
   height: 24px;
   margin: 0 10px -6px 0;
-  border: 3px solid #32cd32;
+  border: 3px solid #356635;
   /* Swapped loading spinner to Lime */
   border-top-color: #eee;
   animation: animate-loading 1s linear infinite;
@@ -941,13 +958,13 @@ h6 {
 
 .contact .php-email-form input:focus,
 .contact .php-email-form textarea:focus {
-  border-color: #32cd32;
+  border-color: #356635;
   /* Swapped focus border to Lime */
   outline: none;
 }
 
 .contact .php-email-form button[type=submit] {
-  background: #32cd32;
+  background: #356635;
   /* Swapped from Blue to Lime */
   border: 0;
   padding: 10px 30px;
@@ -1000,7 +1017,7 @@ h6 {
 }
 
 .error-404 .btn:hover {
-  background: #32cd32;
+  background: #356635;
   color: #fff;
 }
 
@@ -1031,3 +1048,22 @@ h6 {
   font-size: 13px;
   color: #017044;
 }
+
+#catalogTable {
+    border-spacing: 0 8px !important;
+    border-collapse: separate !important;
+}
+
+#catalogTable tbody tr {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(225, 214, 214, 0.05);
+    border-radius: 5px;
+}
+
+/* Custom class for Borrowed status */
+.bg-borrowed {
+    background-color: var(--borrowed) !important; /* This is your #ff8f07 orange */
+    color: #ffffff !important; /* This changes the text from white to black */
+    font-weight: 600; /* Optional: makes it easier to read */
+}
+

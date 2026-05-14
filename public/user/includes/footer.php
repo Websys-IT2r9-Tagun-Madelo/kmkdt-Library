@@ -1,4 +1,3 @@
-<!-- Remove py-lg-11 and py-xl-12 to stop the stretching -->
 <footer class="footer bg-dark py-5">
   <div class="container pt-8"> 
     <div class="row">
@@ -46,13 +45,14 @@
 <script src="../assets/libs/owl.carousel/dist/owl.carousel.min.js"></script>
 <script src="../assets/libs/aos-master/dist/aos.js"></script>
 <script src="../assets/js/custom.js"></script>
+<script src="assets/js/modal-handler.js"></script>
 
 <!-- solar icons -->
 <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <?php
-if (isset($_SESSION['message']) && $_SESSION['code'] != '') {
+if (isset($_SESSION['message']) && !empty($_SESSION['code'])) {
   ?>
   <script>
     const Toast = Swal.mixin({
@@ -61,15 +61,21 @@ if (isset($_SESSION['message']) && $_SESSION['code'] != '') {
       showConfirmButton: false,
       timer: 3000,
       timerProgressBar: true,
+      // Customizing the progress bar to match your Lime Green theme
       didOpen: (toast) => {
+        const progressBar = toast.querySelector('.swal2-timer-progress-bar');
+        if (progressBar) {
+            progressBar.style.backgroundColor = '#32cd32';
+        }
         toast.onmouseenter = Swal.stopTimer;
         toast.onmouseleave = Swal.resumeTimer;
       }
     });
 
     Toast.fire({
-      icon: "<?php echo $_SESSION['code']; ?>",
-      title: "<?php echo $_SESSION['message']; ?>"
+      icon: "<?php echo $_SESSION['code']; ?>", 
+      title: "<?php echo $_SESSION['message']; ?>",
+      iconColor: '<?php echo ($_SESSION['code'] == "success") ? "#32cd32" : ""; ?>'
     });
   </script>
   <?php 

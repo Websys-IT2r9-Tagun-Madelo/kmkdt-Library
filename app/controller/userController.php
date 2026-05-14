@@ -24,30 +24,36 @@ if (isset($_POST['logoutButton'])) {
 }
 
 /**
- * Fetch books for the Browse catalog - CORRECT VERSION
+ * Fetch books for the Browse catalog 
  */
 function getAllBooks($conn, $search = '') {
     $search = trim($search);
     
-    if (empty($search)) {
+    if (empty($search) || strtolower($search) === 'all') {
         return $conn->query("SELECT * FROM books");
     }
 
-    // List of your exact categories to prevent overlap (Fiction vs Non-Fiction)
-    $categories = ['Fiction', 'Non-Fiction', 'Manga', 'Technology'];
+    $filterCategories = ['Fiction', 'Non-Fiction', 'Research', 'Online'];
 
-    if (in_array($search, $categories)) {
-        // EXACT match for category buttons so "Fiction" doesn't catch "Non-Fiction"
-        $sql = "SELECT * FROM books WHERE category = ? OR genre = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $search, $search);
+    if (in_array($search, $filterCategories)) {
+        if ($search === 'Fiction') {
+            // This logic specifically finds "Fiction" or "Online, Fiction" 
+            // while EXCLUDING "Non-Fiction"
+            $sql = "SELECT * FROM books WHERE 
+                    (category LIKE 'Fiction%' OR category LIKE '%, Fiction%') 
+                    AND category NOT LIKE '%Non-Fiction%'";
+            $stmt = $conn->prepare($sql);
+        } else {
+            // Standard partial match for other categories
+            $sql = "SELECT * FROM books WHERE category LIKE ? OR genre LIKE ?";
+            $searchTerm = "%$search%";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ss", $searchTerm, $searchTerm);
+        }
     } else {
-        // BROAD match for the manual search bar
+        // General Keyword Search
         $sql = "SELECT * FROM books WHERE 
-                title LIKE ? OR 
-                author LIKE ? OR 
-                genre LIKE ? OR 
-                category LIKE ?";
+                title LIKE ? OR author LIKE ? OR genre LIKE ? OR category LIKE ?";
         $searchTerm = "%$search%";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);
@@ -56,9 +62,9 @@ function getAllBooks($conn, $search = '') {
     $stmt->execute();
     return $stmt->get_result();
 }
-
 /**
  * Processes the borrowing transaction
+ * Updated to sync with UI loan period logic
  */
 function processBookBorrow($conn, $userId, $bookId) {
     $userId = intval($userId);
@@ -66,20 +72,51 @@ function processBookBorrow($conn, $userId, $bookId) {
 
     $conn->begin_transaction();
     try {
-        $query1 = "UPDATE books SET user_id = ? WHERE id = ? AND user_id IS NULL";
+        // Fetch category to apply your specific Feature Rules
+        $catQuery = "SELECT category FROM books WHERE id = ? FOR UPDATE"; 
+        $catStmt = $conn->prepare($catQuery);
+        $catStmt->bind_param("i", $bookId);
+        $catStmt->execute();
+        $bookData = $catStmt->get_result()->fetch_assoc();
+        
+        if (!$bookData) {
+            throw new Exception("Book not found.");
+        }
+        
+        $category = $bookData['category'] ?? 'General';
+
+        // SYNCED LOGIC HIERARCHY
+        if (stripos($category, 'Online') !== false) {
+            $days = 365; // Logical "Unlimited" for history records
+        } elseif (stripos($category, 'Reserve') !== false) {
+            $days = 3;
+        } elseif (stripos($category, 'Non-Fiction') !== false) {
+            $days = 14; 
+        } elseif (stripos($category, 'Research') !== false) {
+            $days = 7;
+        } else {
+            $days = 18; // Standard default
+        }
+
+        $dueDate = date('Y-m-d', strtotime("+$days days"));
+
+        // Update book: Set user_id AND status to 'Unavailable'
+        $query1 = "UPDATE books SET user_id = ?, status = 'Unavailable' WHERE id = ? AND user_id IS NULL";
         $stmt1 = $conn->prepare($query1);
         $stmt1->bind_param("ii", $userId, $bookId);
         $stmt1->execute();
 
         if ($stmt1->affected_rows > 0) {
-            $query2 = "INSERT INTO borrowing_history (user_id, book_id, status, borrowed_at, renewal_count) VALUES (?, ?, 'borrowed', NOW(), 0)";
+            $query2 = "INSERT INTO borrowing_history (user_id, book_id, status, borrowed_at, due_date, renewal_count) 
+                       VALUES (?, ?, 'borrowed', NOW(), ?, 0)";
             $stmt2 = $conn->prepare($query2);
-            $stmt2->bind_param("ii", $userId, $bookId);
+            $stmt2->bind_param("iis", $userId, $bookId, $dueDate);
             $stmt2->execute();
 
             $conn->commit();
             return true;
         }
+
         $conn->rollback();
         return false;
     } catch (Exception $e) {
@@ -183,8 +220,9 @@ function getUserStats($conn, $userId) {
     }
     return $stats;
 }
+
 /**
- * Fetches full user details by ID for the profile update modal
+ * Fetches full user details for profile
  */
 function getUserById($conn, $userId) {
     $userId = intval($userId);
@@ -196,5 +234,14 @@ function getUserById($conn, $userId) {
         return $stmt->get_result()->fetch_assoc(); 
     }
     return null;
+}
+
+function getBookForReader($conn, $id) {
+    $id = intval($id); 
+    $stmt = $conn->prepare("SELECT * FROM books WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_assoc();
 }
 ?>

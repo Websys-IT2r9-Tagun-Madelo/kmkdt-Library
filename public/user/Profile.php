@@ -63,7 +63,7 @@ include('./includes/tsbar.php');
                                 style="color: #57cb57;"><?php echo $stats['total_returned'] ?? 0; ?></span>
                         </div>
                         <hr>
-                        <!-- FIXED: Changed data-bs-target to match the Modal ID -->
+                        
                         <button class="btn rounded-pill w-100 fw-bold text-dark" style="background-color: #57cb57;"
                             data-bs-toggle="modal" data-bs-target="#fullUpdateModal">
                             Update Account
@@ -71,7 +71,7 @@ include('./includes/tsbar.php');
                     </div>
                 </div>
 
-                <!-- Right Content (Books List) -->
+                
                 <div class="col-lg-8">
                     <h2 class="mb-4">Current Borrowed Books</h2>
                     <?php if ($myBooks && $myBooks->num_rows > 0): ?>
@@ -83,7 +83,7 @@ include('./includes/tsbar.php');
                                     <p class="mb-0 text-muted small">Category: <?php echo htmlspecialchars($book['genre']); ?>
                                     </p>
                                 </div>
-                                <a href="MBB.php" class="btn rounded-pill px-4 fw-bold"
+                                <a href="MBB" class="btn rounded-pill px-4 fw-bold"
                                     style="background-color: #57cb57; color: #000;">Go to MBB</a>
                             </div>
                         <?php endwhile; ?>
@@ -101,7 +101,7 @@ include('./includes/tsbar.php');
 <!-- FULL UPDATE MODAL -->
 <div class="modal fade" id="fullUpdateModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <form action="/kmkdt-Library/public/user/process/process_update" method="POST"
+        <form action="/kmkdt-Library/app/controller/process/process_update.php" method="POST"
             class="modal-content rounded-4 border-0">
             <div class="modal-header border-0 px-4 pt-4">
                 <h5 class="fw-bold">Edit Profile & Address</h5>

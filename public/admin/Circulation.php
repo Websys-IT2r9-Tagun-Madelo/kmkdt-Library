@@ -1,121 +1,134 @@
 <?php
 include('../../app/middleware/admin.php');
+
+// Fetch real data from the controller
+$stats = getCirculationStats($conn); 
+$records = getCirculationRecords($conn);
+
 include('./includes/header.php');
 include('./includes/topbar.php');
 include('./includes/sidebar.php');
 ?>
-    <div class="pagetitle">
-      <h1>Circulation</h1>
-      <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-          <li class="breadcrumb-item active">Circulation</li>
-        </ol>
-      </nav>
-    </div><!-- End Page Title -->
+
+<div class="pagetitle">
+  <h1>Circulation</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+      <li class="breadcrumb-item active">Circulation</li>
+    </ol>
+  </nav>
+</div><!-- End Page Title -->
 
 <section class="section">
   <div class="row">
-    <div class="col-lg-12">
 
+    <!-- Live Circulation Updates Section -->
+    <div class="col-lg-12">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">Live Circulation Updates</h5>
 
-          <!-- Progress Bars with Striped Animated Backgrounds-->
-          <div class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 10%">Incoming Returns</div>
+          <!-- Returned - Success (Lime Green) -->
+          <div class="progress mt-3" style="height: 25px;">
+            <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" 
+                 style="width: <?= $stats['returned_pct'] ?>%">
+                 Returned (<?= round($stats['returned_pct']) ?>%)
+            </div>
           </div>
-          <div class="progress mt-3">
-            <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" style="width: 25%">Books Checked In</div>
+
+          <!-- Borrowed - Custom Orange/Yellow -->
+          <div class="progress mt-3" style="height: 25px;">
+            <div class="progress-bar progress-bar-striped bg-borrowed progress-bar-animated" 
+                 style="width: <?= $stats['borrowed_pct'] ?>%">
+                 Borrowed (<?= round($stats['borrowed_pct']) ?>%)
+            </div>
           </div>
-          <div class="progress mt-3">
-            <div class="progress-bar progress-bar-striped bg-info progress-bar-animated" style="width: 50%">Books Borrowed</div>
+
+          <!-- Due Soon - Warning Yellow -->
+          <div class="progress mt-3" style="height: 25px;">
+            <div class="progress-bar progress-bar-striped bg-warning text-dark progress-bar-animated" 
+                 style="width: <?= $stats['due_soon_pct'] ?>%">
+                 Due Soon (<?= round($stats['due_soon_pct']) ?>%)
+            </div>
           </div>
-          <div class="progress mt-3">
-            <div class="progress-bar progress-bar-striped bg-warning progress-bar-animated" style="width: 75%">Pending Transactions</div>
+
+          <!-- Overdue - Danger Red -->
+          <div class="progress mt-3" style="height: 25px;">
+            <div class="progress-bar progress-bar-striped bg-danger progress-bar-animated" 
+                 style="width: <?= $stats['overdue_pct'] ?>%">
+                 Overdue (<?= round($stats['overdue_pct']) ?>%)
+            </div>
           </div>
-          <div class="progress mt-3">
-            <div class="progress-bar progress-bar-striped bg-danger progress-bar-animated" style="width: 100%">Overdue Alerts</div>
-          </div><!-- End Progress Bars with Striped Animated Backgrounds -->
         </div>
       </div>
     </div>
-  </div>
 
-<div class="col-12">
-  <div class="card overflow-auto">
+    <!-- Circulation Records Table -->
+    <div class="col-12">
+      <div class="card overflow-auto">
+        <div class="card-body">
+          <h5 class="card-title">Circulation Records</h5>
 
-    <div class="card-body">
-      <h5 class="card-title">Circulation Records</h5>
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <th>Member</th>
+                <th>Book Title</th>
+                <th>Borrowed Date</th>
+                <th>Due Date</th> 
+                <th>Status</th>
+                <th class="text-center">Renewals</th>
+              </tr>
+            </thead>
 
-      <table class="table table-hover align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>#</th>
-            <th>Member</th>
-            <th>Book Title</th>
-            <th>Borrowed Date</th>
-            <th>Due Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
+            <tbody>
+              <?php if (!empty($records)): ?>
+                <?php foreach ($records as $row): ?>
+                  <?php
+                    $status = strtolower($row['status'] ?? 'unknown');
+                    $badgeClass = 'bg-secondary';
 
-        <tbody>
+                    if ($status === 'borrowed') $badgeClass = 'bg-borrowed';
+                    elseif ($status === 'due soon') $badgeClass = 'bg-warning text-dark';
+                    elseif ($status === 'overdue') $badgeClass = 'bg-danger';
+                    elseif ($status === 'returned') $badgeClass = 'bg-success';
+                  ?>
+                  <tr>
+                    <td>#<?= $row['id'] ?></td>
+                    <td><?= htmlspecialchars($row['fullName'] ?? 'Unknown Member') ?></td>
+                    <td><span class="fw-semibold text-dark"><?= htmlspecialchars($row['title'] ?? 'Untitled') ?></span></td>
+                    <td><?= !empty($row['borrowed_at']) ? date('M d, Y', strtotime($row['borrowed_at'])) : '-' ?></td>
+                    
+                    
+                    <td><?= !empty($row['due_date']) ? date('M d, Y', strtotime($row['due_date'])) : '-' ?></td>
+                    
+                    <td><span class="badge <?= $badgeClass ?> px-3 py-2"><?= ucfirst($status) ?></span></td>
+                    
+                    <!-- Renewal Tracking (Max 2 rule) -->
+                    <td class="text-center">
+                       <span class="small fw-bold <?= ($row['renewal_count'] >= 2) ? 'text-danger' : 'text-muted' ?>">
+                          <?= $row['renewal_count'] ?> / 2
+                       </span>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <tr>
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    No circulation records found.
+                  </td>
+                </tr>
+              <?php endif; ?>
+            </tbody>
+          </table>
 
-          <tr>
-            <td>#3001</td>
-            <td>Zoro</td>
-            <td><span class="fw-semibold">One Piece Vol. 1</span></td>
-            <td>Apr 20, 2026</td>
-            <td>Apr 27, 2026</td>
-            <td><span class="badge bg-success">Borrowed</span></td>
-          </tr>
-
-          <tr>
-            <td>#3002</td>
-            <td>Luffy</td>
-            <td><span class="fw-semibold">One Piece Vol. 2</span></td>
-            <td>Apr 18, 2026</td>
-            <td>Apr 25, 2026</td>
-            <td><span class="badge bg-warning text-dark">Due Soon</span></td>
-          </tr>
-
-          <tr>
-            <td>#3003</td>
-            <td>Max</td>
-            <td><span class="fw-semibold">Formula 1 Racing Guide</span></td>
-            <td>Apr 10, 2026</td>
-            <td>Apr 20, 2026</td>
-            <td><span class="badge bg-danger">Overdue</span></td>
-          </tr>
-
-          <tr>
-            <td>#3004</td>
-            <td>Lewis</td>
-            <td><span class="fw-semibold">F1 Strategies & Techniques</span></td>
-            <td>Apr 15, 2026</td>
-            <td>Apr 22, 2026</td>
-            <td><span class="badge bg-primary">Returned</span></td>
-          </tr>
-
-          <tr>
-            <td>#3005</td>
-            <td>Nami</td>
-            <td><span class="fw-semibold">One Piece Vol. 3</span></td>
-            <td>Apr 21, 2026</td>
-            <td>Apr 28, 2026</td>
-            <td><span class="badge bg-success">Borrowed</span></td>
-          </tr>
-
-        </tbody>
-      </table>
-
+        </div>
+      </div>
     </div>
+
   </div>
-</div>
-
-
 </section>
 
 <?php

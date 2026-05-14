@@ -7,6 +7,7 @@ include_once 'includes/header.php';
 include_once 'includes/tsbar.php';
 ?>
 
+<!-- Banner Section -->
 <div class="page-wrapper overflow-hidden">
     <section class="banner-section banner-inner-section position-relative overflow-hidden d-flex align-items-end"
         style="background-image: url('assets/images/backgrounds/MMB.jpg'); min-height: 400px; background-size: cover;">
@@ -91,7 +92,7 @@ include_once 'includes/tsbar.php';
                                             <div class="row bg-dark rounded-4 p-4 mb-4 g-3 text-white">
                                                 <div class="col-sm-4 border-end border-secondary">
                                                     <small class="text-uppercase fw-bold d-block mb-1"
-                                                        style="font-size: 0.7rem; color: #57cb57;">Return Date</small>
+                                                        style="font-size: 0.7rem; color: #57cb57;">Due Date</small>
                                                     <p
                                                         class="mb-0 fw-bold h4 <?php echo $isOverdue ? 'text-danger' : 'text-white'; ?>">
                                                         <?php echo date('M d, Y', $dueDate); ?>
@@ -127,7 +128,7 @@ include_once 'includes/tsbar.php';
 
                                             <div class="d-flex flex-wrap gap-3">
                                                 <?php if ($renewalsLeft > 0): ?>
-                                                    <a href="process/renew_process?id=<?php echo $book['id']; ?>"
+                                                    <a href="/kmkdt-Library/app/controller/process/renew_process.php?id=<?php echo $book['id']; ?>"
                                                         class="btn btn-lg rounded-pill px-5 fw-bold"
                                                         style="background-color: #57cb57; color: #000; border: none;">
                                                         Renew Now
@@ -137,7 +138,7 @@ include_once 'includes/tsbar.php';
                                                         disabled>Renew Locked</button>
                                                 <?php endif; ?>
 
-                                                <a href="process/return_process?id=<?php echo $book['id']; ?>"
+                                                <a href="/kmkdt-Library/app/controller/process/return_process.php?id=<?php echo $book['id']; ?>"
                                                     class="btn btn-lg btn-outline-dark rounded-pill px-5 fw-bold"
                                                     onclick="return confirm('Ready to return this book?');">
                                                     Return Book

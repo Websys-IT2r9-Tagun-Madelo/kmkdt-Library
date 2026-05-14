@@ -18633,6 +18633,58 @@ textarea.form-control-lg {
             transform: rotate(360deg);
   }
 }
+.form-control::-webkit-input-placeholder {
+  color: #AAB2BD !important;
+  font-style: italic;
+  font-weight: 300;
+  opacity: 1;
+}
+.form-control::-moz-placeholder {
+  color: #AAB2BD !important;
+  font-style: italic;
+  font-weight: 300;
+  opacity: 1;
+}
+.form-control:-ms-input-placeholder {
+  color: #AAB2BD !important;
+  font-style: italic;
+  font-weight: 300;
+  opacity: 1;
+}
+.form-control::-ms-input-placeholder {
+  color: #AAB2BD !important;
+  font-style: italic;
+  font-weight: 300;
+  opacity: 1;
+}
+.form-control::placeholder {
+  color: #AAB2BD !important;
+  font-style: italic;
+  font-weight: 300;
+  opacity: 1;
+}
+
+.form-control.border-bottom {
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  border-radius: 0;
+  padding-left: 0;
+  background-color: transparent;
+  -webkit-transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease;
+}
+
+.form-control.border-bottom:focus {
+  -webkit-box-shadow: none;
+          box-shadow: none;
+  border-bottom-color: #57cb57 !important;
+}
+
+.text-brand-navy {
+  color: #2A3547;
+}
+
 * {
   margin: 0;
   padding: 0;
