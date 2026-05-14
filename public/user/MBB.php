@@ -128,7 +128,7 @@ include_once 'includes/tsbar.php';
 
                                             <div class="d-flex flex-wrap gap-3">
                                                 <?php if ($renewalsLeft > 0): ?>
-                                                    <a href="/kmkdt-Library/app/controller/process/renew_process.php?id=<?php echo $book['id']; ?>"
+                                                    <a href="/kmkdt-Library/app/controller/process/renewProcess.php?id=<?php echo $book['id']; ?>"
                                                         class="btn btn-lg rounded-pill px-5 fw-bold"
                                                         style="background-color: #57cb57; color: #000; border: none;">
                                                         Renew Now
@@ -138,7 +138,7 @@ include_once 'includes/tsbar.php';
                                                         disabled>Renew Locked</button>
                                                 <?php endif; ?>
 
-                                                <a href="/kmkdt-Library/app/controller/process/return_process.php?id=<?php echo $book['id']; ?>"
+                                                <a href="/kmkdt-Library/app/controller/process/returnProcess.php?id=<?php echo $book['id']; ?>"
                                                     class="btn btn-lg btn-outline-dark rounded-pill px-5 fw-bold"
                                                     onclick="return confirm('Ready to return this book?');">
                                                     Return Book

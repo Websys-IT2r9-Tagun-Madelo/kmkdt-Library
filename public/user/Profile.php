@@ -101,45 +101,57 @@ include('./includes/tsbar.php');
 <!-- FULL UPDATE MODAL -->
 <div class="modal fade" id="fullUpdateModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <form action="/kmkdt-Library/app/controller/process/process_update.php" method="POST"
-            class="modal-content rounded-4 border-0">
+        <form action="/kmkdt-Library/app/controller/process/updateProcess.php" method="POST"
+            class="modal-content rounded-4 border-0" 
+            onsubmit="return confirm('Are you sure you want to update your profile? This will modify your current account details.');">
+            
             <div class="modal-header border-0 px-4 pt-4">
                 <h5 class="fw-bold">Edit Profile & Address</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+
             <div class="modal-body px-4">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label small fw-bold">Full Name</label>
-                        <input type="text" name="fullName" class="form-control"
-                            value="<?php echo htmlspecialchars($fullName); ?>" required>
+                        <input type="text" name="fullName" class="form-control fst-italic"
+                            value="<?php echo $_SESSION['authUser']['fullName'] ?? ''; ?>" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-bold">Username</label>
-                        <input type="text" name="username" class="form-control"
-                            value="<?php echo htmlspecialchars($user['username'] ?? ''); ?>" required>
+                        <input type="text" name="username" class="form-control fst-italic"
+                            value="<?php echo $_SESSION['authUser']['username'] ?? ''; ?>" required>
                     </div>
                     <div class="col-12">
                         <label class="form-label small fw-bold">Email Address</label>
-                        <input type="email" name="emailAddress" class="form-control"
-                            value="<?php echo htmlspecialchars($user['emailAddress'] ?? ''); ?>" required>
+                        <input type="email" name="emailAddress" class="form-control fst-italic"
+                            value="<?php echo $_SESSION['authUser']['emailAddress'] ?? ''; ?>" required>
                     </div>
-
+                    
                     <div class="col-12 mt-4">
                         <p class="fw-bold mb-2 border-bottom">Address Details</p>
                     </div>
+
                     <div class="col-md-4">
-                        <input type="text" name="street" class="form-control" placeholder="Street"
+                        <label class="form-label small fw-bold">Street</label>
+                        <input type="text" name="street" 
+                            class="form-control fst-italic" 
                             value="<?php echo htmlspecialchars($user['street'] ?? ''); ?>">
                     </div>
+
                     <div class="col-md-4">
-                        <input type="text" name="barangay" class="form-control" placeholder="Barangay"
+                        <label class="form-label small fw-bold">Barangay</label>
+                        <input type="text" name="barangay" 
+                            class="form-control fst-italic" 
                             value="<?php echo htmlspecialchars($user['barangay'] ?? ''); ?>">
                     </div>
+
                     <div class="col-md-4">
-                        <input type="text" name="city" class="form-control" placeholder="City"
+                        <label class="form-label small fw-bold">City</label>
+                        <input type="text" name="city" 
+                            class="form-control fst-italic" 
                             value="<?php echo htmlspecialchars($user['city'] ?? ''); ?>">
                     </div>
 
@@ -155,6 +167,7 @@ include('./includes/tsbar.php');
                     </div>
                 </div>
             </div>
+            
             <div class="modal-footer border-0 p-4">
                 <button type="submit" class="btn btn-dark px-5 rounded-pill fw-bold"
                     style="background-color: #32cd32; border: none; color: black;">
@@ -163,6 +176,6 @@ include('./includes/tsbar.php');
             </div>
         </form>
     </div>
-</div>
+</div>  
 
 <?php include('./includes/footer.php'); ?>

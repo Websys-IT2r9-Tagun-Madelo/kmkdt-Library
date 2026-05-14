@@ -18,17 +18,13 @@ $currentUserId = $_SESSION['user_id'] ?? $_SESSION['authUser']['user_id'] ?? nul
 $bookId = $_GET['id'] ?? null;
 
 if ($currentUserId && $bookId) {
-    // 2. Logic Execution
-    // This function in userController already handles the MAX 2 renewal limit.
+
     if (processBookRenewal($conn, $currentUserId, $bookId)) {
-        /**
-         * REDIRECT ADJUSTMENT:
-         * Path from app/controller/process/ to public/user/MBB.php
-         */
+
         header("Location: ../../../public/user/MBB?success=renewed");
         exit();
     } else {
-        // Redirect if the renewal limit (2) has been reached
+        
         header("Location: ../../../public/user/MBB?error=limit_reached");
         exit();
     }

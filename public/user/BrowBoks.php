@@ -111,7 +111,7 @@ include_once 'includes/tsbar.php';
                                 <?php if ($isOnline): ?>
                                     <a href="Ebook.php?id=<?= $row['id']; ?>" class="btn rounded-pill w-100 mt-2" style="background-color: #07427a; color: white;">Read Online</a>
                                 <?php elseif ($status === 'available'): ?>
-                                    <a href="/kmkdt-Library/app/controller/process/borrow_process.php?id=<?= $row['id']; ?>"
+                                    <a href="/kmkdt-Library/app/controller/process/borrowProcess.php?id=<?= $row['id']; ?>"
                                     class="btn btn-success w-100 rounded-pill fw-bold">
                                     Borrow Book
                                     </a>
