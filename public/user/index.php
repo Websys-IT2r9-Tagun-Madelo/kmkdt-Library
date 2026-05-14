@@ -144,7 +144,7 @@ include('./includes/tsbar.php');
             <div class="p-4">
               <h4 class="fw-bold h5 mb-3">Academic Journals</h4>
               <div class="d-flex gap-2"><span class="badge border text-muted fw-normal">Research</span><span
-                  class="badge border text-muted fw-normal">Science</span></div>
+                  class="badge border text-muted fw-normal">Case studies</span></div>
             </div>
           </div>
         </div>

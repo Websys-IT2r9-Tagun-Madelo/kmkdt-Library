@@ -130,10 +130,15 @@ function processBookBorrow($conn, $userId, $bookId) {
  */
 function getMyBooks($conn, $userId) {
     $userId = intval($userId);
-    $query = "SELECT b.id, b.title, b.genre, b.cover_image, bh.borrowed_at, bh.renewal_count 
+    // Use GROUP BY b.id to prevent the duplication seen in Screenshot 2026-05-14 170929.jpg
+    $query = "SELECT b.id, b.title, b.genre, b.cover_image, 
+                     MAX(bh.borrowed_at) as borrowed_at, 
+                     bh.renewal_count 
               FROM books b 
               JOIN borrowing_history bh ON b.id = bh.book_id 
-              WHERE bh.user_id = ? AND bh.status = 'borrowed'";
+              WHERE bh.user_id = ? AND bh.status IN ('borrowed', 'overdue')
+              GROUP BY b.id 
+              ORDER BY borrowed_at DESC";
     
     if ($stmt = $conn->prepare($query)) {
         $stmt->bind_param("i", $userId);
@@ -144,12 +149,13 @@ function getMyBooks($conn, $userId) {
 }
 
 /**
- * Extends the borrowing period (MAX 2)
+ *
  */
 function processBookRenewal($conn, $userId, $bookId) {
     $userId = intval($userId);
     $bookId = intval($bookId);
 
+    // 1. Check if the renewal limit (2) has been reached
     $checkQuery = "SELECT renewal_count FROM borrowing_history WHERE user_id = ? AND book_id = ? AND status = 'borrowed'";
     $stmtCheck = $conn->prepare($checkQuery);
     $stmtCheck->bind_param("ii", $userId, $bookId);
@@ -159,16 +165,16 @@ function processBookRenewal($conn, $userId, $bookId) {
     if ($result && $result['renewal_count'] >= 2) {
         return false; 
     }
-
     $query = "UPDATE borrowing_history 
-              SET borrowed_at = NOW(), renewal_count = renewal_count + 1 
-              WHERE user_id = ? AND book_id = ? AND status = 'borrowed'";
+              SET borrowed_at = NOW(), 
+                  renewal_count = renewal_count + 1,
+                  status = 'borrowed' 
+              WHERE user_id = ? AND book_id = ? AND status IN ('borrowed', 'overdue')";
     
     $stmt = $conn->prepare($query);
     $stmt->bind_param("ii", $userId, $bookId);
     return $stmt->execute();
 }
-
 /**
  * Processes the return of a book
  */
@@ -243,5 +249,22 @@ function getBookForReader($conn, $id) {
     $stmt->execute();
     $result = $stmt->get_result();
     return $result->fetch_assoc();
+}
+
+
+function getBooksByCategory($conn, $categoryName, $limit = 3) {
+    // We use the 'genre' column to match your established logic
+    $query = "SELECT * FROM books WHERE genre LIKE ? LIMIT ?";
+    $stmt = $conn->prepare($query);
+    $searchTerm = "%" . $categoryName . "%";
+    $stmt->bind_param("si", $searchTerm, $limit);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $books = [];
+    while ($row = $result->fetch_assoc()) {
+        $books[] = $row;
+    }
+    return $books;
 }
 ?>

@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($password !== $confirmPass) {
             $_SESSION['message'] = "Passwords do not match!";
             $_SESSION['code'] = "error";
-            header("Location: ../../../public/user/Profile");
+            header("Location: ../../../public/user/profile");
             exit();
         }
         $hashed = password_hash($password, PASSWORD_DEFAULT);
@@ -69,6 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-    header("Location: ../../../public/user/Profile");
+    header("Location: ../../../public/user/profile");
     exit();
 }

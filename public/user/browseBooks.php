@@ -50,10 +50,10 @@ include_once 'includes/tsbar.php';
                 <!-- Quick Categories -->
                 <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
                     <?php 
-                    $filters = ['' => 'All', 'Fiction' => 'Fiction', 'Non-Fiction' => 'Non-Fiction', 'Research' => 'Research', 'Online' => 'Online'];
+                    $filters = ['All' => 'All', 'Fiction' => 'Fiction', 'Non-Fiction' => 'Non-Fiction', 'Research' => 'Research', 'Online' => 'Online'];
                     foreach($filters as $key => $label): 
                         $active = ($search == $key) ? 'active' : '';
-                        $link = ($key == '') ? 'BrowBoks.php' : "?search=$key";
+                        $link = ($key == '') ? 'browseBook.php' : "?search=$key";
                     ?>
                         <a href="<?= $link ?>" class="filter-pill text-decoration-none <?= $active ?>"><?= $label ?></a>
                     <?php endforeach; ?>
@@ -72,7 +72,7 @@ include_once 'includes/tsbar.php';
                         $isOnline = (stripos($category, 'Online') !== false);
                         $status = is_null($row['user_id']) ? 'available' : ($row['user_id'] == $currentUserId ? 'owned' : 'taken');
                         
-                        // Loan Period Logic
+                        
                         if ($isOnline) { $loanPeriod = "Unlimited (E-Book)"; } 
                         elseif (stripos($category, 'Reserve') !== false) { $loanPeriod = "3 Days"; }
                         elseif (stripos($category, 'Non-Fiction') !== false) { $loanPeriod = "14 Days"; }  
@@ -110,7 +110,7 @@ include_once 'includes/tsbar.php';
 
                             <div class="card-footer-custom p-3 mt-auto">
                                 <?php if ($isOnline): ?>
-                                    <a href="/kmkdt-Library/public/user/Ebook?id=<?= $row['id']; ?>" class="btn rounded-pill w-100 mt-2" style="background-color: #07427a; color: white;">Read Online</a>
+                                    <a href="/kmkdt-Library/public/user/eBook?id=<?= $row['id']; ?>" class="btn rounded-pill w-100 mt-2" style="background-color: #07427a; color: white;">Read Online</a>
                                 <?php elseif ($status === 'available'): ?>
                                     <a href="/kmkdt-Library/app/controller/process/borrowProcess.php?id=<?= $row['id']; ?>" 
                                     class="btn btn-success w-100 rounded-pill fw-bold"

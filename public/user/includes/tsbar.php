@@ -1,5 +1,14 @@
 <?php 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $current_page = basename($_SERVER['PHP_SELF']); 
+
+
+$eBookHref = "eBook"; 
+if (isset($_SESSION['current_reading_id'])) {
+    $eBookHref = "eBook?id=" . $_SESSION['current_reading_id'];
+}
 ?>
 
 <header class="header border-4 border-primary border-top position-fixed start-0 top-0 w-100">
@@ -40,7 +49,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                   </li>
 
                   <li class="header-item">
-                    <a href="Profile" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="profile" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
                         class="img-fluid animate-spin"> My Profile </a>
                   </li>
@@ -50,12 +59,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         class="img-fluid animate-spin"> My Borrowed Books</a>
                   </li>
                   <li class="header-item">
-                    <a href="Ebook" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="<?= $eBookHref; ?>" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
                         class="img-fluid animate-spin"> My E-Books</a>
                   </li>
                   <li class="header-item">
-                    <a href="BrowBoks" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="browseBooks" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
                         class="img-fluid animate-spin"> Browse Books</a>
                   </li>

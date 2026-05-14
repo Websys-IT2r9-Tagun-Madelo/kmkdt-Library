@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__DIR__, 2) . '/app/middleware/user_auth.php';
+require_once dirname(__DIR__, 2) . '/app/middleware/userAuth.php';
 
 $myBooks = getMyBooks($conn, $currentUserId);
 
@@ -30,28 +30,61 @@ include_once 'includes/tsbar.php';
                     <?php if ($_GET['status'] == 'renewed'): ?>
                         <div class="alert alert-success rounded-4 border-0 shadow-sm p-3">Book renewed successfully! Your new due date has been updated.</div>
                     <?php elseif ($_GET['status'] == 'limit_reached'): ?>
-                        <div class="alert alert-warning rounded-4 border-0 shadow-sm p-3">Maximum renewal limit reached for this book.</div>
+                        <div class="alert alert-warning rounded-4 border-0 shadow-sm p-3">Maximum renewal limit reached.</div>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
 
-            <div class="row g-5">
-                <?php if ($myBooks && $myBooks->num_rows > 0): ?>
+            <?php if ($myBooks && $myBooks->num_rows > 0): ?>
+                <!-- General Surface: Borrow More Button (Only shown if books exist) -->
+                <div class="d-flex justify-content-between align-items-center mb-5 p-4 bg-white rounded-5 shadow-sm border-start border-5" style="border-color: #57cb57 !important;">
+                    <div>
+                        <h4 class="mb-1 fw-bold text-dark">Active Loans</h4>
+                        <p class="mb-0 text-muted small">You currently have <?= $myBooks->num_rows; ?> book(s) borrowed.</p>
+                    </div>
+                    <a href="/kmkdt-Library/public/user/browseBooks" 
+                       class="btn btn-lg rounded-pill px-4 fw-bold d-flex align-items-center gap-2" 
+                       style="background-color: #57cb57; color: #000; border: none;">
+                       <iconify-icon icon="lucide:plus-circle" style="font-size: 1.5rem;"></iconify-icon>
+                       Borrow More Books
+                    </a>
+                </div>
+
+                <div class="row g-5">
                     <?php while ($book = $myBooks->fetch_assoc()): ?>
                         <?php
-                        $category = $book['genre'] ?? 'Fiction';
-                        $loanDays = (stripos($category, 'Fiction') !== false) ? 30 : 14;
-                        if (stripos($category, 'Reserve') !== false) { $loanDays = 3; }
+                        $category = $book['genre'] ?? 'General';
 
-                        // Logic: Renewal works by resetting the loan period from the 'borrowed_at' date
-                        $dueDate = strtotime($book['borrowed_at'] . " + $loanDays days");
+
+                        if (stripos($category, 'Online') !== false) {
+                            $loanDays = 0; 
+                        } 
+                        elseif (stripos($category, 'Reserve') !== false || 
+                                stripos($category, 'Technology') !== false) {
+                            $loanDays = 3; 
+                        } 
+                        elseif (stripos($category, 'Non-Fiction') !== false) {
+                            $loanDays = 14;
+                        } 
+                        elseif (stripos($category, 'Research') !== false) {
+                            $loanDays = 7;
+                        } 
+                        else {
+                            $loanDays = 18; 
+                        }
+
+                        
+                        $borrowedAt = strtotime($book['borrowed_at']);
+                        $dueDate = strtotime("+$loanDays days", $borrowedAt);
                         $today = time();
                         $isOverdue = $today > $dueDate;
-                        $penalty = $isOverdue ? ceil(($today - $dueDate) / 86400) * 5 : 0;
 
+                        
+                        $penalty = $isOverdue ? ceil(($today - $dueDate) / 86400) * 5 : 0;
                         $renewalsUsed = $book['renewal_count'] ?? 0;
                         $renewalsLeft = 2 - $renewalsUsed;
                         ?>
+                    
 
                         <div class="col-12" data-aos="fade-up">
                             <div class="card border-0 shadow-lg rounded-5 overflow-hidden bg-white"
@@ -75,12 +108,14 @@ include_once 'includes/tsbar.php';
                                                         <?php echo htmlspecialchars($book['title']); ?>
                                                     </h2>
                                                 </div>
-                                                <div class="pt-2">
+                                                <div class="pt-2">                                          
                                                     <?php if ($isOverdue): ?>
-                                                        <span class="badge bg-danger rounded-pill px-4 py-2 fs-6">OVERDUE</span>
+                                                        <span class="badge bg-danger rounded-pill px-4 py-2 fs-6 shadow-sm">
+                                                            DUE: ₱<?php echo number_format($penalty, 2); ?> LATE FEE
+                                                        </span>
                                                     <?php else: ?>
-                                                        <span class="badge rounded-pill px-4 py-2 fs-6 text-white"
-                                                            style="background-color: #57cb57;">ON TIME</span>
+                                                        <span class="badge rounded-pill px-4 py-2 fs-6 text-white shadow-sm"
+                                                            style="background-color: #32cd32;">ON TIME</span>
                                                     <?php endif; ?>
                                                 </div>
                                             </div>
@@ -104,12 +139,12 @@ include_once 'includes/tsbar.php';
                                                 </div>
                                             </div>
 
-                                            <div class="d-flex flex-wrap align-items-center gap-3">
+                                            <div class="d-flex flex-wrap gap-3">
                                                 <?php if ($renewalsLeft > 0): ?>
                                                     <a href="/kmkdt-Library/app/controller/process/renewProcess.php?id=<?php echo $book['id']; ?>"
                                                         class="btn btn-lg rounded-pill px-5 fw-bold"
                                                         style="background-color: #57cb57; color: #000; border: none;"
-                                                        onclick="return confirm('Renew this book for another <?php echo $loanDays; ?> days? You have <?php echo $renewalsLeft; ?> renewal(s) remaining.');">
+                                                        onclick="return confirm('Renew this book for another <?php echo $loanDays; ?> days?');">
                                                         Renew Now
                                                     </a>
                                                 <?php else: ?>
@@ -121,12 +156,6 @@ include_once 'includes/tsbar.php';
                                                     onclick="return confirm('Ready to return this book?');">
                                                     Return Book
                                                 </a>
-
-                                                <!-- Borrow More Button -->
-                                                <a href="/kmkdt-Library/public/user/BrowBoks" 
-                                                   class="btn btn-lg btn-link text-decoration-none fw-bold">
-                                                   <iconify-icon icon="lucide:plus-circle" class="align-middle me-1"></iconify-icon> Borrow More
-                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -134,18 +163,19 @@ include_once 'includes/tsbar.php';
                             </div>
                         </div>
                     <?php endwhile; ?>
-                <?php else: ?>
-                    <div class="col-12 text-center py-5">
-                        <div class="bg-white p-5 rounded-5 shadow-sm border">
-                            <iconify-icon icon="lucide:book-open" style="font-size: 5rem; color: #57cb57;"></iconify-icon>
-                            <h2 class="mt-4 fw-bold text-dark">No books currently borrowed.</h2>
-                            <a href="/kmkdt-Library/public/user/BrowseBooks" class="btn btn-primary rounded-pill px-5 py-3 mt-3 fw-bold"
-                                style="background-color: #57cb57; color: #000; border: none;">
-                                Browse Books</a>
-                        </div>
+                </div>
+            <?php else: ?>
+                <!-- Empty State (No books borrowed) -->
+                <div class="col-12 text-center py-5">
+                    <div class="bg-white p-5 rounded-5 shadow-sm border">
+                        <iconify-icon icon="lucide:book-open" style="font-size: 5rem; color: #57cb57;"></iconify-icon>
+                        <h2 class="mt-4 fw-bold text-dark">No books currently borrowed.</h2>
+                        <a href="/kmkdt-Library/public/user/browseBooks" class="btn btn-primary rounded-pill px-5 py-3 mt-3 fw-bold"
+                            style="background-color: #57cb57; color: #000; border: none;">
+                            Browse Books</a>
                     </div>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php endif; ?>
         </div>
     </section>
 </div>

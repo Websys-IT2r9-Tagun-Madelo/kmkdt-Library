@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__DIR__, 2) . '/app/middleware/user_auth.php';
+require_once dirname(__DIR__, 2) . '/app/middleware/userAuth.php';
 
 $user = getUserById($conn, $currentUserId);
 $stats = getUserStats($conn, $currentUserId);

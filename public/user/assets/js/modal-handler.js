@@ -24,7 +24,7 @@ document.getElementById('bookModal').addEventListener('show.bs.modal', function 
     const correctPath = `${projectRoot}/app/controller/process/borrowProcess.php?id=${id}`;
     
     if (isOnline) {
-        actionContainer.innerHTML = `<a href="${projectRoot}/public/user/Ebook?id=${id}" 
+        actionContainer.innerHTML = `<a href="${projectRoot}/public/user/eBook?id=${id}" 
         class="btn rounded-pill w-100" 
         style="background-color: #07427a; color: white;"
            onclick="return confirm('You are about to open the E-book reader. Continue?');">

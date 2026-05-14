@@ -10,10 +10,10 @@
       <div class="col-md-4 col-xl-2 mb-8 mb-xl-0">
         <ul class="footer-menu list-unstyled mb-0 d-flex flex-column gap-2">
           <li><a class="link-hover fs-5 text-white" href="index">Home</a></li>
-          <li><a class="link-hover fs-5 text-white" href="Profile">Profile</a></li>
-          <li><a class="link-hover fs-5 text-white" href="BrowBoks">Browse Books</a></li>
-          <li><a class="link-hover fs-5 text-white" href="BrowBoks">My Borrowed Books</a></li>
-          <li><a class="link-hover fs-5 text-white" href="Contact">Contact Us</a></li>
+          <li><a class="link-hover fs-5 text-white" href="profile">Profile</a></li>
+          <li><a class="link-hover fs-5 text-white" href="browseBooks">Browse Books</a></li>
+          <li><a class="link-hover fs-5 text-white" href="MBB">My Borrowed Books</a></li>
+          <li><a class="link-hover fs-5 text-white" href="contact">Contact Us</a></li>
         </ul>
       </div>
 

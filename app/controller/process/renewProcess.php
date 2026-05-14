@@ -3,38 +3,30 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-
+// Fixed Absolute Path for your XAMPP structure
 require_once dirname(__DIR__, 1) . '/userController.php'; 
-
+require_once dirname(__DIR__, 2) . '/config/config.php'; // Ensure $conn is defined here
 
 $currentUserId = $_SESSION['user_id'] ?? $_SESSION['authUser']['user_id'] ?? null;
 $bookId = $_GET['id'] ?? null;
-$query = "SELECT genre, renewal_count FROM borrowings WHERE id = ?";
 
+// Use the same session key consistently
+if ($bookId && $currentUserId) {
+    
+    // Call the function seen in Screenshot 2026-05-14 175741.jpg
+    // This function should already handle the UPDATE and renewal_count logic
+    $success = processBookRenewal($conn, $currentUserId, $bookId);
 
-$category = $row['genre'];
-$extensionDays = (stripos($category, 'Fiction') !== false) ? 30 : 14;
-
-
-$updateQuery = "UPDATE borrowings SET 
-                borrowed_at = CURRENT_TIMESTAMP, 
-                renewal_count = renewal_count + 1 
-                WHERE id = ? AND renewal_count < 2";
-
-if ($currentUserId && $bookId) {
-
-    if (processBookRenewal($conn, $currentUserId, $bookId)) {
-
-        header("Location: ../../../public/user/MBB?success=renewed");
+    if ($success) {
+        // This points to C:/xampp/htdocs/kmkdt-Library/public/user/MMB.php
+        header("Location: /kmkdt-Library/public/user/MBB?status=renewed");
         exit();
     } else {
-        
-        header("Location: ../../../public/user/MBB?error=limit_reached");
+        header("Location: /kmkdt-Library/public/user/MBB?status=limit_reached");
         exit();
     }
 }
 
-
-
-header("Location: ../../../public/user/MBB?error=system");
+// Fallback error
+header("Location: /kmkdt-Library/public/user/MBB?status=error");
 exit();

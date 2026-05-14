@@ -11,24 +11,24 @@ $bookId = $_GET['id'] ?? null;
 
 if ($userId && $bookId) {
     
-    // Process the borrowing logic via your userController
+    
     if (processBookBorrow($conn, $userId, $bookId)) {
         
-        // Success: Set session data for the Lime Green Toast
+        
         $_SESSION['message'] = "Book borrowed successfully!";
         $_SESSION['code'] = "success";
         
-        // Using your preferred relative path back to My Borrowed Books
+        
         header("Location: ../../../public/user/MBB?status=borrowed");
         exit();
     } else {
-        // Failure: Book might already be borrowed or unavailable
+       
         $_SESSION['message'] = "This book is currently unavailable.";
         $_SESSION['code'] = "error";
-        header("Location: ../../../public/user/BrowBoks?status=unavailable");
+        header("Location: ../../../public/user/browseBooks?status=unavailable");
         exit();
     }
 }
-header("Location: ../../../public/user/BrowBoks?status=error");
+header("Location: ../../../public/user/browseBooks?status=error");
 exit();
 
