@@ -92,7 +92,8 @@ include_once 'includes/tsbar.php';
                             data-img="assets/images/books/<?= htmlspecialchars($row['cover_image'] ?? 'default-cover.jpg'); ?>"
                             data-id="<?= $row['id']; ?>"
                             data-status="<?= $status; ?>"
-                            data-online="<?= $isOnline ? 'true' : 'false'; ?>">
+                            data-online="<?= $isOnline ? 'true' : 'false'; ?>"
+                            data-loan-period="<?= $loanPeriod; ?>">
 
                             <div class="img-container">
                                 <img src="assets/images/books/<?= htmlspecialchars($row['cover_image'] ?? 'default-cover.jpg'); ?>" alt="Cover">
@@ -111,12 +112,12 @@ include_once 'includes/tsbar.php';
                                 <?php if ($isOnline): ?>
                                     <a href="/kmkdt-Library/public/user/Ebook?id=<?= $row['id']; ?>" class="btn rounded-pill w-100 mt-2" style="background-color: #07427a; color: white;">Read Online</a>
                                 <?php elseif ($status === 'available'): ?>
-                                    <a href="/kmkdt-Library/app/controller/process/borrowProcess.php?id=<?= $row['id']; ?>"
+                                    <a href="/kmkdt-Library/app/controller/process/borrowProcess.php?id=<?= $row['id']; ?>" 
                                     class="btn btn-success w-100 rounded-pill fw-bold"
                                     onclick="return confirm('Are you sure you want to borrow this book for <?= $loanPeriod; ?>?');">
                                     Borrow Book
                                     </a>
-                                <?php elseif ($status === 'owned'): ?>
+                                <?php elseif ($status === 'owned'): ?>  
                                     <button class="btn btn-secondary w-100 rounded-pill disabled">In Your Shelf</button>
                                 <?php else: ?>
                                     <button class="btn btn-light w-100 rounded-pill text-muted disabled">Unavailable</button>

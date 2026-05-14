@@ -3,19 +3,23 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-/** 
- * PATH ADJUSTMENT:
- * Since this file is now in app/controller/process/
- * We go up one level (../) to reach userController.php.
- */
+
 require_once dirname(__DIR__, 1) . '/userController.php'; 
 
-/**
- * Consistent Session Key:
- * Using 'user_id' to match your established midterm authentication structure.
- */
+
 $currentUserId = $_SESSION['user_id'] ?? $_SESSION['authUser']['user_id'] ?? null;
 $bookId = $_GET['id'] ?? null;
+$query = "SELECT genre, renewal_count FROM borrowings WHERE id = ?";
+
+
+$category = $row['genre'];
+$extensionDays = (stripos($category, 'Fiction') !== false) ? 30 : 14;
+
+
+$updateQuery = "UPDATE borrowings SET 
+                borrowed_at = CURRENT_TIMESTAMP, 
+                renewal_count = renewal_count + 1 
+                WHERE id = ? AND renewal_count < 2";
 
 if ($currentUserId && $bookId) {
 
@@ -29,6 +33,8 @@ if ($currentUserId && $bookId) {
         exit();
     }
 }
+
+
 
 header("Location: ../../../public/user/MBB?error=system");
 exit();
