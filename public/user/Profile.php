@@ -1,19 +1,30 @@
 <?php
-require_once dirname(__DIR__, 2) . '/app/middleware/userAuth.php';
+// Moves up from public/user/ to kmkdt-Library root, then into the app folder
+require_once dirname(__DIR__, 2) . '/app/middleware/userAuth.php'; 
+require_once dirname(__DIR__, 2) . '/app/config/config.php'; 
 
+// These functions will now be defined and run correctly
+$myBooks = getMyBooks($conn, $currentUserId); 
 $user = getUserById($conn, $currentUserId);
 $stats = getUserStats($conn, $currentUserId);
 
 $fullName = $user['fullName'] ?? 'User';
-$myBooks = getMyBooks($conn, $currentUserId);
 
 include('./includes/header.php');
 include('./includes/tsbar.php');
 ?>
 
-<!-- Banner Section -->
 <div class="page-wrapper overflow-hidden">
-    <!-- Profile Header Section -->
+    <?php if (isset($_GET['status']) && $_GET['status'] == 'paid'): ?>
+        <div class="container mt-3">
+            <div class="alert alert-success border-0 shadow-sm text-white fw-bold d-flex align-items-center" 
+                style="background-color: #22c55e; border-radius: 12px; padding: 15px 20px;">
+                <iconify-icon icon="lucide:check-circle" class="fs-4 me-2"></iconify-icon>
+                Payment Received! Your book penalty has been cleared.
+            </div>
+        </div>
+    <?php endif; ?>
+
     <section class="banner-section banner-inner-section position-relative overflow-hidden d-flex align-items-end"
         style="background-image: url('assets/images/backgrounds/ProfileBg.jpg'); min-height: 350px; background-size: cover;">
         <div class="container">
@@ -30,8 +41,7 @@ include('./includes/tsbar.php');
                                 <h1 class="mb-1 text-white fw-bold" style="font-size: 2.5rem;">
                                     <?php echo htmlspecialchars($fullName); ?>
                                 </h1>
-                                <p class="mb-0 text-white text-opacity-75 fs-4">Member ID:
-                                    #<?php echo $currentUserId; ?></p>
+                                <p class="mb-0 text-white text-opacity-75 fs-4">Member ID: #<?php echo $currentUserId; ?></p>
                             </div>
                         </div>
                     </div>
@@ -42,28 +52,23 @@ include('./includes/tsbar.php');
 
     <section class="profile-content py-5">
         <div class="container">
-            <!-- Left Sidebar -->
             <div class="row g-5">
                 <div class="col-lg-4">
                     <div class="p-4 rounded-4 border bg-white shadow-sm">
-                        <h4 class="border-bottom pb-3 mb-4">Library Overview</h4>
+                        <h4 class="border-bottom pb-3 mb-4 fw-bold">Library Overview</h4>
                         <div class="d-flex justify-content-between mb-3">
                             <span>Total Borrowed</span>
-                            <span class="fw-bold"
-                                style="color: #57cb57;"><?php echo $stats['total_borrowed'] ?? 0; ?></span>
+                            <span class="fw-bold" style="color: #57cb57;"><?php echo $stats['total_borrowed'] ?? 0; ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <span>Currently Holding</span>
-                            <span class="fw-bold"
-                                style="color: #57cb57;"><?php echo $stats['current_holdings'] ?? 0; ?></span>
+                            <span class="fw-bold" style="color: #57cb57;"><?php echo $stats['current_holdings'] ?? 0; ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <span>Total Returned</span>
-                            <span class="fw-bold"
-                                style="color: #57cb57;"><?php echo $stats['total_returned'] ?? 0; ?></span>
+                            <span class="fw-bold" style="color: #57cb57;"><?php echo $stats['total_returned'] ?? 0; ?></span>
                         </div>
                         <hr>
-                        
                         <button class="btn rounded-pill w-100 fw-bold text-dark" style="background-color: #57cb57;"
                             data-bs-toggle="modal" data-bs-target="#fullUpdateModal">
                             Update Account
@@ -71,111 +76,209 @@ include('./includes/tsbar.php');
                     </div>
                 </div>
 
-                
                 <div class="col-lg-8">
-                    <h2 class="mb-4">Current Borrowed Books</h2>
+                    <h2 class="mb-4 fw-bold" style="color: #22c55e;">My Borrowed Books</h2>
                     <?php if ($myBooks && $myBooks->num_rows > 0): ?>
                         <?php while ($book = $myBooks->fetch_assoc()): ?>
                             <div class="p-4 rounded-4 border-start border-5 mb-3 d-flex justify-content-between align-items-center shadow-sm bg-white"
-                                style="border-color: #57cb57 !important;">
+                                style="border-color: #22c55e !important;">
                                 <div>
-                                    <h4 class="mb-1"><?php echo htmlspecialchars($book['title']); ?></h4>
-                                    <p class="mb-0 text-muted small">Category: <?php echo htmlspecialchars($book['genre']); ?>
-                                    </p>
+                                    <h4 class="mb-1 fw-bold text-dark"><?php echo htmlspecialchars($book['title']); ?></h4>
+                                    <p class="mb-1 text-muted small">Category: <?php echo htmlspecialchars($book['genre']); ?></p>
+                                    <p class="text-muted mb-0 small">Due: <?= $book['due_date'] ?? 'N/A'; ?></p>
                                 </div>
-                                <a href="MBB" class="btn rounded-pill px-4 fw-bold"
-                                    style="background-color: #57cb57; color: #000;">Go to MBB</a>
+                                
+                                <div class="d-flex gap-2 align-items-center">
+                                    <?php if(isset($book['penalty']) && $book['penalty'] > 0): ?>
+                                        <button class="btn btn-success rounded-pill fw-bold px-4" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#paymentModal<?= $book['loan_id']; ?>"
+                                                style="background-color: #22c55e; border: none; color: white;">
+                                            Pay ₱<?= number_format($book['penalty'], 2); ?>
+                                        </button>
+                                    <?php endif; ?>
+
+                                    <a href="MBB" class="btn rounded-pill px-4 fw-bold shadow-sm"
+                                        style="background-color: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">Go to MBB</a>
+                                </div>
+                            </div>
+
+                            <div class="modal fade" id="paymentModal<?= $book['loan_id']; ?>" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content" style="border-radius: 15px; border: 2px solid #22c55e; background: #ffffff;">
+                                        <div class="modal-header border-0">
+                                            <h5 class="modal-title fw-bold">Confirm Penalty Clearance</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body text-center py-4">
+                                            <h2 class="fw-bold text-dark" style="font-size: 3rem;">₱<?= number_format($book['penalty'] ?? 0, 2); ?></h2>
+                                            <p class="text-muted mb-4">Penalty fee calculated for <br><strong>"<?= htmlspecialchars($book['title']); ?>"</strong></p>
+                                            
+                                            <form action="../../app/controller/process/paymentProcess.php" method="POST">
+                                                <input type="hidden" name="loan_id" value="<?= $book['loan_id']; ?>"> 
+                                                <button type="submit" class="btn w-100 rounded-pill fw-bold py-2.5 text-white shadow-sm" 
+                                                        style="background-color: #22c55e; border: none;">Confirm Payment</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         <?php endwhile; ?>
                     <?php else: ?>
-                        <div class="p-5 text-center border rounded-4 bg-light">
-                            <p class="text-white-50 mb-0">No active book loans found.</p>
+                        <div class="p-5 text-center border rounded-4 shadow-sm" style="background-color: #1e293b; border-color: #334155 !important;">
+                            <iconify-icon icon="lucide:book-check" class="mb-2" style="color: #64748b; font-size: 2.5rem;"></iconify-icon>
+                            <p class="m-0 fw-medium" style="color: #94a3b8; font-size: 1rem;">No active book loans found.</p> 
+                            <a href="browsebooks" class="text-primary fw-bold text-decoration-none d-inline-flex align-items-center gap-2 hover-lime"> Browse the Library
+                            </a>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
     </section>
-</div>
 
-<!-- FULL UPDATE MODAL -->
-<div class="modal fade" id="fullUpdateModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <form action="/kmkdt-Library/app/controller/process/updateProcess.php" method="POST"
-            class="modal-content rounded-4 border-0" 
-            onsubmit="return confirm('Are you sure you want to update your profile? This will modify your current account details.');">
-            
-            <div class="modal-header border-0 px-4 pt-4">
-                <h5 class="fw-bold">Edit Profile & Address</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+    <div class="modal fade" id="fullUpdateModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <form action="/kmkdt-Library/app/controller/process/updateProcess.php" method="POST"
+                class="modal-content rounded-4 border-0" 
+                onsubmit="return confirm('Are you sure you want to update your profile? This will modify your current account details.');">
+                
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5 class="fw-bold">Edit Profile & Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
-            <div class="modal-body px-4">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                <div class="modal-body px-4">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?? ''; ?>">
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold">Full Name</label>
-                        <input type="text" name="fullName" class="form-control fst-italic"
-                            value="<?php echo $_SESSION['authUser']['fullName'] ?? ''; ?>" required>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Full Name</label>
+                            <input type="text" name="fullName" class="form-control fst-italic"
+                                value="<?php echo $_SESSION['authUser']['fullName'] ?? ''; ?>" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Username</label>
+                            <input type="text" name="username" class="form-control fst-italic"
+                                value="<?php echo $_SESSION['authUser']['username'] ?? ''; ?>" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Email Address</label>
+                            <input type="email" name="emailAddress" class="form-control fst-italic"
+                                value="<?php echo $_SESSION['authUser']['emailAddress'] ?? ''; ?>" required>
+                        </div>
+                        
+                        <div class="col-12 mt-4">
+                            <p class="fw-bold mb-2 border-bottom">Address Details</p>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Street</label>
+                            <input type="text" name="street" 
+                                class="form-control fst-italic" 
+                                value="<?php echo htmlspecialchars($user['street'] ?? ''); ?>">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Barangay</label>
+                            <input type="text" name="barangay" 
+                                class="form-control fst-italic" 
+                                value="<?php echo htmlspecialchars($user['barangay'] ?? ''); ?>">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">City</label>
+                            <input type="text" name="city" 
+                                class="form-control fst-italic" 
+                                value="<?php echo htmlspecialchars($user['city'] ?? ''); ?>">
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <p class="fw-bold mb-2 border-bottom text-danger">Security</p>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="password" name="password" class="form-control" placeholder="New Password">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="password" name="confirmPassword" class="form-control"
+                                placeholder="Confirm New Password">
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold">Username</label>
-                        <input type="text" name="username" class="form-control fst-italic"
-                            value="<?php echo $_SESSION['authUser']['username'] ?? ''; ?>" required>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label small fw-bold">Email Address</label>
-                        <input type="email" name="emailAddress" class="form-control fst-italic"
-                            value="<?php echo $_SESSION['authUser']['emailAddress'] ?? ''; ?>" required>
-                    </div>
-                    
-                    <div class="col-12 mt-4">
-                        <p class="fw-bold mb-2 border-bottom">Address Details</p>
+                </div>
+                
+                <div class="modal-footer border-0 p-4">
+                    <button type="submit" class="btn btn-dark px-5 rounded-pill fw-bold text-white"
+                        style="background-color: #22c55e; border: none;">
+                        Update Everything
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>  
+
+    <div class="container-xl px-4 mt-4 mb-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 p-4" style="background-color: #ffffff; min-height: 250px;">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="p-2 rounded-3 me-3 d-flex align-items-center justify-content-center" style="background-color: #f0fdf4; width: 40px; height: 40px; min-width: 40px;">
+                            <iconify-icon icon="lucide:history" style="color: #22c55e; font-size: 1.25rem;"></iconify-icon>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold m-0 text-dark" style="font-size: 1.05rem; letter-spacing: -0.2px;">Payment History</h6>
+                            <p class="text-muted m-0 small" style="font-size: 0.75rem;">Audit logs of settled library penalties</p>
+                        </div>
                     </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold">Street</label>
-                        <input type="text" name="street" 
-                            class="form-control fst-italic" 
-                            value="<?php echo htmlspecialchars($user['street'] ?? ''); ?>">
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold">Barangay</label>
-                        <input type="text" name="barangay" 
-                            class="form-control fst-italic" 
-                            value="<?php echo htmlspecialchars($user['barangay'] ?? ''); ?>">
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold">City</label>
-                        <input type="text" name="city" 
-                            class="form-control fst-italic" 
-                            value="<?php echo htmlspecialchars($user['city'] ?? ''); ?>">
-                    </div>
-
-                    <div class="col-12 mt-4">
-                        <p class="fw-bold mb-2 border-bottom text-danger">Security</p>
-                    </div>
-                    <div class="col-md-6">
-                        <input type="password" name="password" class="form-control" placeholder="New Password">
-                    </div>
-                    <div class="col-md-6">
-                        <input type="password" name="confirmPassword" class="form-control"
-                            placeholder="Confirm New Password">
+                    <div class="table-responsive w-100">
+                        <table class="table table-borderless align-middle m-0 w-100" style="font-size: 0.85rem; table-layout: fixed; min-width: 500px;">
+                            <thead>
+                                <tr class="text-muted fw-bold" style="font-size: 0.72rem; border-bottom: 1px solid #f1f5f9; letter-spacing: 0.5px;">
+                                    <th class="pb-3 ps-0 text-start" style="width: 45%;">BOOK DETAILS</th>
+                                    <th class="pb-3 text-start" style="width: 35%;">DATE CLEARED</th>
+                                    <th class="pb-3 text-end pe-0" style="width: 20%;">SETTLED</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                $payments = getPaymentHistory($conn, $currentUserId);
+                                if ($payments && $payments->num_rows > 0): 
+                                    while ($pay = $payments->fetch_assoc()): 
+                                ?>
+                                    <tr style="border-bottom: 1px solid #f8fafc;">
+                                        <td class="py-3 ps-0 fw-semibold text-dark text-start text-truncate">
+                                            <?= htmlspecialchars($pay['title']); ?>
+                                        </td>
+                                        <td class="py-3 text-secondary text-start">
+                                            <?= date('M d, Y h:i A', strtotime($pay['paid_at'])); ?>
+                                        </td>
+                                        <td class="py-3 text-end pe-0 fw-bold" style="color: #22c55e;">
+                                            ₱<?= number_format($pay['amount_paid'], 2); ?>
+                                        </td>
+                                    </tr>
+                                <?php 
+                                    endwhile; 
+                                else: 
+                                ?>
+                                    <tr>
+                                        <td colspan="3" class="text-center py-5" style="height: 180px;">
+                                            <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                                                <div class="rounded-circle p-3 mb-2 d-flex align-items-center justify-content-center" style="background-color: #f8fafc; width: 56px; height: 56px;">
+                                                    <iconify-icon icon="lucide:folder-open" class="text-muted" style="font-size: 1.5rem; opacity: 0.6;"></iconify-icon>
+                                                </div>
+                                                <span class="fw-medium text-secondary d-block" style="font-size: 0.85rem;">No payment records found</span>
+                                                <span class="text-muted" style="font-size: 0.75rem;">Your penalty settlement logs will appear here.</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            
-            <div class="modal-footer border-0 p-4">
-                <button type="submit" class="btn btn-dark px-5 rounded-pill fw-bold"
-                    style="background-color: #32cd32; border: none; color: black;">
-                    Update Everything
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
-</div>  
+</div>
 
 <?php include('./includes/footer.php'); ?>

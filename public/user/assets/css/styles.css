@@ -18633,6 +18633,15 @@ textarea.form-control-lg {
             transform: rotate(360deg);
   }
 }
+/* Temporary test - remove after testing */
+.modal-backdrop {
+  display: none !important; /* Remove the dark overlay entirely */
+}
+
+.modal {
+  background: rgba(0, 0, 0, 0.5); /* Manually add back the dim effect */
+}
+
 * {
   margin: 0;
   padding: 0;

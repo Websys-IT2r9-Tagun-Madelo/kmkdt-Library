@@ -130,17 +130,14 @@ function processBookBorrow($conn, $userId, $bookId) {
  */
 function getMyBooks($conn, $userId) {
     $userId = intval($userId);
-    
-    $query = "SELECT b.id, b.title, b.genre, b.cover_image, 
-                     MAX(bh.borrowed_at) as borrowed_at, 
-                     MAX(bh.due_date) as due_date, 
-                     MAX(bh.renewal_count) as renewal_count 
-              FROM books b 
-              JOIN borrowing_history bh ON b.id = bh.book_id 
-              WHERE bh.user_id = ? AND bh.status IN ('borrowed', 'overdue')
-              GROUP BY b.id 
-              ORDER BY borrowed_at DESC";
-    
+
+    $query = "SELECT bh.id AS loan_id, b.id AS book_id, b.title, b.genre, b.cover_image, 
+                    bh.due_date, bh.status, bh.renewal_count, bh.penalty
+            FROM books b 
+            JOIN borrowing_history bh ON b.id = bh.book_id 
+            WHERE bh.user_id = ? AND bh.status IN ('borrowed', 'overdue')
+            ORDER BY bh.borrowed_at DESC";
+        
     if ($stmt = $conn->prepare($query)) {
         $stmt->bind_param("i", $userId);
         $stmt->execute();
@@ -148,7 +145,6 @@ function getMyBooks($conn, $userId) {
     }
     return null;
 }
-
 /**
  *
  */
@@ -179,13 +175,34 @@ function processBookRenewal($conn, $userId, $bookId) {
 /**
  * Processes the return of a book
  */
+/**
+ * Processes the return of a book
+ * UPDATED: Prevents return if the book is overdue/has a fee
+ */
 function processBookReturn($conn, $userId, $bookId) {
     $userId = intval($userId);
     $bookId = intval($bookId);
 
     $conn->begin_transaction();
     try {
-        $query1 = "UPDATE books SET user_id = NULL WHERE id = ? AND user_id = ?";
+        // 1. Check if the book is currently overdue
+        $checkSql = "SELECT status FROM borrowing_history 
+                     WHERE user_id = ? AND book_id = ? AND status IN ('borrowed', 'overdue')
+                     ORDER BY borrowed_at DESC LIMIT 1";
+        $stmtCheck = $conn->prepare($checkSql);
+        $stmtCheck->bind_param("ii", $userId, $bookId);
+        $stmtCheck->execute();
+        $loan = $stmtCheck->get_result()->fetch_assoc();
+
+        // 2. Block return if status is 'overdue'
+        if ($loan && $loan['status'] === 'overdue') {
+            // Rollback and return false so the UI can show the warning seen in Screenshot 2026-05-14 224651.jpg
+            $conn->rollback();
+            return false; 
+        }
+
+        // 3. Normal return logic if not overdue
+        $query1 = "UPDATE books SET user_id = NULL, status = 'Available' WHERE id = ? AND user_id = ?";
         $stmt1 = $conn->prepare($query1);
         $stmt1->bind_param("ii", $bookId, $userId);
         $stmt1->execute();
@@ -254,7 +271,7 @@ function getBookForReader($conn, $id) {
 
 
 function getBooksByCategory($conn, $categoryName, $limit = 3) {
-    // We use the 'genre' column to match your established logic
+
     $query = "SELECT * FROM books WHERE genre LIKE ? LIMIT ?";
     $stmt = $conn->prepare($query);
     $searchTerm = "%" . $categoryName . "%";
@@ -268,4 +285,24 @@ function getBooksByCategory($conn, $categoryName, $limit = 3) {
     }
     return $books;
 }
-?>
+
+function getPaymentHistory($conn, $userId) {
+    $userId = intval($userId);
+    
+    // ADJUSTED: Joining directly on bh.id or fallback match fields 
+    // to catch processing mismatches cleanly!
+    $query = "SELECT pp.amount_paid, pp.paid_at, 
+                     IFNULL(b.title, 'Fine Settlement Record') as title 
+              FROM penalty_payments pp
+              LEFT JOIN borrowing_history bh ON pp.loan_id = bh.id
+              LEFT JOIN books b ON bh.book_id = b.id
+              WHERE pp.user_id = ?
+              ORDER BY pp.paid_at DESC";
+              
+    if ($stmt = $conn->prepare($query)) {
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+    return null;
+}

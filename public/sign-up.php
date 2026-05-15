@@ -13,37 +13,6 @@ function old($key) { return $_SESSION['old_input'][$key] ?? ''; }
   <link rel="stylesheet" href="/kmkdt-Library/public/assets/libs/aos-master/dist/aos.css">
   <link rel="stylesheet" href="/kmkdt-Library/public/assets/css/styles.css" />
 
-  <style>
-    /* 1. Placeholder Styling: Light gray and italic to prevent confusion */
-    .form-control::placeholder {
-      color: #AAB2BD !important;
-      font-style: italic;
-      font-weight: 300;
-      opacity: 1;
-    }
-
-    /* 2. Minimalist input styling */
-    .form-control.border-bottom {
-      border-top: 0;
-      border-left: 0;
-      border-right: 0;
-      border-radius: 0;
-      padding-left: 0;
-      background-color: transparent;
-      transition: border-color 0.3s ease;
-    }
-
-    /* 3. Focus state: Highlights the line in Lime Green when clicked */
-    .form-control.border-bottom:focus {
-      box-shadow: none;
-      border-bottom-color: #57cb57 !important;
-    }
-
-    /* Ensure label colors match the brand Navy */
-    .text-brand-navy {
-      color: #2A3547;
-    }
-  </style>
 </head>
 <body>
   <div class="page-wrapper overflow-hidden">
@@ -170,5 +139,7 @@ function old($key) { return $_SESSION['old_input'][$key] ?? ''; }
     </script>
     <?php unset($_SESSION['message'], $_SESSION['code'], $_SESSION['old_input']); ?>
   <?php endif; ?>
+
 </body>
+
 </html>

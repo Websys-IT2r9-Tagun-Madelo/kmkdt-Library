@@ -72,9 +72,8 @@ include('./includes/tsbar.php');
             <div class="card-body d-flex flex-column">
               <div class="icon-box mb-4"><iconify-icon icon="lucide:message-circle"
                   class="fs-8 text-lime"></iconify-icon></div>
-              <h4 class="fw-bold text-dark mb-2">Contact Us</h4>
-              <p class="text-muted small mb-4 flex-grow-1">Have a question or feedback? Reach out to our team for
-                assistance.</p>
+              <h4 class="fw-bold text-dark mb-2">Let’s Connect</h4>
+              <p class="text-muted small mb-4 flex-grow-1">Need assistance or feedback? Talk to our team and other users.</p>
               <a href="contact" class="btn btn-portal w-100 rounded-pill">Start Chat</a>
             </div>
           </div>
@@ -366,7 +365,7 @@ include('./includes/tsbar.php');
             <div class="mt-3">
               <a href="contact"
                 class="text-dark fw-bold text-decoration-none d-inline-flex align-items-center gap-2 hover-lime">
-                Have questions? Contact us
+                Have questions? Let’s Connect
                 <iconify-icon icon="lucide:arrow-right" class="fs-4"></iconify-icon>
               </a>
             </div>

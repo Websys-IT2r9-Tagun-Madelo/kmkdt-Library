@@ -34,30 +34,57 @@ include_once 'includes/tsbar.php';
     <div class="container search-wrapper">
         <div class="row justify-content-center">
             <div class="col-lg-10 col-xl-8">
+
                 <div class="search-glass p-3">
                     <form action="" method="GET">
+
                         <div class="input-group">
                             <span class="input-group-text bg-transparent border-0 ps-3">
                                 <iconify-icon icon="lucide:search" class="fs-4 text-muted"></iconify-icon>
                             </span>
-                            <input type="text" name="search" class="form-control border-0 bg-transparent py-3 fs-5" 
-                                   placeholder="Title, author, or genre..." value="<?= htmlspecialchars($search); ?>">
-                            <button type="submit" class="btn btn-success rounded-pill px-4 ms-2 fw-bold">Find Book</button>
+
+                            <input 
+                                type="text" 
+                                name="search" 
+                                class="form-control border-0 bg-transparent py-3 fs-5"
+                                placeholder="Title, author, or genre..."
+                                value="<?= htmlspecialchars($search); ?>"
+                            >
+
+                            <button type="submit" class="btn btn-success rounded-pill px-4 ms-2 fw-bold">
+                                Find Book
+                            </button>
                         </div>
+
                     </form>
                 </div>
-                
+
                 <!-- Quick Categories -->
                 <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
-                    <?php 
-                    $filters = ['All' => 'All', 'Fiction' => 'Fiction', 'Non-Fiction' => 'Non-Fiction', 'Research' => 'Research', 'Online' => 'Online'];
-                    foreach($filters as $key => $label): 
+
+                    <?php
+                    $filters = [
+                        '' => 'All',
+                        'Fiction' => 'Fiction',
+                        'Non-Fiction' => 'Non-Fiction',
+                        'Research' => 'Research',
+                        'Reserve' => 'Reserve',
+                        'Online' => 'Online'
+                    ];
+
+                    foreach ($filters as $key => $label):
                         $active = ($search == $key) ? 'active' : '';
-                        $link = ($key == '') ? 'browseBook.php' : "?search=$key";
+                        $link = ($key == '') ? '/kmkdt-Library/public/user/browseBooks' : "?search=$key";
                     ?>
-                        <a href="<?= $link ?>" class="filter-pill text-decoration-none <?= $active ?>"><?= $label ?></a>
+
+                        <a href="<?= $link; ?>" class="filter-pill text-decoration-none <?= $active; ?>">
+                            <?= $label; ?>
+                        </a>
+
                     <?php endforeach; ?>
+
                 </div>
+
             </div>
         </div>
     </div>
@@ -69,6 +96,8 @@ include_once 'includes/tsbar.php';
                 <?php if ($booksResult && $booksResult->num_rows > 0): ?>
                     <?php while ($row = $booksResult->fetch_assoc()): 
                         $category = $row['category'] ?? 'General';
+                        
+
                         $isOnline = (stripos($category, 'Online') !== false);
                         $status = is_null($row['user_id']) ? 'available' : ($row['user_id'] == $currentUserId ? 'owned' : 'taken');
                         
@@ -102,7 +131,8 @@ include_once 'includes/tsbar.php';
                             <div class="card-body-custom flex-grow-1 p-3">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <span class="badge-category"><?= htmlspecialchars($category); ?></span>
-                                    <div class="loan-tag"><iconify-icon icon="lucide:clock"></iconify-icon> <?= $loanPeriod; ?></div>
+                                    <div class="loan-tag" style="display: inline-flex !important; align-items: center !important; gap: 4px !important; line-height: 1 !important; vertical-align: middle !important;">
+                                        <iconify-icon icon="lucide:clock"></iconify-icon> <?= $loanPeriod; ?></div>
                                 </div>
                                 <h3 class="book-title h5 mb-1"><?= htmlspecialchars($row['title']); ?></h3>
                                 <p class="text-muted small mb-2">by <?= htmlspecialchars($row['author']); ?></p>
@@ -126,6 +156,13 @@ include_once 'includes/tsbar.php';
                         </div>
                     </div>
                     <?php endwhile; ?>
+                <?php else: ?>
+                    <div class="col-12 text-center py-5">
+                        <p class="text-muted">No books found matching your search.</p>
+                        <iconify-icon icon="lucide:search-x" class="display-1 text-muted opacity-25"></iconify-icon>
+                        <h3 class="text-muted mt-3">No matches found for "<?= htmlspecialchars($search) ?>"</h3>
+                        <a href="/kmkdt-Library/public/user/browseBooks" class="btn btn-success rounded-pill px-4 py-2 fw-bold text-dark text-decoration-none shadow-sm">Clear filters</a>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
