@@ -96,13 +96,14 @@ include_once 'includes/tsbar.php';
                 <?php if ($booksResult && $booksResult->num_rows > 0): ?>
                     <?php while ($row = $booksResult->fetch_assoc()): 
                         $category = $row['category'] ?? 'General';
+                        $genre = $row['genre'] ?? ''; // Safely collect dynamic database genre metadata
                         
 
                         $isOnline = (stripos($category, 'Online') !== false);
                         $status = is_null($row['user_id']) ? 'available' : ($row['user_id'] == $currentUserId ? 'owned' : 'taken');
                         
                         
-                        if ($isOnline) { $loanPeriod = "Unlimited (E-Book)"; } 
+                        if ($isOnline) { $loanPeriod = "Unlimited"; } 
                         elseif (stripos($category, 'Reserve') !== false) { $loanPeriod = "3 Days"; }
                         elseif (stripos($category, 'Non-Fiction') !== false) { $loanPeriod = "14 Days"; }  
                         elseif (stripos($category, 'Research') !== false) { $loanPeriod = "7 Days"; }
@@ -117,6 +118,7 @@ include_once 'includes/tsbar.php';
                             data-title="<?= htmlspecialchars($row['title']); ?>"
                             data-author="<?= htmlspecialchars($row['author']); ?>"
                             data-category="<?= htmlspecialchars($category); ?>"
+                            data-genre="<?= htmlspecialchars($row['genre']); ?>"
                             data-desc="<?= htmlspecialchars($row['description'] ?? 'No description available.'); ?>"
                             data-img="assets/images/books/<?= htmlspecialchars($row['cover_image'] ?? 'default-cover.jpg'); ?>"
                             data-id="<?= $row['id']; ?>"
@@ -129,10 +131,19 @@ include_once 'includes/tsbar.php';
                             </div>
 
                             <div class="card-body-custom flex-grow-1 p-3">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span class="badge-category"><?= htmlspecialchars($category); ?></span>
-                                    <div class="loan-tag" style="display: inline-flex !important; align-items: center !important; gap: 4px !important; line-height: 1 !important; vertical-align: middle !important;">
-                                        <iconify-icon icon="lucide:clock"></iconify-icon> <?= $loanPeriod; ?></div>
+                                <div class="d-flex justify-content-between align-items-center mb-2 w-100">
+                                    
+                                    <div class="d-flex align-items-center gap-1 text-truncate" style="max-width: 65%;">
+                                        <span class="badge-category" style="display: inline-block; white-space: nowrap;"><?= htmlspecialchars($category); ?></span>
+                                        
+                                        <?php if (!empty($genre) && strtolower($genre) !== strtolower($category)): ?>
+                                            <span class="badge-category" style="display: inline-block; white-space: nowrap;"><?= htmlspecialchars($genre); ?></span>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <div class="loan-tag text-nowrap" style="display: inline-flex !important; align-items: center !important; gap: 4px !important; line-height: 1 !important; vertical-align: middle !important;">
+                                        <iconify-icon icon="lucide:clock"></iconify-icon> <?= $loanPeriod; ?>
+                                    </div>
                                 </div>
                                 <h3 class="book-title h5 mb-1"><?= htmlspecialchars($row['title']); ?></h3>
                                 <p class="text-muted small mb-2">by <?= htmlspecialchars($row['author']); ?></p>
@@ -187,9 +198,14 @@ include_once 'includes/tsbar.php';
                     <div class="col-md-5 mb-3 text-center">
                         <img id="modalImg" src="" class="img-fluid rounded shadow" style="max-height: 400px;">
                     </div>
-
+                    
                     <div class="col-md-7">
-                        <span id="modalCategory" class="badge mb-2" style="background-color:#32cd32;"></span>
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <div id="modalCategory" class="d-flex align-items-center gap-2 mb-3"></div>
+
+                            <div id="modalGenre" class="badge rounded-pill px-3 py-2 text-white" style="background-color: #22c55e; font-size: 0.85rem;"></div>
+                        </div>
+                        
                         <h2 id="modalBookTitle" class="fw-bold mb-1"></h2>
                         <p id="modalAuthor" class="text-muted fs-5 mb-3"></p>
                         <hr>

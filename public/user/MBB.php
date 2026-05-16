@@ -70,7 +70,7 @@ include_once 'includes/tsbar.php';
                         </p>
                     </div>
 
-                    <a href="/kmkdt-Library/public/user/browseBooks"
+                    <a href="/kmkdt-Library/public/user/BrowseBooks"
                         class="btn btn-lg rounded-pill px-4 fw-bold d-flex align-items-center gap-2"
                         style="background-color: #57cb57; color: #000; border: none;">
 
@@ -304,7 +304,7 @@ include_once 'includes/tsbar.php';
                             No books currently borrowed.
                         </h2>
 
-                        <a href="/kmkdt-Library/public/user/browseBooks"
+                        <a href="/kmkdt-Library/public/user/BrowseBooks"
                             class="btn btn-primary rounded-pill px-5 py-3 mt-3 fw-bold"
                             style="background-color: #57cb57; color: #000; border: none;">
 

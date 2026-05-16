@@ -253,3 +253,12 @@ $container-max-widths: (
 
 $hr-border-color: $border-color !default;
 $hr-opacity: 1 !default;
+
+// Library Support Chat UI Component Tokens
+$support-gradient: linear-gradient(135deg, #57cb57 0%, #356635 100%);
+$support-shadow: 0 2px 8px rgba(151, 238, 91, 0.2);
+$support-shadow-hover: 0 4px 12px rgba(151, 238, 91, 0.35);
+$support-text-main: #333333;
+$support-text-sub: rgba(51, 51, 51, 0.7);
+$support-radius: 12px;
+$support-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);

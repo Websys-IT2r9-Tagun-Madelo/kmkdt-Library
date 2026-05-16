@@ -8,7 +8,7 @@ require_once dirname(__DIR__, 2) . '/app/controller/userController.php';
 // Handle the "Close" action to clear the sticky session
 if (isset($_GET['action']) && $_GET['action'] === 'close') {
     unset($_SESSION['current_reading_id']); 
-    header("Location: browseBooks"); 
+    header("Location: BrowseBooks"); 
     exit();
 }
 
@@ -57,10 +57,10 @@ include('./includes/tsbar.php');
 
                     <!-- Navigation Buttons -->
                     <div class="d-flex justify-content-center gap-3 mt-4">
-                        <a href="eBook?action=close" class="btn btn-outline-secondary rounded-pill px-4">
+                        <a href="Ebook?action=close" class="btn btn-outline-secondary rounded-pill px-4">
                             Close Reader
                         </a>
-                        <a href="browseBooks" class="btn btn-success rounded-pill px-5" style="background-color: #32cd32; border: none;">
+                        <a href="BrowseBooks" class="btn btn-success rounded-pill px-5" style="background-color: #32cd32; border: none;">
                             Back to Library
                         </a>
                     </div>
@@ -70,7 +70,7 @@ include('./includes/tsbar.php');
                     <iconify-icon icon="hugeicons:book-open-01" class="display-1 mb-4" style="color: #ccc;"></iconify-icon>
                     <h1 class="fw-bold text-secondary">No E-book Selected</h1>
                     <p class="text-muted">Choose a title from the library to begin reading.</p>
-                    <a href="browseBooks" class="btn btn-success rounded-pill px-5 mt-4" style="background-color: #32cd32; border: none;">Browse Library</a>
+                    <a href="BrowseBooks" class="btn btn-success rounded-pill px-5 mt-4" style="background-color: #32cd32; border: none;">Browse Library</a>
                 <?php endif; ?>
             </div>
         </div>

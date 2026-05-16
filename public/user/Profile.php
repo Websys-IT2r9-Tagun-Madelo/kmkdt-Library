@@ -128,7 +128,7 @@ include('./includes/tsbar.php');
                         <div class="p-5 text-center border rounded-4 shadow-sm" style="background-color: #1e293b; border-color: #334155 !important;">
                             <iconify-icon icon="lucide:book-check" class="mb-2" style="color: #64748b; font-size: 2.5rem;"></iconify-icon>
                             <p class="m-0 fw-medium" style="color: #94a3b8; font-size: 1rem;">No active book loans found.</p> 
-                            <a href="browsebooks" class="text-primary fw-bold text-decoration-none d-inline-flex align-items-center gap-2 hover-lime"> Browse the Library
+                            <a href="BrowseBooks" class="text-primary fw-bold text-decoration-none d-inline-flex align-items-center gap-2 hover-lime"> Browse the Library
                             </a>
                         </div>
                     <?php endif; ?>

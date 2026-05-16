@@ -16,33 +16,64 @@ if (!$currentUserId || !$loanId) {
     exit();
 }
 
-// 2. Target the explicit history record using its unique ID
-$checkSql = "SELECT status, renewal_count FROM borrowing_history 
-             WHERE id = ? AND user_id = ? AND status IN ('borrowed', 'overdue') 
+// 2. Target the explicit history record, pull category, AND grab the current due_date
+$checkSql = "SELECT bh.status, bh.renewal_count, bh.due_date, b.category 
+             FROM borrowing_history bh
+             JOIN books b ON bh.book_id = b.id
+             WHERE bh.id = ? AND bh.user_id = ? AND bh.status IN ('borrowed', 'overdue') 
              LIMIT 1";
 
+$loan = null;
 if ($stmt = $conn->prepare($checkSql)) {
     $stmt->bind_param("ii", $loanId, $currentUserId);
     $stmt->execute();
     $loan = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+}
+
+// Security boundary check: If no loan record matches, drop out safely
+if (!$loan) {
+    header("Location: /kmkdt-Library/public/user/MBB?error=not_found");
+    exit();
 }
 
 // Block renewal if the user attempts to bypass an overdue penalty lock
-if ($loan && $loan['status'] === 'overdue') {
+if ($loan['status'] === 'overdue') {
     header("Location: /kmkdt-Library/public/user/MBB?error=payment_required");
     exit();
 }
 
 // Enforce your maximum 3-renewal limit restriction policy
-if ($loan && (int)$loan['renewal_count'] >= 3) {
+if ((int)$loan['renewal_count'] >= 2) {
     header("Location: /kmkdt-Library/public/user/MBB?error=limit_reached");
     exit();
 }
 
-// 3. Process the Renewal Execution
-// Extends the timeline relative to the current timestamp by 18 days
-$newDueDate = date('Y-m-d H:i:s', strtotime('+18 days'));
+$bookCategory = $loan['category'] ?? 'General';
 
+// E-Books check fallback safety (Online options don't use renewals)
+if (stripos($bookCategory, 'Online') !== false) {
+    header("Location: /kmkdt-Library/public/user/MBB?error=online_unlimited");
+    exit();
+}
+
+// 3. DYNAMIC DAY CALCULATION: Evaluate category classification
+if (stripos($bookCategory, 'Reserve') !== false) {
+    $daysToAdd = 3;
+} elseif (stripos($bookCategory, 'Non-Fiction') !== false) {
+    $daysToAdd = 14;
+} elseif (stripos($bookCategory, 'Research') !== false) {
+    $daysToAdd = 7;
+} else {
+    // This accurately captures Fiction, Manga, etc. to get 18 Days
+    $daysToAdd = 18;
+}
+
+// FIXED: Calculate new timeline based relative to its PRIOR due date, not 'today'
+$currentDueDateTimestamp = strtotime($loan['due_date']);
+$newDueDate = date('Y-m-d H:i:s', strtotime("+$daysToAdd days", $currentDueDateTimestamp));
+
+// 4. Process the Renewal Execution
 $updateSql = "UPDATE borrowing_history 
               SET due_date = ?, 
                   renewal_count = renewal_count + 1 
@@ -54,11 +85,12 @@ if ($stmt = $conn->prepare($updateSql)) {
     if ($stmt->execute()) {
         $success = true;
     }
+    $stmt->close();
 }
 
 // Absolute paths to guarantee that folder doubling URL bug stays dead
 if ($success) {
-    header("Location: /kmkdt-Library/public/user/MBB?success=renewed");
+    header("Location: /kmkdt-Library/public/user/MBB?success=renewed&days=$daysToAdd");
 } else {
     header("Location: /kmkdt-Library/public/user/MBB?error=failed");
 }

@@ -5,9 +5,9 @@ if (session_status() === PHP_SESSION_NONE) {
 $current_page = basename($_SERVER['PHP_SELF']); 
 
 
-$eBookHref = "eBook"; 
+$eBookHref = "EBook"; 
 if (isset($_SESSION['current_reading_id'])) {
-    $eBookHref = "eBook?id=" . $_SESSION['current_reading_id'];
+    $eBookHref = "EBook?id=" . $_SESSION['current_reading_id'];
 }
 ?>
 
@@ -43,13 +43,13 @@ if (isset($_SESSION['current_reading_id'])) {
 
 
                   <li class="header-item">
-                    <a href="index" class="header-link  hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="Index" class="header-link  hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
                         class="img-fluid animate-spin"> Home</a>
                   </li>
 
                   <li class="header-item">
-                    <a href="profile" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="Profile" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
                         class="img-fluid animate-spin"> My Profile </a>
                   </li>
@@ -64,7 +64,7 @@ if (isset($_SESSION['current_reading_id'])) {
                         class="img-fluid animate-spin"> My E-Books</a>
                   </li>
                   <li class="header-item">
-                    <a href="browseBooks" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="BrowseBooks" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
                         class="img-fluid animate-spin"> Browse Books</a>
                   </li>

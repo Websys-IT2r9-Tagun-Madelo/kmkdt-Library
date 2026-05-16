@@ -46,10 +46,14 @@
 <script src="../assets/libs/aos-master/dist/aos.js"></script>
 <script src="../assets/js/custom.js"></script>
 <script src="assets/js/modal-handler.js"></script>
+<script src="assets/js/messenger.js"></script>
 
 <!-- solar icons -->
 <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<link rel="stylesheet" href="../assets/css/messenger.css">
 
 <?php
 if (isset($_SESSION['message']) && !empty($_SESSION['code'])) {

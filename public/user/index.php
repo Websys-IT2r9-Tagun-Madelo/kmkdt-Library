@@ -49,7 +49,7 @@ include('./includes/tsbar.php');
               <h4 class="fw-bold text-dark mb-2">My Profile</h4>
               <p class="text-muted small mb-4 flex-grow-1">Manage your account settings, contact details, and security
                 credentials.</p>
-              <a href="profile" class="btn btn-portal w-100 rounded-pill">Manage Account</a>
+              <a href="Profile" class="btn btn-portal w-100 rounded-pill">Manage Account</a>
             </div>
           </div>
         </div>
@@ -74,7 +74,7 @@ include('./includes/tsbar.php');
                   class="fs-8 text-lime"></iconify-icon></div>
               <h4 class="fw-bold text-dark mb-2">Let’s Connect</h4>
               <p class="text-muted small mb-4 flex-grow-1">Need assistance or feedback? Talk to our team and other users.</p>
-              <a href="contact" class="btn btn-portal w-100 rounded-pill">Start Chat</a>
+              <a href="contact" class="btn btn-portal w-100 rounded-pill">Start Messaging</a>
             </div>
           </div>
         </div>
@@ -151,7 +151,7 @@ include('./includes/tsbar.php');
         <div class="col-md-4">
           <div class="card portal-card border-0 shadow-sm overflow-hidden">
             <div class="img-container">
-              <img src="assets/images/books/ebok.jpg" alt="eBooks">
+              <img src="assets/images/books/ebok.jpg" alt="Ebooks">
               <div
                 class="portfolio-hover-overlay d-flex align-items-center justify-content-center position-absolute top-0 w-100 h-100"
                 style="background:rgba(50,205,50,0.8); opacity:0; transition:0.3s;">
