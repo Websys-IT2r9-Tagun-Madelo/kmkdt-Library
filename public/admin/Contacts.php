@@ -189,5 +189,4 @@ include('./includes/footer.php');
 ?>
 
 <!-- Load Messenger Styles and Scripts for Admin -->
-<link rel="stylesheet" href="../assets/css/messenger.css">
-<script src="../assets/js/admin-messenger.js"></script>
+

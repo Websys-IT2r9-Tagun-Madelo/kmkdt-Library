@@ -1,27 +1,29 @@
 <?php
-$appPath = dirname(__DIR__);
-$configPath = $appPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
-
-if (file_exists($configPath)) {
-    include_once($configPath);
-} else {
-    die("Config file not found at: " . $configPath);
+// Start session if it hasn't been initialized yet
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-if (isset($_POST['logoutButton'])) {
-    unset($_SESSION['authUser']);
-    unset($_SESSION['user_id']);
-    unset($_SESSION['userRole']);
+// 1. Safe Logout Interceptor
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logoutButton'])) {
+    $_SESSION = array(); // Clear all session values completely
+
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
 
     session_destroy();
-
     header("Location: /kmkdt-Library/public/login");
     exit();
 }
 
+// 2. Data Queries
 function getAllMembers($conn) {
     $sql = "SELECT id, fullName, role, dateCreated FROM user ORDER BY dateCreated ASC";
-    
     try {
         $result = mysqli_query($conn, $sql);
         if ($result) {
@@ -34,7 +36,6 @@ function getAllMembers($conn) {
 }
 
 function getCatalog($conn) {
-    // Subquery checks for any active (non-returned) status in borrowing_history
     $sql = "SELECT b.*, 
             (SELECT h.status FROM borrowing_history h 
              WHERE h.book_id = b.id 
@@ -44,11 +45,9 @@ function getCatalog($conn) {
             ORDER BY b.id DESC";
 
     $result = mysqli_query($conn, $sql);
-    
     if (!$result) {
         return [];
     }
-
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
 
@@ -58,7 +57,6 @@ function getRecentActivity($conn) {
             JOIN user u ON h.user_id = u.id
             JOIN books b ON h.book_id = b.id
             ORDER BY h.id DESC LIMIT 5";
-    
     try {
         $result = mysqli_query($conn, $sql);
         return ($result) ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
@@ -87,7 +85,8 @@ function getCirculationRecords($conn) {
 
 function getCirculationStats($conn) {
     $totalQuery = mysqli_query($conn, "SELECT COUNT(*) as total FROM borrowing_history");
-    $total = mysqli_fetch_assoc($totalQuery)['total'] ?: 1; 
+    $totalRow = mysqli_fetch_assoc($totalQuery);
+    $total = (!empty($totalRow['total'])) ? $totalRow['total'] : 1; 
 
     $statsQuery = mysqli_query($conn, "SELECT 
         SUM(status = 'borrowed') as borrowed,
@@ -99,10 +98,10 @@ function getCirculationStats($conn) {
     $counts = mysqli_fetch_assoc($statsQuery);
 
     return [
-        'borrowed_pct' => ($counts['borrowed'] / $total) * 100,
-        'returned_pct' => ($counts['returned'] / $total) * 100,
-        'overdue_pct' => ($counts['overdue'] / $total) * 100,
-        'due_soon_pct' => ($counts['due_soon'] / $total) * 100
+        'borrowed_pct' => (($counts['borrowed'] ?? 0) / $total) * 100,
+        'returned_pct' => (($counts['returned'] ?? 0) / $total) * 100,
+        'overdue_pct' => (($counts['overdue'] ?? 0) / $total) * 100,
+        'due_soon_pct' => (($counts['due_soon'] ?? 0) / $total) * 100
     ];
 }
 ?>

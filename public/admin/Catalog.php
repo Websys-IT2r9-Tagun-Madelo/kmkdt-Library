@@ -1,9 +1,78 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 include('../../app/middleware/admin.php');
 
-// Fetch dynamic data - Ensure getCatalog() uses the subquery fix discussed
-$books = getCatalog($conn);
-$activities = getRecentActivity($conn);
+// 1. Get database configuration path
+$configPath = $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/config/config.php';
+if (!file_exists($configPath)) {
+    die("Config file not found at: " . $configPath);
+}
+include_once($configPath);
+
+// 2. Fetch Catalog Items with Availability Status
+$booksQuery = "SELECT b.*, 
+               (SELECT bh.status FROM borrowing_history bh 
+                WHERE bh.book_id = b.id AND bh.status IN ('borrowed', 'overdue') 
+                ORDER BY bh.borrowed_at DESC LIMIT 1) AS active_status 
+               FROM books b";
+$booksResult = $conn->query($booksQuery);
+$books = [];
+if ($booksResult && $booksResult->num_rows > 0) {
+    while ($row = $booksResult->fetch_assoc()) {
+        $books[] = $row;
+    }
+}
+
+// 3. Fetch Recent Activity combining Borrowing and Penalty Payments
+$activities = [];
+
+// A. Pull loans and returns
+$loanActivityQuery = "SELECT bh.status, bh.borrowed_at AS activity_time, u.fullName, b.title 
+                      FROM borrowing_history bh
+                      JOIN user u ON bh.user_id = u.id
+                      JOIN books b ON bh.book_id = b.id
+                      ORDER BY bh.borrowed_at DESC LIMIT 5";
+$loanResult = $conn->query($loanActivityQuery);
+if ($loanResult && $loanResult->num_rows > 0) {
+    while ($row = $loanResult->fetch_assoc()) {
+        $activities[] = [
+            'type' => 'history',
+            'status' => $row['status'],
+            'time' => $row['activity_time'],
+            'fullName' => $row['fullName'],
+            'details' => $row['title']
+        ];
+    }
+}
+
+// B. Pull penalty payments
+$paymentActivityQuery = "SELECT pp.amount_paid, pp.paid_at AS activity_time, u.fullName 
+                         FROM penalty_payments pp
+                         JOIN user u ON pp.user_id = u.id
+                         ORDER BY pp.paid_at DESC LIMIT 5";
+$paymentResult = $conn->query($paymentActivityQuery);
+if ($paymentResult && $paymentResult->num_rows > 0) {
+    while ($row = $paymentResult->fetch_assoc()) {
+        $activities[] = [
+            'type' => 'payment',
+            'status' => 'Paid Fine',
+            'time' => $row['activity_time'],
+            'fullName' => $row['fullName'],
+            'details' => 'Php ' . number_format($row['amount_paid'], 2)
+        ];
+    }
+}
+
+// Sort the combined list by time descending
+usort($activities, function($a, $b) {
+    return strcmp($b['time'], $a['time']);
+});
+// Trim to latest 5 items total
+$activities = array_slice($activities, 0, 5);
+
 
 include('./includes/header.php');
 include('./includes/topbar.php');
@@ -20,15 +89,12 @@ include('./includes/sidebar.php');
   </nav>
 </div>
 
-<!-- Main Catalog -->
 <div class="col-lg-12">
   <div class="card rounded-0">
     <div class="card-body">
 
-      <!-- Search -->
       <input type="text" id="searchInput" class="form-control mb-3 rounded-0" placeholder="Search by title or author...">
 
-      <!-- Category Filter -->
       <div class="row mb-3">
         <div class="col-md-12">
           <select id="categoryFilter" class="form-select rounded-0">
@@ -78,14 +144,13 @@ include('./includes/sidebar.php');
                 </td>
                 <td class="py-3 pe-3">
                   <?php
-                    // Syncing logic: Check the active_status from our controller query
-                    $rawStatus = strtolower($book['active_status'] ?? 'available');
+                    $rawStatus = strtolower($book['active_status'] ?? '');
                     
-                    if ($rawStatus !== 'available' && $rawStatus !== '') {
-                        $badgeClass = 'bg-borrowed'; // Custom yellow with black text
-                        $displayStatus = 'Borrowed';
+                    if ($rawStatus === 'borrowed' || $rawStatus === 'overdue') {
+                        $badgeClass = 'bg-warning text-dark'; 
+                        $displayStatus = ucfirst($rawStatus);
                     } else {
-                        $badgeClass = 'bg-success';  // Lime green theme
+                        $badgeClass = 'bg-success text-white';  
                         $displayStatus = 'Available';
                     }
                   ?>
@@ -112,7 +177,6 @@ include('./includes/sidebar.php');
   </div>
 </div>
 
-<!-- Recent Activity -->
 <div class="col-lg-12">
   <div class="card rounded-0">
     <div class="card-body">
@@ -121,22 +185,31 @@ include('./includes/sidebar.php');
         <?php if (!empty($activities)): ?>
           <?php foreach ($activities as $act): ?>
             <?php
-              $actStatus = strtolower($act['status'] ?? 'borrowed');
-              $isReturn = ($actStatus === 'returned');
+              // Dynamic Icon picker depending on the action type
+              if ($act['type'] === 'payment') {
+                  $iconClass = 'bg-success';
+                  $icon = 'bi-cash-coin';
+                  $actionLabel = 'settled fine of';
+              } else {
+                  $isReturn = (strtolower($act['status']) === 'returned');
+                  $iconClass = $isReturn ? 'bg-primary' : 'bg-warning text-dark';
+                  $icon = $isReturn ? 'bi-arrow-return-left' : 'bi-book';
+                  $actionLabel = strtolower($act['status']);
+              }
             ?>
             <div class="activity-item d-flex align-items-start mb-3">
-              <div class="activity-icon <?= $isReturn ? 'bg-primary' : 'bg-borrowed' ?> text-white rounded-circle me-3" 
+              <div class="activity-icon <?= $iconClass ?> text-white rounded-circle me-3" 
                    style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <i class="bi <?= $isReturn ? 'bi-arrow-return-left' : 'bi-book' ?>"></i>
+                <i class="bi <?= $icon ?>"></i>
               </div>
               <div>
                 <div class="small text-muted">
-                  <?= date('g:i A', strtotime($act['borrowed_at'] ?? 'now')) ?>
+                  <?= date('g:i A', strtotime($act['time'])) ?>
                 </div>
                 <div>
-                  <strong><?= htmlspecialchars($act['fullName'] ?? '') ?></strong> 
-                  <?= htmlspecialchars($actStatus) ?> 
-                  <strong><?= htmlspecialchars($act['title'] ?? '') ?></strong>
+                  <strong><?= htmlspecialchars($act['fullName']) ?></strong> 
+                  <?= htmlspecialchars($actionLabel) ?> 
+                  <strong><?= htmlspecialchars($act['details']) ?></strong>
                 </div>
               </div>
             </div>

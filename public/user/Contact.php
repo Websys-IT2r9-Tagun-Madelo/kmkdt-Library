@@ -43,8 +43,9 @@ $sessionUserId = $_SESSION['user_id'] ?? $_SESSION['authUser']['user_id'] ?? 0;
                     </div>
                     <span class="support-pin">📌</span>
                   </div>
+
                   
-                  <button class="new-chat-btn">
+                  <button class="new-chat-btn text-white">
                     <span>+ New Chat</span>
                   </button>
                 </div>
@@ -93,7 +94,7 @@ $sessionUserId = $_SESSION['user_id'] ?? $_SESSION['authUser']['user_id'] ?? 0;
 
   </div>
 
-<script src="assets/js/messenger.js"></script>
+
 
 <?php
 include('./includes/footer.php');

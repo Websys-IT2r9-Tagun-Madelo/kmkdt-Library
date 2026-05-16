@@ -67,7 +67,7 @@ if (isset($_POST['loginbutton'])) {
 
     $_SESSION['message'] = "Invalid Username or Password";
     $_SESSION['code'] = "error";
-    header("Location: /kmkdt-Library/public/login");
+    header("Location: /kmkdt-Library/public/Login");
     exit();
 }
 
@@ -150,7 +150,7 @@ if (isset($_POST['registerbutton'])) {
         unset($_SESSION['old_input']); // Clear the "remembered" data on success
         $_SESSION['message'] = "Registration successful! Please login.";
         $_SESSION['code'] = "success";
-        header("Location: ../../public/login");
+        header("Location: ../../public/Login");
     } else {
         $_SESSION['message'] = "Database Error: " . $conn->error;
         $_SESSION['code'] = "error";
@@ -193,7 +193,7 @@ if (isset($_POST['forgotPasswordButton'])) {
     } else {
         $_SESSION['message'] = "Email address not found.";
         $_SESSION['code'] = "error";
-        header("Location: /kmkdt-Library/public/login");
+        header("Location: /kmkdt-Library/public/Login");
         exit();
     }
 }
@@ -222,13 +222,13 @@ if (isset($_POST['updatePasswordButton'])) {
     $stmt->bind_param("ss", $hashed, $token);
 
     if ($stmt->execute()) {
-        $_SESSION['message'] = "Password updated! You can now login.";
+        $_SESSION['message'] = "Password updated! You can now Login.";
         $_SESSION['code'] = "success";
-        header("Location: /kmkdt-Library/public/login");
+        header("Location: /kmkdt-Library/public/Login");
     } else {
         $_SESSION['message'] = "Database error. Reset failed.";
         $_SESSION['code'] = "error";
-        header("Location: /kmkdt-Library/public/login");
+        header("Location: /kmkdt-Library/public/Login");
     }
     exit();
 }

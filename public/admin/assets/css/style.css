@@ -71,13 +71,25 @@ h6 {
 --------------------------------------------------------------*/
 #main {
   margin-top: 60px;
+  margin-left: 300px; /* Offsets content so it doesn't hide behind the 300px sidebar */
   padding: 20px 30px;
   transition: all 0.3s;
 }
 
+/* Responsive fixes for tablets / smaller screens */
 @media (max-width: 1199px) {
+  .sidebar {
+    left: -300px; /* Hides the sidebar off-screen on smaller windows */
+  }
+  
   #main {
+    margin-left: 0; /* Lets content take full width when sidebar is hidden */
     padding: 20px;
+  }
+  
+  /* If your template uses a toggle class on the body to open the menu on mobile */
+  .toggle-sidebar .sidebar {
+    left: 0;
   }
 }
 
@@ -463,10 +475,19 @@ h6 {
   background-color: #f6f9ff;
 }
 
-
 /*--------------------------------------------------------------
-# Sidebar
+# Sidebar - Smooth Butter Accordion Transition
 --------------------------------------------------------------*/
+
+:root {
+  --primary-green: #116943;
+  --light-green-bg: #f0fdf4;
+  --text-dark: #1f2937;
+  --text-muted: #4b5563;
+  --sidebar-white: #ffffff;
+}
+
+/* Sidebar Container & Structural States */
 .sidebar {
   position: fixed;
   top: 60px;
@@ -474,108 +495,185 @@ h6 {
   bottom: 0;
   width: 300px;
   z-index: 996;
-  transition: all 0.3s;
-  padding: 20px;
+  padding: 20px 12px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #035a30 transparent;
-  box-shadow: 0px 0px 20px rgba(50, 205, 50, 0.1);
-  background-color: #fff;
+  scrollbar-color: #cbd5e1 transparent;
+  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.04);
+  border-right: 1px solid #e5e7eb;
+  background-color: var(--sidebar-white) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  transition: all 0.4s ease-in-out; 
 }
 
-
-.sidebar-nav, 
-.sidebar-nav ul {
-  list-style: none;
-  padding: 0 !important; 
+/* Webkit Scrollbars matching template configuration */
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+  background-color: var(--sidebar-white);
 }
 
-.sidebar-nav li {
-  list-style: none;
-  padding: 0 !important;
-  margin: 0 !important;
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
 }
 
+/* Responsive Structural Positioning and Toggle Classes */
 @media (max-width: 1199px) {
   .sidebar {
     left: -300px;
   }
-}
-
-.sidebar::-webkit-scrollbar {
-  width: 5px;
-  height: 8px;
-  background-color: #fff;
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-  background-color: #356635;
+  .toggle-sidebar .sidebar {
+    left: 0;
+  }
 }
 
 @media (min-width: 1200px) {
   #main,
   #footer {
     margin-left: 300px;
+    transition: all 0.3s ease-in-out;
+  }
+  .toggle-sidebar #main,
+  .toggle-sidebar #footer {
+    margin-left: 0;
+  }
+  .toggle-sidebar .sidebar {
+    left: -300px;
   }
 }
-/* title color */
-.sidebar-nav .nav-heading {
-  font-size: 14px;
-  text-transform: none;
-  color: 	#043104;
-  font-weight: 600;
-  margin: 11px 0 5px 15px; 
+
+/* Navigation Lists */
+.sidebar-nav {
+  padding: 0 !important;
+  margin: 0 !important;
+  list-style: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
 }
 
-/* --side title size-- */
+.sidebar-nav li {
+  padding: 0 !important;
+  margin: 0 !important;
+  list-style: none !important;
+}
+
+.sidebar-nav .nav-item {
+  list-style-type: none !important;
+  margin-bottom: 6px !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+/* Main Top-Level Links */
 .sidebar-nav .nav-link {
-  display: flex;
-  align-items: center;
-  font-size: 15px;
-  font-weight: 600; 
-  color: #356635;
-  transition: 0.3s;
-  background: #f0fdf4;
-  padding: 10px 18px;
-  border-radius: 4px;
+  background-color: transparent;
+  color: var(--text-dark);
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-decoration: none !important;
+  width: 100% !important;
+  transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
 }
 
-/* --icon size-- */
-.sidebar-nav .nav-link i {
-  font-size: 28px;
-  margin-right: 11px;
-  color: #042b04;
+/* Main Dynamic Icons */
+.sidebar-nav .nav-link i:first-child {
+  font-size: 1.3rem;
+  color: var(--primary-green) !important;
+  transition: color 0.25s ease-in-out;
 }
-/* --font color- */ 
+
+/* Collapsed Header State */
 .sidebar-nav .nav-link.collapsed {
-  color: #022e10;
-  background: #fff;
-}   
-/* --icon color- */
+  color: var(--text-dark) !important;
+  background-color: transparent !important;
+}
+
 .sidebar-nav .nav-link.collapsed i {
-  color: #347507;
+  color: var(--primary-green) !important;
 }
 
+/* Hover States for Headings */
 .sidebar-nav .nav-link:hover {
-  color: #356635;
-  background: #f0fdf4;
+  color: var(--primary-green) !important;
+  background-color: var(--light-green-bg) !important;
 }
 
-.sidebar-nav .nav-link:hover i {
-  color: #356635;
+/* Active / Expanded Dropdown Header State */
+.sidebar-nav .nav-link:not(.collapsed) {
+  color: var(--primary-green) !important;
+  background-color: var(--light-green-bg) !important;
+  font-weight: 600;
 }
-      
+
+/* Chevron Alignment & Rotations */
+.sidebar-nav .nav-link .bi-chevron-down {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  color: var(--primary-green) !important;
+  transition: transform 0.25s ease-in-out; /* Smoothly turns the arrow */
+}
+
+.sidebar-nav .nav-link:not(.collapsed) .bi-chevron-down {
+  transform: rotate(180deg);
+}
+
+.sidebar-nav .collapsing {
+  transition: height 0.25s ease-in-out !important;
+}
+
+.sidebar-nav .nav-content.collapse:not(.show) {
+  display: none;
+}
+
+/* Sub-menu Dropdown List Box */
+.sidebar-nav .nav-content {
+  padding: 4px 0 0 0 !important;
+  margin: 0 !important;
+  list-style: none !important;
+}
+
+/* Sub-menu Individual Page Links */
 .sidebar-nav .nav-content a {
-  padding: 10px 0 10px 40px; 
+  display: flex !important;
+  align-items: center !important;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted) !important;
+  padding: 10px 0 10px 40px !important;
+  text-decoration: none !important;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
+/* Sub-menu Indicators (Sleek Clean Dots) */
+.sidebar-nav .nav-content a i {
+  font-size: 6px;
+  margin-right: 12px !important;
+  line-height: 0;
+  border-radius: 50%;
+  color: #cbd5e1;
+  transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* Inner Dropdown Link Hover & Active State Options */
 .sidebar-nav .nav-content a:hover,
 .sidebar-nav .nav-content a.active {
-  color: #356635;
+  color: var(--primary-green) !important;
+  background-color: rgba(17, 105, 67, 0.04) !important;
+  border-radius: 6px;
 }
 
+.sidebar-nav .nav-content a:hover i,
 .sidebar-nav .nav-content a.active i {
-  background-color: #356635;
+  color: var(--primary-green) !important;
+  transform: scale(1.15);
 }
 
 /*--------------------------------------------------------------

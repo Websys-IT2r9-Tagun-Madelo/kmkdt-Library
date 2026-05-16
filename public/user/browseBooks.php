@@ -74,7 +74,7 @@ include_once 'includes/tsbar.php';
 
                     foreach ($filters as $key => $label):
                         $active = ($search == $key) ? 'active' : '';
-                        $link = ($key == '') ? '/kmkdt-Library/public/user/browseBooks' : "?search=$key";
+                        $link = ($key == '') ? '/kmkdt-Library/public/user/BrowseBooks' : "?search=$key";
                     ?>
 
                         <a href="<?= $link; ?>" class="filter-pill text-decoration-none <?= $active; ?>">
@@ -151,7 +151,10 @@ include_once 'includes/tsbar.php';
 
                             <div class="card-footer-custom p-3 mt-auto">
                                 <?php if ($isOnline): ?>
-                                    <a href="/kmkdt-Library/public/user/eBook?id=<?= $row['id']; ?>" class="btn rounded-pill w-100 mt-2" style="background-color: #07427a; color: white;">Read Online</a>
+                                    <a href="/kmkdt-Library/public/user/eBook?id=<?= $row['id']; ?>" 
+                                    class="btn rounded-pill w-100 mt-2" style="background-color: #07427a; color: white;"
+                                    onclick="return confirm('Warning: Opening this may remove your previous e-book.');">
+                                    Read Online</a>
                                 <?php elseif ($status === 'available'): ?>
                                     <a href="/kmkdt-Library/app/controller/process/borrowProcess.php?id=<?= $row['id']; ?>" 
                                     class="btn btn-success w-100 rounded-pill fw-bold"
@@ -172,7 +175,7 @@ include_once 'includes/tsbar.php';
                         <p class="text-muted">No books found matching your search.</p>
                         <iconify-icon icon="lucide:search-x" class="display-1 text-muted opacity-25"></iconify-icon>
                         <h3 class="text-muted mt-3">No matches found for "<?= htmlspecialchars($search) ?>"</h3>
-                        <a href="/kmkdt-Library/public/user/browseBooks" class="btn btn-success rounded-pill px-4 py-2 fw-bold text-dark text-decoration-none shadow-sm">Clear filters</a>
+                        <a href="/kmkdt-Library/public/user/BrowseBooks" class="btn btn-success rounded-pill px-4 py-2 fw-bold text-dark text-decoration-none shadow-sm">Clear filters</a>
                     </div>
                 <?php endif; ?>
             </div>

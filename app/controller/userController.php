@@ -19,7 +19,7 @@ if (isset($_POST['logoutButton'])) {
     unset($_SESSION['user_id']);
     unset($_SESSION['userRole']);
     session_destroy();
-    header("Location: /kmkdt-Library/public/login");
+    header("Location: /kmkdt-Library/public/Login");
     exit();
 }
 
@@ -278,7 +278,7 @@ function getBooksByCategory($conn, $categoryName, $limit = 3) {
     $stmt->bind_param("si", $searchTerm, $limit);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     $books = [];
     while ($row = $result->fetch_assoc()) {
         $books[] = $row;

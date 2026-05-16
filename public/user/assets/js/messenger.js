@@ -112,7 +112,7 @@ function renderConversations(conversations) {
         
         // Toggle an active background style if the user currently has the support chat open
         if (currentConversationId == adminConv.id) {
-            librarySupportBtn.style.background = 'linear-gradient(135deg, #1e7e34 0%, #28a745 100%)';
+            librarySupportBtn.style.background = 'linear-gradient(135deg, #1e7e34 5%, #57cb57 95%)';
         } else {
             librarySupportBtn.style.background = ''; // Resets to base CSS green
         }
@@ -230,8 +230,8 @@ function renderMessages(messages, forceScroll = false) {
     container.innerHTML = messages.map(msg => {
         const isSent = parseInt(msg.sender_id, 10) === parseInt(currentUserId, 10);
         const textAlignment = isSent ? 'flex-end' : 'flex-start';
-        const bubbleBg = isSent ? '#32cd32' : '#f1f5f9'; 
-        const bubbleColor = isSent ? '#ffffff' : '#1e293b';
+        const bubbleBg = isSent ? '#57cb57' : '#f1f5f9'; 
+        const bubbleColor = isSent ? '#000000' : '#1e293b';
         const formattedDisplayTime = msg.time_stamp ? msg.time_stamp : formatTime(msg.created_at);
         
         return `

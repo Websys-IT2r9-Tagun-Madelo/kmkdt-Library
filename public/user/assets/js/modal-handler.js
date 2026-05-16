@@ -61,7 +61,7 @@ if (bookModal) {
             <a href="${projectRoot}/public/user/Ebook?id=${data.id}" 
                class="btn rounded-pill w-100" 
                style="background-color: #07427a; color: white;"
-               onclick="return confirm('Open E-book reader?');">Read Online</a>`;
+               onclick="return confirm('Warning: Opening this may remove your previous e-book.');">Read Online</a>`;
       } else if (data.status === "available") {
         actionContainer.innerHTML = `
             <a href="${borrowPath}" 

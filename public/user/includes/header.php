@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="./assets/libs/owl.carousel/dist/assets/owl.carousel.min.css">
   <link rel="stylesheet" href="./assets/libs/aos-master/dist/aos.css">
   <link rel="stylesheet" href="./assets/css/styles.css">
+  <link rel="stylesheet" href="./assets/css/messenger.css">
 </head>
 
 <body>
