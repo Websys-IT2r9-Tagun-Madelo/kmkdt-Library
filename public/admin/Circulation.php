@@ -1,7 +1,11 @@
 <?php
 include('../../app/middleware/admin.php');
 
-// Fetch real data from the controller
+$base = 'C:/xampp/htdocs/kmkdt-Library/app'; 
+
+require_once $base . '/config/config.php';
+require_once $base . '/controller/adminController.php';
+
 $stats = getCirculationStats($conn); 
 $records = getCirculationRecords($conn);
 

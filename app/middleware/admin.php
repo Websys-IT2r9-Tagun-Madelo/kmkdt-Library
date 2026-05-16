@@ -24,11 +24,4 @@ if (!isset($_SESSION['authUser']['userRole']) || $_SESSION['authUser']['userRole
     exit();
 }
 
-// 2. Safe File Component Inclusion
-if (file_exists($configPath)) {
-    include_once($configPath); 
-}
-if (file_exists($controllerPath)) {
-    include_once($controllerPath);
-}
 ?>

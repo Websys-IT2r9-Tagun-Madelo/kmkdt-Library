@@ -103,7 +103,6 @@ if ($action === 'getAdminConversation' || $action === 'support') {
 }
 
 // ===== GET USER CONVERSATIONS (SIDEBAR LIST) =====
-// ===== GET USER CONVERSATIONS (SIDEBAR LIST) =====
 if ($action === 'getConversations' || $action === 'get_conversations') {
     $query = "
         SELECT 
@@ -285,38 +284,67 @@ if ($action === 'startConversation' || $action === 'create_by_email') {
 }
 
 // ===== ADMIN: GET ALL USER CONVERSATIONS =====
+// ===== ADMIN: GET ALL USER CONVERSATIONS =====
 if ($action === 'adminGetConversations') {
     $current_role = $_SESSION['role'] ?? $_SESSION['authUser']['role'] ?? '';
-    if (strtolower($current_role) !== 'admin') {
+    $username_check = $_SESSION['username'] ?? $_SESSION['authUser']['username'] ?? '';
+    
+    if (strtolower($current_role) !== 'admin' && strpos(strtolower($username_check), 'admin') === false) {
         http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Access Denied: Administrative privileges required.']);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Access Denied: Administrative privileges required.',
+            'debug_session_role' => $current_role,
+            'debug_session_username' => $username_check
+        ]);
         exit;
     }
     
-    $query = "
-        SELECT 
-            c.id,
-            c.user_id,
-            u.fullName,
-            u.emailAddress as email,
-            COALESCE((SELECT message FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1), 'No messages yet') as last_message,
-            COALESCE((SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1), c.created_at) as last_message_time,
-            (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id = c.user_id AND status = 'sent') as unread_count
-        FROM conversations c
-        JOIN user u ON c.user_id = u.id
-        WHERE c.admin_id IS NOT NULL
-        ORDER BY c.updated_at DESC
-    ";
-    
-    $result = $conn->query($query);
-    $conversations = [];
-    
-    while ($row = $result->fetch_assoc()) {
-        $conversations[] = $row;
+    try {
+        // ALIGNED ALIASES: We provide recipient_name and recipient_email properties 
+        // to match client-side parsing patterns natively and protect JS logic.
+        $query = "
+            SELECT 
+                c.id,
+                c.created_at,
+                c.user_id as creator_id,
+                c.admin_id as assign_id,
+                u.id as recipient_id,
+                u.fullName as recipient_name,
+                u.emailAddress as recipient_email,
+                COALESCE((SELECT message FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1), 'No messages yet') as last_message,
+                COALESCE((SELECT DATE_FORMAT(created_at, '%h:%i %p') FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1), DATE_FORMAT(c.created_at, '%h:%i %p')) as last_message_time,
+                COALESCE((SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1), c.updated_at) as raw_sort_time,
+                (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id = c.user_id AND status = 'sent') as unread_count
+            FROM conversations c
+            JOIN user u ON c.user_id = u.id
+            WHERE c.admin_id IS NOT NULL
+            ORDER BY c.updated_at DESC
+        ";
+        
+        $result = $conn->query($query);
+        
+        if (!$result) {
+            throw new Exception($conn->error);
+        }
+        
+        $conversations = [];
+        while ($row = $result->fetch_assoc()) {
+            $conversations[] = $row;
+        }
+        
+        echo json_encode(['success' => true, 'conversations' => $conversations]);
+        exit;
+
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Database Query Failed!',
+            'sql_error' => $e->getMessage()
+        ]);
+        exit;
     }
-    
-    echo json_encode(['success' => true, 'conversations' => $conversations]);
-    exit;
 }
 
 // Invalid fallback handling 

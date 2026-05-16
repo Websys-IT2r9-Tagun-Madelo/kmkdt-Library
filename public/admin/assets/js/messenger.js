@@ -2,300 +2,349 @@
 // Configuration
 const MESSAGING_API = '/kmkdt-Library/app/controller/messagingController.php';
 const REFRESH_INTERVAL = 3000; // 3 seconds - refresh messages
+const ADMIN_ID = 4; // Normalized Admin ID reference 
 
 let currentConversationId = null;
 let currentRecipientId = null;
-let refreshInterval = null;
+let refreshInterval = null; 
+let isPolling = false; // Flag to prevent stacking asynchronous polling cycles
+
+// Cached DOM Elements (Populated on setup/run)
+let domElements = {};
+
+function cacheElements() {
+    domElements = {
+        conversationsList: document.querySelector('.conversations-list'),
+        messagesContainer: document.querySelector('.messages-panel .messages-container'),
+        inputArea: document.querySelector('.message-input-area'),
+        headerTitle: document.querySelector(".messages-header-info h3"),
+        headerSub: document.querySelector(".messages-header-info p"),
+        textarea: document.querySelector('.message-input-wrapper textarea'),
+        sendBtn: document.querySelector('.send-btn'),
+        newChatModal: document.querySelector('.new-chat-modal'),
+        newChatInput: document.querySelector('.new-chat-modal input'),
+        startChatBtn: document.querySelector('.btn-start-chat'),
+        cancelBtn: document.querySelector('.btn-cancel'),
+        librarySupportBtn: document.querySelector('#librarySupport')
+    };
+}
 
 // ===== INITIALIZE MESSENGER =====
 function initializeMessenger() {
     console.log('Initializing messenger...');
+    cacheElements();
     
-    // Auto-load or create admin conversation on init
     ensureAdminConversation();
-    
-    // Load conversations on page load
     loadConversations();
-    
-    // Set up event listeners
     setupEventListeners();
-    
-    // Start auto-refresh
     startAutoRefresh();
 }
 
+// ===== SAFE HTML ESCAPING UTILITY =====
+function escapeHtml(text) {
+    if (!text) return '';
+    return text
+        .toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// ===== CURRENT USER SESSION FALLBACK =====
+function getCurrentUserId() {
+    const userElement = document.querySelector('[data-user-id]');
+    return userElement ? (parseInt(userElement.getAttribute('data-user-id'), 10) || 0) : 0;
+}
+
 // ===== ENSURE ADMIN CONVERSATION EXISTS =====
-function ensureAdminConversation() {
-    fetch(`${MESSAGING_API}?action=getAdminConversation`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('Admin conversation ID:', data.conversation_id);
-                // Admin conversation is now ready, will be loaded with other conversations
-            }
-        })
-        .catch(error => console.error('Error creating admin conversation:', error));
+async function ensureAdminConversation() {
+    try {
+        const response = await fetch(`${MESSAGING_API}?action=getAdminConversation`);
+        const data = await response.json();
+        if (data.success) {
+            console.log('Admin conversation ID:', data.conversation_id);
+        }
+    } catch (error) {
+        console.error('Error creating admin conversation:', error);
+    }
 }
 
 // ===== LOAD CONVERSATIONS =====
-function loadConversations() {
-    fetch(`${MESSAGING_API}?action=getConversations`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                renderConversations(data.conversations);
-            } else {
-                console.error('Error loading conversations:', data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
+async function loadConversations() {
+    try {
+        const response = await fetch(`${MESSAGING_API}?action=getConversations`);
+        const data = await response.json();
+        if (data.success) {
+            renderConversations(data.conversations);
+        } else {
+            console.error('Error loading conversations:', data.message);
+        }
+    } catch (error) {
+        console.error('Network error loading conversations:', error);
+    }
 }
 
 // ===== RENDER CONVERSATIONS LIST =====
 function renderConversations(conversations) {
-    const conversationsList = document.querySelector('.conversations-list');
+    const listContainer = domElements.conversationsList;
+    if (!listContainer) return;
     
-    if (!conversationsList) return;
-    
-    if (conversations.length === 0) {
-        conversationsList.innerHTML = '<li style="padding: 16px; text-align: center; color: #999;">No conversations yet</li>';
+    if (!conversations || conversations.length === 0) {
+        listContainer.innerHTML = '<li style="padding: 16px; text-align: center; color: #999;">No conversations yet</li>';
         return;
     }
     
-    // Sort conversations: admin (recipient_id=1) first, then others by date
-    conversations.sort((a, b) => {
-        // Admin (typically ID 1) always goes first
-        if (a.recipient_id === 1 || a.recipient_id == 1) return -1;
-        if (b.recipient_id === 1 || b.recipient_id == 1) return 1;
-        // Then sort by most recent
-        return new Date(b.created_at) - new Date(a.created_at);
+    // 1. Find the admin conversation dynamically to update the green pinned card
+    const adminConv = conversations.find(c => parseInt(c.recipient_id, 10) === ADMIN_ID);
+    const librarySupportBtn = domElements.librarySupportBtn;
+    
+    if (adminConv && librarySupportBtn) {
+        // Attach the real conversation ID to the green HTML button container
+        librarySupportBtn.setAttribute('data-conversation-id', adminConv.id);
+        
+        // Update its text preview and time dynamically if messages exist
+        const supportSubtitle = librarySupportBtn.querySelector('.support-subtitle');
+        if (supportSubtitle && adminConv.last_message) {
+            supportSubtitle.innerText = adminConv.last_message;
+        }
+        
+        // Toggle an active background style if the user currently has the support chat open
+        if (currentConversationId == adminConv.id) {
+            librarySupportBtn.style.background = 'linear-gradient(135deg, #1e7e34 5%, #57cb57 95%)';
+        } else {
+            librarySupportBtn.style.background = ''; // Resets to base CSS green
+        }
+    }
+    
+    // 2. FILTER OUT THE ADMIN from the lower list so they only live in the green box
+    const filteredConversations = conversations.filter(c => parseInt(c.recipient_id, 10) !== ADMIN_ID);
+    
+    // Sort remaining regular users by descending date
+    const sorted = [...filteredConversations].sort((a, b) => {
+        const timeA = a.raw_sort_time ? new Date(a.raw_sort_time.replace(/-/g, "/")) : new Date(a.created_at.replace(/-/g, "/"));
+        const timeB = b.raw_sort_time ? new Date(b.raw_sort_time.replace(/-/g, "/")) : new Date(b.created_at.replace(/-/g, "/"));
+        return timeB - timeA;
     });
     
-    conversationsList.innerHTML = conversations.map((conv, index) => {
-        const isActive = currentConversationId === conv.id ? 'active' : '';
-        const unreadClass = conv.unread_count > 0 ? '' : 'hidden';
-        const unreadBadge = conv.unread_count > 0 ? `<span class="conversation-badge ${unreadClass}">${conv.unread_count}</span>` : '';
+    // Render only the non-admin rows
+    listContainer.innerHTML = sorted.map((conv) => {
+        const isActive = currentConversationId == conv.id;
+        const unreadBadge = conv.unread_count > 0 ? `<span class="badge bg-danger" style="float: right; margin-left: 8px;">${conv.unread_count}</span>` : '';
         const lastMessageTime = formatTime(conv.last_message_time);
         const lastMessage = conv.last_message || 'No messages yet';
-        const isAdmin = conv.recipient_id === 1 || conv.recipient_id == 1;
-        const adminBadge = isAdmin ? '<span class="admin-badge">Admin</span>' : '';
-        const adminPin = isAdmin ? '<span style="font-size: 10px; color: #97ee5b; margin-left: 4px;">📌</span>' : '';
+        
+        const backgroundStyle = isActive ? 'background: #f1f5f9;' : 'background: transparent;';
         
         return `
-            <li class="conversation-item ${isActive}" data-conversation-id="${conv.id}" data-recipient-id="${conv.recipient_id}" style="${isAdmin ? 'border-top: 2px solid #97ee5b;' : ''}">
-                <div class="conversation-avatar" style="${isAdmin ? 'background: #97ee5b; font-weight: 700;' : ''}">${conv.recipient_name.charAt(0).toUpperCase()}</div>
-                <div class="conversation-info">
-                    <div class="conversation-header">
+            <li class="conversation-item ${isActive ? 'active' : ''}" 
+                data-conversation-id="${conv.id}" 
+                data-recipient-id="${conv.recipient_id}" 
+                data-recipient-name="${escapeHtml(conv.recipient_name)}"
+                style="cursor: pointer; padding: 12px 16px; border-bottom: 1px solid rgba(0,0,0,0.05); ${backgroundStyle}">
+                <div class="conversation-info" style="display: flex; flex-direction: column; width: 100%;">
+                    <div class="conversation-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                         <div>
-                            <span class="conversation-name">${conv.recipient_name}</span>
-                            ${adminBadge}
-                            ${adminPin}
+                            <span class="conversation-name" style="font-weight: 600; color: #1e293b;">${escapeHtml(conv.recipient_name)}</span>
                         </div>
+                        <div class="conversation-time" style="font-size: 11px; color: #94a3b8;">${lastMessageTime}</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                        <div class="conversation-preview" style="font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 85%;">${escapeHtml(lastMessage)}</div>
                         ${unreadBadge}
                     </div>
-                    <div class="conversation-preview">${lastMessage}</div>
                 </div>
-                <div class="conversation-time">${lastMessageTime}</div>
             </li>
         `;
     }).join('');
     
-    // Add click listeners to conversation items
-    document.querySelectorAll('.conversation-item').forEach(item => {
+    // Event delegation listeners
+    listContainer.querySelectorAll('.conversation-item').forEach(item => {
         item.addEventListener('click', () => {
-            const convId = item.getAttribute('data-conversation-id');
-            const recipientId = item.getAttribute('data-recipient-id');
-            selectConversation(convId, recipientId);
+            selectConversation(
+                item.getAttribute('data-conversation-id'),
+                item.getAttribute('data-recipient-id'),
+                item.getAttribute('data-recipient-name')
+            );
         });
     });
 }
 
 // ===== SELECT CONVERSATION =====
-function selectConversation(conversationId, recipientId) {
+function selectConversation(conversationId, recipientId, recipientName) {
     currentConversationId = conversationId;
     currentRecipientId = recipientId;
     
-    // Update active state
+    if (domElements.inputArea) {
+        domElements.inputArea.style.setProperty('display', 'flex', 'important');
+    }
+    
+    if (recipientName) {
+        if (domElements.headerTitle) domElements.headerTitle.innerText = recipientName;
+        if (domElements.headerSub) domElements.headerSub.innerText = "Direct Chat Session Activity Open";
+    }
+    
     document.querySelectorAll('.conversation-item').forEach(item => {
         item.classList.remove('active');
+        item.style.background = 'transparent';
     });
-    document.querySelector(`[data-conversation-id="${conversationId}"]`)?.classList.add('active');
     
-    // Load messages
-    loadMessages(conversationId);
+    const activeEl = document.querySelector(`[data-conversation-id="${conversationId}"]`);
+    if (activeEl) {
+        activeEl.classList.add('active');
+        activeEl.style.background = '#f1f5f9';
+    }
+    
+    loadMessages(conversationId, true);
 }
 
 // ===== LOAD MESSAGES =====
-function loadMessages(conversationId) {
-    fetch(`${MESSAGING_API}?action=getMessages&conversation_id=${conversationId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                renderMessages(data.messages);
-                scrollMessagesToBottom();
-            } else {
-                console.error('Error loading messages:', data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
+async function loadMessages(conversationId, forceScroll = false) {
+    try {
+        const response = await fetch(`${MESSAGING_API}?action=getMessages&conversation_id=${conversationId}`);
+        const data = await response.json();
+        if (data.success) {
+            renderMessages(data.messages, forceScroll);
+        }
+    } catch (error) {
+        console.error('Error loading messages:', error);
+    }
 }
 
 // ===== RENDER MESSAGES =====
-function renderMessages(messages) {
-    const messagesContainer = document.querySelector('.messages-container');
+function renderMessages(messages, forceScroll = false) {
+    const container = domElements.messagesContainer;
+    if (!container) return;
     
-    if (!messagesContainer) return;
+    container.classList.remove('messages-empty');
+    const isAtBottom = (container.scrollHeight - container.scrollTop <= container.clientHeight + 100);
     
-    if (messages.length === 0) {
-        messagesContainer.innerHTML = '<div class="messages-empty"><p>No messages yet. Start the conversation!</p></div>';
+    if (!messages || messages.length === 0) {
+        container.innerHTML = '<div class="messages-empty" style="text-align: center; color: #94a3b8; padding: 40px 0;"><p>No messages yet. Start the conversation!</p></div>';
         return;
     }
     
-    // Get current user ID from the page
     const currentUserId = getCurrentUserId();
     
-    messagesContainer.innerHTML = messages.map(msg => {
-        const isSent = parseInt(msg.sender_id) === parseInt(currentUserId);
-        const messageClass = isSent ? 'sent' : 'received';
-        const time = formatTime(msg.created_at);
+    container.innerHTML = messages.map(msg => {
+        const isSent = parseInt(msg.sender_id, 10) === parseInt(currentUserId, 10);
+        const textAlignment = isSent ? 'flex-end' : 'flex-start';
+        const bubbleBg = isSent ? '#57cb57' : '#f1f5f9'; 
+        const bubbleColor = isSent ? '#000000' : '#1e293b';
+        const formattedDisplayTime = msg.time_stamp ? msg.time_stamp : formatTime(msg.created_at);
         
         return `
-            <div class="message ${messageClass}">
-                <div>
-                    <div class="message-bubble">${escapeHtml(msg.message)}</div>
-                    <div class="message-time">${time}</div>
+            <div style="margin-bottom: 14px; display: flex; flex-direction: column; align-items: ${textAlignment}; width: 100%;">
+                <div style="background: ${bubbleBg}; color: ${bubbleColor}; padding: 10px 14px; border-radius: 12px; max-width: 75%; font-size: 13px; line-height: 1.4; word-break: break-word;">
+                    ${escapeHtml(msg.message)}
                 </div>
+                <div style="font-size: 10px; color: #94a3b8; margin-top: 2px; padding: 0 4px;">${formattedDisplayTime}</div>
             </div>
         `;
     }).join('');
-    
-    // Show message input area
-    document.querySelector('.message-input-area').style.display = 'flex';
+
+    if (forceScroll || isAtBottom) {
+        scrollMessagesToBottom(forceScroll ? 'smooth' : 'auto');
+    }
 }
 
 // ===== SEND MESSAGE =====
-function sendMessage() {
-    const textarea = document.querySelector('.message-input-wrapper textarea');
+async function sendMessage() {
+    const textarea = domElements.textarea;
+    if (!textarea || !currentConversationId) return;
+
     const message = textarea.value.trim();
-    
-    if (!message || !currentConversationId) return;
+    if (!message) return;
     
     const formData = new FormData();
-    formData.append('action', 'sendMessage');
     formData.append('conversation_id', currentConversationId);
     formData.append('message', message);
     
-    fetch(MESSAGING_API, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
+    textarea.value = '';
+    textarea.style.height = 'auto';
+    
+    try {
+        const response = await fetch(`${MESSAGING_API}?action=sendMessage`, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        
         if (data.success) {
-            textarea.value = '';
-            loadMessages(currentConversationId);
-            loadConversations();
+            await Promise.all([
+                loadMessages(currentConversationId, true),
+                loadConversations()
+            ]);
         } else {
             alert('Error sending message: ' + data.message);
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error sending message');
-    });
+    } catch (error) {
+        console.error('Error sending message dispatch:', error);
+    }
 }
 
 // ===== SETUP EVENT LISTENERS =====
 function setupEventListeners() {
-    // Send button
-    const sendBtn = document.querySelector('.send-btn');
-    if (sendBtn) {
-        sendBtn.addEventListener('click', sendMessage);
+    if (domElements.sendBtn) {
+        domElements.sendBtn.addEventListener('click', sendMessage);
     }
     
-    // Message input - send on Enter (Shift+Enter for new line)
-    const textarea = document.querySelector('.message-input-wrapper textarea');
+    const textarea = domElements.textarea;
     if (textarea) {
-        textarea.addEventListener('keypress', (e) => {
+        textarea.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
             }
         });
         
-        // Auto-expand textarea
         textarea.addEventListener('input', () => {
             textarea.style.height = 'auto';
             textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
         });
     }
     
-    // Library Support button - click to open admin chat
-    const librarySupportBtn = document.querySelector('#librarySupport');
-    if (librarySupportBtn) {
-        librarySupportBtn.addEventListener('click', openLibrarySupport);
-        // Add hover effect
-        librarySupportBtn.addEventListener('mouseenter', () => {
-            librarySupportBtn.style.transform = 'translateY(-2px)';
-            librarySupportBtn.style.boxShadow = '0 4px 12px rgba(151, 238, 91, 0.3)';
-        });
-        librarySupportBtn.addEventListener('mouseleave', () => {
-            librarySupportBtn.style.transform = 'translateY(0)';
-            librarySupportBtn.style.boxShadow = '0 2px 8px rgba(151, 238, 91, 0.2)';
-        });
+    if (domElements.librarySupportBtn) {
+        domElements.librarySupportBtn.style.cursor = 'pointer';
+        domElements.librarySupportBtn.addEventListener('click', openLibrarySupport);
     }
     
-    // New chat button
     const newChatBtn = document.querySelector('.new-chat-btn');
-    if (newChatBtn) {
-        newChatBtn.addEventListener('click', openNewChatModal);
-    }
+    if (newChatBtn) newChatBtn.addEventListener('click', openNewChatModal);
+    if (domElements.startChatBtn) domElements.startChatBtn.addEventListener('click', startNewChat);
+    if (domElements.cancelBtn) domElements.cancelBtn.addEventListener('click', closeNewChatModal);
     
-    // New chat modal buttons
-    const startChatBtn = document.querySelector('.btn-start-chat');
-    const cancelBtn = document.querySelector('.btn-cancel');
-    
-    if (startChatBtn) {
-        startChatBtn.addEventListener('click', startNewChat);
-    }
-    
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', closeNewChatModal);
-    }
-    
-    // Close modal on background click
-    const modal = document.querySelector('.new-chat-modal');
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeNewChatModal();
-            }
+    if (domElements.newChatModal) {
+        domElements.newChatModal.addEventListener('click', (e) => {
+            if (e.target === domElements.newChatModal) closeNewChatModal();
         });
     }
 }
 
 // ===== NEW CHAT MODAL =====
 function openNewChatModal() {
-    const modal = document.querySelector('.new-chat-modal');
+    const modal = domElements.newChatModal;
     if (modal) {
+        modal.style.display = 'flex';
         modal.classList.add('active');
-        const input = modal.querySelector('input');
-        if (input) input.focus();
+        if (domElements.newChatInput) domElements.newChatInput.focus();
     }
 }
 
+// ===== CLOSE MODAL =====
 function closeNewChatModal() {
-    const modal = document.querySelector('.new-chat-modal');
+    const modal = domElements.newChatModal;
     if (modal) {
+        modal.style.display = 'none';
         modal.classList.remove('active');
-        modal.querySelector('input').value = '';
+        if (domElements.newChatInput) domElements.newChatInput.value = '';
     }
 }
 
-function startNewChat() {
-    const modal = document.querySelector('.new-chat-modal');
-    const emailInput = modal.querySelector('input');
-    const email = emailInput.value.trim();
+// ===== START NEW CHAT ROUTINE =====
+async function startNewChat() {
+    const email = domElements.newChatInput ? domElements.newChatInput.value.trim() : '';
     
     if (!email) {
         alert('Please enter an email address');
@@ -303,135 +352,115 @@ function startNewChat() {
     }
     
     const formData = new FormData();
-    formData.append('action', 'startConversation');
     formData.append('recipient_email', email);
     
-    fetch(MESSAGING_API, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
+    try {
+        const response = await fetch(`${MESSAGING_API}?action=startConversation`, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        
         if (data.success) {
             closeNewChatModal();
-            loadConversations();
-            setTimeout(() => {
-                selectConversation(data.conversation_id, null);
-            }, 300);
+            
+            const convResponse = await fetch(`${MESSAGING_API}?action=getConversations`);
+            const cData = await convResponse.json();
+            
+            if (cData.success) {
+                renderConversations(cData.conversations);
+                const newConv = cData.conversations.find(c => c.id == data.conversation_id);
+                const rName = newConv ? newConv.recipient_name : email;
+                const rId = newConv ? newConv.recipient_id : null;
+                
+                selectConversation(data.conversation_id, rId, rName);
+            }
         } else {
             alert('Error: ' + data.message);
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error creating conversation');
-    });
+    } catch (error) {
+        console.error('Error creating new conversation:', error);
+    }
 }
 
-// ===== OPEN LIBRARY SUPPORT CHAT =====
-function openLibrarySupport() {
-    fetch(`${MESSAGING_API}?action=getAdminConversation`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                selectConversation(data.conversation_id, 1);
-            } else {
-                alert('Error opening support chat');
+// ===== OPEN LIBRARY SUPPORT =====
+async function openLibrarySupport() {
+    try {
+        const response = await fetch(`${MESSAGING_API}?action=getAdminConversation`);
+        const data = await response.json();
+        if (data.success) {
+            // Remove selection styling from standard list rows
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.remove('active');
+                item.style.background = 'transparent';
+            });
+            
+            // Open the conversation window
+            selectConversation(data.conversation_id, ADMIN_ID, "Library Support Admin");
+            
+            // Re-render layout to make sure green card highlights properly
+            if (domElements.conversationsList.innerHTML !== 'Loading...') {
+                const convResponse = await fetch(`${MESSAGING_API}?action=getConversations`);
+                const cData = await convResponse.json();
+                if (cData.success) renderConversations(cData.conversations);
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+        } else {
             alert('Error opening support chat');
-        });
+        }
+    } catch (error) {
+        console.error('Error opening support channel connection:', error);
+    }
 }
 
 // ===== AUTO-REFRESH MESSAGES =====
 function startAutoRefresh() {
-    // Refresh messages every 3 seconds if a conversation is selected
-    setInterval(() => {
-        if (currentConversationId) {
-            loadMessages(currentConversationId);
+    if (refreshInterval) clearInterval(refreshInterval);
+    
+    refreshInterval = setInterval(async () => {
+        if (isPolling) return; 
+        isPolling = true;
+        
+        try {
+            const tasks = [loadConversations()];
+            if (currentConversationId) {
+                tasks.push(loadMessages(currentConversationId, false));
+            }
+            await Promise.all(tasks);
+        } catch (error) {
+            console.error("Polling instance error: ", error);
+        } finally {
+            isPolling = false;
         }
-        loadConversations();
     }, REFRESH_INTERVAL);
 }
 
 // ===== UTILITY FUNCTIONS =====
 function formatTime(dateString) {
     if (!dateString) return '';
+    if (dateString.includes('AM') || dateString.includes('PM')) return dateString;
     
-    const date = new Date(dateString);
+    const date = new Date(dateString.replace(/-/g, "/"));
     const now = new Date();
+    
+    if (isNaN(date.getTime())) return dateString; 
+    
     const diff = now - date;
-    
-    // Less than 1 minute
     if (diff < 60000) return 'just now';
+    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
     
-    // Less than 1 hour
-    if (diff < 3600000) {
-        const mins = Math.floor(diff / 60000);
-        return mins + 'm ago';
-    }
-    
-    // Less than 1 day
-    if (diff < 86400000) {
-        const hours = Math.floor(diff / 3600000);
-        return hours + 'h ago';
-    }
-    
-    // Today vs Yesterday
-    const dateOnly = date.toLocaleDateString();
-    const todayOnly = now.toLocaleDateString();
-    
-    if (dateOnly === todayOnly) {
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-    
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    if (dateOnly === yesterday.toLocaleDateString()) {
-        return 'Yesterday';
-    }
-    
-    // Older dates
-    return date.toLocaleDateString();
+    return date.toLocaleDateString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-function scrollMessagesToBottom() {
-    const messagesContainer = document.querySelector('.messages-container');
-    if (messagesContainer) {
-        setTimeout(() => {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }, 100);
+function scrollMessagesToBottom(behavior = 'auto') {
+    const container = domElements.messagesContainer;
+    if (container) {
+        container.scrollTo({
+            top: container.scrollHeight,
+            behavior: behavior
+        });
     }
 }
 
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
-}
-
-function getCurrentUserId() {
-    // Get user ID from hidden element or data attribute
-    const userIdElement = document.querySelector('[data-user-id]');
-    if (userIdElement) {
-        return userIdElement.getAttribute('data-user-id');
-    }
-    
-    // Alternative: extract from page or session
-    const userElement = document.querySelector('.current-user-id');
-    if (userElement) {
-        return userElement.textContent;
-    }
-    
-    return 0;
-}
-
-// Initialize when DOM is ready
+// Initialize on Document Load
 document.addEventListener('DOMContentLoaded', initializeMessenger);

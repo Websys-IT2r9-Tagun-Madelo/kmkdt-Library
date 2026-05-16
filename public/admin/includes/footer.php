@@ -12,7 +12,7 @@
     Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ 
     Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
   </div> -->
-</footer><!-- End Footer -->
+</footer>
 
 <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
     class="bi bi-arrow-up-short"></i></a>
@@ -27,11 +27,13 @@
 <script src="assets/vendor/tinymce/tinymce.min.js"></script>
 <script src="assets/vendor/php-email-form/validate.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="../assets/js/admin-messenger.js"></script>
+
+
 
 <!-- Template Main JS File -->
 <script src="assets/js/main.js"></script>
-
+<script src="/kmkdt-Library/public/admin/assets/js/admin-messenger.js"></script>
+<script src="/kmkdt-Library/public/admin/assets/js/messenger.js"></script>
 
 <?php
 if (isset($_SESSION['message']) && $_SESSION['code'] != '') {

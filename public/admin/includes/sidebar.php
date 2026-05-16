@@ -57,7 +57,7 @@
       <ul id="analytics-nav" class="nav-content collapse <?= $analytics_active ? 'show' : '' ?>" data-bs-parent="#sidebar-nav">
         <li>
           <a href="PPH" class="<?= ($page == 'PPH.php') ? 'active' : '' ?>">
-            <i class="bi bi-circle-fill"></i><span>Penalty Payment History</span>
+            <i class="bi bi-circle-fill"></i><span> Payment History</span>
           </a>
         </li>
         <li>

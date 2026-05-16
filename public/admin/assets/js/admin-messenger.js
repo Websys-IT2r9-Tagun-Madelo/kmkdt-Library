@@ -1,6 +1,4 @@
-// ===== ADMIN MESSENGER CHAT SYSTEM =====
-// Configuration
-const ADMIN_MESSAGING_API = '/kmkdt-Library/app/controller/messagingController.php';
+const ADMIN_MESSAGING_API = '../../app/controller/messagingController.php';
 const ADMIN_REFRESH_INTERVAL = 3000; // 3 seconds - refresh messages
 
 let adminCurrentConversationId = null;
@@ -50,18 +48,23 @@ function adminRenderConversations(conversations) {
         const isActive = adminCurrentConversationId === conv.id ? 'active' : '';
         const unreadClass = conv.unread_count > 0 ? '' : 'hidden';
         const unreadBadge = conv.unread_count > 0 ? `<span class="conversation-badge ${unreadClass}">${conv.unread_count}</span>` : '';
-        const lastMessageTime = formatTimeAdmin(conv.last_message_time);
+        const lastMessageTime = conv.last_message_time || '';
         const lastMessage = conv.last_message || 'No messages yet';
         
+        // SAFELY FALLBACK IF NAMES MISMATCH VIA THE CONTROLLER
+        const displayName = conv.recipient_name || conv.fullName || 'Unknown User';
+        const displayEmail = conv.recipient_email || conv.email || '';
+        const displayUserId = conv.recipient_id || conv.user_id;
+        
         return `
-            <li class="conversation-item ${isActive}" data-conversation-id="${conv.id}" data-user-id="${conv.user_id}">
-                <div class="conversation-avatar">${conv.fullName.charAt(0).toUpperCase()}</div>
+            <li class="conversation-item ${isActive}" data-conversation-id="${conv.id}" data-user-id="${displayUserId}">
+                <div class="conversation-avatar">${displayName.charAt(0).toUpperCase()}</div>
                 <div class="conversation-info">
                     <div class="conversation-header">
-                        <span class="conversation-name">${conv.fullName}</span>
+                        <span class="conversation-name">${displayName}</span>
                         ${unreadBadge}
                     </div>
-                    <div style="font-size: 12px; color: #999; margin-bottom: 4px;">${conv.email}</div>
+                    <div style="font-size: 12px; color: #999; margin-bottom: 4px;">${displayEmail}</div>
                     <div class="conversation-preview">${lastMessage}</div>
                 </div>
                 <div class="conversation-time">${lastMessageTime}</div>
@@ -120,7 +123,7 @@ function adminRenderMessages(messages) {
         return;
     }
     
-    // Get current admin ID (Admin should be user ID 1 typically)
+    // Align with global admin assignment definitions
     const currentAdminId = getAdminUserId();
     
     messagesContainer.innerHTML = messages.map(msg => {
@@ -128,12 +131,11 @@ function adminRenderMessages(messages) {
         const messageClass = isSent ? 'sent' : 'received';
         const time = formatTimeAdmin(msg.created_at);
         
+        // REMOVED THE WRAPPING DIV TAGS INSIDE THE MESSAGE WRAPPER
         return `
             <div class="message ${messageClass}">
-                <div>
-                    <div class="message-bubble">${escapeHtmlAdmin(msg.message)}</div>
-                    <div class="message-time">${time}</div>
-                </div>
+                <div class="message-bubble">${escapeHtmlAdmin(msg.message)}</div>
+                <div class="message-time">${time}</div>
             </div>
         `;
     }).join('');
@@ -202,8 +204,9 @@ function adminSetupEventListeners() {
 
 // ===== AUTO-REFRESH MESSAGES (ADMIN) =====
 function adminStartAutoRefresh() {
-    // Refresh messages every 3 seconds if a conversation is selected
-    setInterval(() => {
+    if (adminRefreshInterval) clearInterval(adminRefreshInterval);
+
+    adminRefreshInterval = setInterval(() => {
         if (adminCurrentConversationId) {
             adminLoadMessages(adminCurrentConversationId);
         }
@@ -219,22 +222,18 @@ function formatTimeAdmin(dateString) {
     const now = new Date();
     const diff = now - date;
     
-    // Less than 1 minute
     if (diff < 60000) return 'just now';
     
-    // Less than 1 hour
     if (diff < 3600000) {
         const mins = Math.floor(diff / 60000);
         return mins + 'm ago';
     }
     
-    // Less than 1 day
     if (diff < 86400000) {
         const hours = Math.floor(diff / 3600000);
         return hours + 'h ago';
     }
     
-    // Today vs Yesterday
     const dateOnly = date.toLocaleDateString();
     const todayOnly = now.toLocaleDateString();
     
@@ -248,7 +247,6 @@ function formatTimeAdmin(dateString) {
         return 'Yesterday';
     }
     
-    // Older dates
     return date.toLocaleDateString();
 }
 
@@ -273,20 +271,106 @@ function escapeHtmlAdmin(text) {
 }
 
 function getAdminUserId() {
-    // Get admin user ID from hidden element
     const adminIdElement = document.querySelector('[data-admin-id]');
     if (adminIdElement) {
         return adminIdElement.getAttribute('data-admin-id');
     }
     
-    // Alternative: extract from page
     const adminElement = document.querySelector('.current-admin-id');
     if (adminElement) {
         return adminElement.textContent;
     }
     
-    return 1; // Default to admin ID 1
+    return 4; // Normalized Admin ID reference alignment
 }
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', initializeAdminMessenger);
+
+// ===== SETUP EVENT LISTENERS (ADMIN) =====
+function adminSetupEventListeners() {
+    // Send button
+    const sendBtn = document.querySelector('.admin-send-btn');
+    if (sendBtn) {
+        sendBtn.addEventListener('click', adminSendMessage);
+    }
+    
+    // Message input - send on Enter (Shift+Enter for new line)
+    const textarea = document.querySelector('.admin-message-input-wrapper textarea');
+    if (textarea) {
+        textarea.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                adminSendMessage();
+            }
+        });
+        
+        // Auto-expand textarea
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+        });
+    }
+
+    // ==========================================
+    // ADDED: LIVE SEARCH FILTER FOR CONVERSATIONS
+    // ==========================================
+    const searchInput = document.getElementById('adminConversationSearch');
+    const clearBtn = document.getElementById('clearSearchBtn');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase().trim();
+            const items = document.querySelectorAll('.admin-conversations-list .conversation-item');
+            
+            // Toggle the 'X' clear button visibility if it exists
+            if (clearBtn) {
+                if (query.length > 0) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+            }
+
+            items.forEach(item => {
+                // Grab the name and email text content from the item elements
+                const name = item.querySelector('.conversation-name')?.textContent.toLowerCase() || '';
+                const email = item.style.cssText ? '' : item.querySelector('div[style*="font-size: 12px"]')?.textContent.toLowerCase() || ''; 
+                
+                // If the name or email matches the query, show it; otherwise hide it
+                if (name.includes(query) || email.includes(query)) {
+                    item.style.setProperty('display', 'flex', 'important');
+                } else {
+                    item.style.setProperty('display', 'none', 'important');
+                }
+            });
+
+            // Handle the "No results found" visual placeholder safely
+            const visibleItems = document.querySelectorAll('.admin-conversations-list .conversation-item[style*="display: flex"]');
+            const listContainer = document.querySelector('.admin-conversations-list');
+            let noResultPlaceholder = document.getElementById('search-no-results');
+
+            if (visibleItems.length === 0 && items.length > 0) {
+                if (!noResultPlaceholder) {
+                    noResultPlaceholder = document.createElement('li');
+                    noResultPlaceholder.id = 'search-no-results';
+                    noResultPlaceholder.style.cssText = 'padding: 24px; text-align: center; color: #94a3b8; font-size: 13.5px;';
+                    noResultPlaceholder.textContent = 'No matching users found';
+                    listContainer.appendChild(noResultPlaceholder);
+                }
+            } else if (noResultPlaceholder) {
+                noResultPlaceholder.remove();
+            }
+        });
+    }
+
+    // Optional: Make the clear button clear the text out when clicked
+    if (clearBtn && searchInput) {
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            clearBtn.classList.add('hidden');
+            searchInput.dispatchEvent(new Event('input')); // Re-trigger filtering to reset list
+            searchInput.focus();
+        });
+    }
+}

@@ -1,78 +1,31 @@
 <?php
+// app/controllers/userController.php
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-include('../../app/middleware/admin.php');
-
-// 1. Get database configuration path
-$configPath = $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/config/config.php';
-if (!file_exists($configPath)) {
+// 1. PATH CONFIGURATION 
+$configPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
+if (file_exists($configPath)) {
+    include_once($configPath);
+} else {
     die("Config file not found at: " . $configPath);
 }
-include_once($configPath);
 
-// 2. Fetch Catalog Items with Availability Status
-$booksQuery = "SELECT b.*, 
-               (SELECT bh.status FROM borrowing_history bh 
-                WHERE bh.book_id = b.id AND bh.status IN ('borrowed', 'overdue') 
-                ORDER BY bh.borrowed_at DESC LIMIT 1) AS active_status 
-               FROM books b";
-$booksResult = $conn->query($booksQuery);
-$books = [];
-if ($booksResult && $booksResult->num_rows > 0) {
-    while ($row = $booksResult->fetch_assoc()) {
-        $books[] = $row;
+// 2. CENTRAL ROUTING ACTIONS
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+    // Logout Action Route
+    if (isset($_POST['logoutButton'])) {
+        unset($_SESSION['authUser']);
+        unset($_SESSION['user_id']);
+        unset($_SESSION['userRole']);
+        session_destroy();
+        header("Location: /kmkdt-Library/public/login");
+        exit();
     }
 }
-
-// 3. Fetch Recent Activity combining Borrowing and Penalty Payments
-$activities = [];
-
-// A. Pull loans and returns
-$loanActivityQuery = "SELECT bh.status, bh.borrowed_at AS activity_time, u.fullName, b.title 
-                      FROM borrowing_history bh
-                      JOIN user u ON bh.user_id = u.id
-                      JOIN books b ON bh.book_id = b.id
-                      ORDER BY bh.borrowed_at DESC LIMIT 5";
-$loanResult = $conn->query($loanActivityQuery);
-if ($loanResult && $loanResult->num_rows > 0) {
-    while ($row = $loanResult->fetch_assoc()) {
-        $activities[] = [
-            'type' => 'history',
-            'status' => $row['status'],
-            'time' => $row['activity_time'],
-            'fullName' => $row['fullName'],
-            'details' => $row['title']
-        ];
-    }
-}
-
-// B. Pull penalty payments
-$paymentActivityQuery = "SELECT pp.amount_paid, pp.paid_at AS activity_time, u.fullName 
-                         FROM penalty_payments pp
-                         JOIN user u ON pp.user_id = u.id
-                         ORDER BY pp.paid_at DESC LIMIT 5";
-$paymentResult = $conn->query($paymentActivityQuery);
-if ($paymentResult && $paymentResult->num_rows > 0) {
-    while ($row = $paymentResult->fetch_assoc()) {
-        $activities[] = [
-            'type' => 'payment',
-            'status' => 'Paid Fine',
-            'time' => $row['activity_time'],
-            'fullName' => $row['fullName'],
-            'details' => 'Php ' . number_format($row['amount_paid'], 2)
-        ];
-    }
-}
-
-// Sort the combined list by time descending
-usort($activities, function($a, $b) {
-    return strcmp($b['time'], $a['time']);
-});
-// Trim to latest 5 items total
-$activities = array_slice($activities, 0, 5);
-
 
 include('./includes/header.php');
 include('./includes/topbar.php');

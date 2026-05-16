@@ -19,7 +19,7 @@ if (isset($_POST['logoutButton'])) {
     unset($_SESSION['user_id']);
     unset($_SESSION['userRole']);
     session_destroy();
-    header("Location: /kmkdt-Library/public/Login");
+    header("Location: /kmkdt-Library/public/login");
     exit();
 }
 
@@ -37,21 +37,19 @@ function getAllBooks($conn, $search = '') {
 
     if (in_array($search, $filterCategories)) {
         if ($search === 'Fiction') {
-            // This logic specifically finds "Fiction" or "Online, Fiction" 
-            // while EXCLUDING "Non-Fiction"
             $sql = "SELECT * FROM books WHERE 
                     (category LIKE 'Fiction%' OR category LIKE '%, Fiction%') 
                     AND category NOT LIKE '%Non-Fiction%'";
             $stmt = $conn->prepare($sql);
         } else {
-            // Standard partial match for other categories
+            
             $sql = "SELECT * FROM books WHERE category LIKE ? OR genre LIKE ?";
             $searchTerm = "%$search%";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("ss", $searchTerm, $searchTerm);
         }
     } else {
-        // General Keyword Search
+        
         $sql = "SELECT * FROM books WHERE 
                 title LIKE ? OR author LIKE ? OR genre LIKE ? OR category LIKE ?";
         $searchTerm = "%$search%";
