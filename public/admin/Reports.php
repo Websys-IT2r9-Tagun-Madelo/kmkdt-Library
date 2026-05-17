@@ -77,6 +77,7 @@ include('./includes/sidebar.php');
   <nav>
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="index">Home</a></li>
+      <li class="breadcrumb-item">Analytics & Reporting</li>
       <li class="breadcrumb-item active">Reports</li>
     </ol>
   </nav>

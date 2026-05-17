@@ -34,6 +34,7 @@ if ($result && $result->num_rows > 0) {
   <nav>
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+      <li class="breadcrumb-item">Client Management</li>
       <li class="breadcrumb-item active">Accounts</li>
     </ol>
   </nav>

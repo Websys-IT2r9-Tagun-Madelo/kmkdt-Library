@@ -4,9 +4,9 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("🚀 Admin Notification Engine active on dashboard view.");
 
-    // Absolute routing path mapping contexts
-    const MESSAGING_API = window.location.origin + '/kmkdt-Library/app/controller/messagingController.php';
-    const ADMIN_API     = window.location.origin + '/kmkdt-Library/app/controller/adminController.php';
+    const BASE_URL = window.location.origin + '/kmkdt-Library';
+    const MESSAGING_API = `${BASE_URL}/app/controller/messagingController.php`;
+    const ADMIN_API     = `${BASE_URL}/app/controller/adminController.php`;
 
     function checkGlobalLiveUpdates() {
         console.log("📡 Polling system engines for live updates...");
@@ -54,7 +54,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 }
 
-                // Update Message Topbar UI Elements
                 const msgBadge = document.getElementById('global-message-badge');
                 const msgHeader = document.getElementById('global-message-header');
                 const msgPreviewList = document.getElementById('global-messages-preview-list');
@@ -80,8 +79,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => console.error("⚠️ Messaging Endpoint Connection Refused:", err));
 
 
-        // 2. ROUTE TO ADMIN CONTROLLER FOR LIVE OVERDUE REPORT ALERTS
-        fetch(`${ADMIN_API}?action=getNotifications`)
+        // 2. ROUTE TO ADMIN CONTROLLER FOR LIVE OVERDUE REPORT ALERTS (UNLIMITED CAP)
+        fetch(`${ADMIN_API}?action=getNotifications&limit=none`)
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP Request Error! Status: ${res.status}`);
                 return res.json();
@@ -96,11 +95,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 const notiHeader = document.getElementById('global-notification-header');
                 const notiPreviewList = document.getElementById('global-notifications-preview-list');
 
-                let totalNotifications = 0;
                 let notiDropdownHTML = '';
                 const systemNotifications = data.notifications || [];
-
-                totalNotifications = systemNotifications.length;
+                const totalNotifications = systemNotifications.length;
 
                 if (totalNotifications > 0) {
                     systemNotifications.forEach(noti => {
@@ -108,33 +105,54 @@ document.addEventListener("DOMContentLoaded", function () {
                         if (noti.type === 'danger' || noti.type === 'overdue') iconClass = "bi-x-circle text-danger";
                         if (noti.type === 'success') iconClass = "bi-check-circle text-success";
 
+                        // Wrapped item elements inside an anchor tag that fires a clear request status on click
                         notiDropdownHTML += `
-                            <li class="notification-item px-3 py-2 d-flex align-items-start" style="list-style: none;">
-                                <i class="bi ${iconClass} me-2" style="font-size:16px;"></i>
-                                <div class="overflow-hidden flex-grow-1">
-                                    <p class="mb-0 small text-dark fw-bold">${noti.title || 'System Alert'}</p>
-                                    <p class="mb-0 text-muted text-truncate" style="font-size: 11px;">${noti.message}</p>
-                                </div>
+                            <li class="border-bottom dropdown-item p-0 noti-item-row" style="list-style: none;">
+                                <a href="Reports" class="d-flex align-items-start gap-2 p-3 text-decoration-none text-wrap admin-noti-click" data-id="${noti.id || ''}">
+                                    <i class="bi ${iconClass} me-2" style="font-size:16px;"></i>
+                                    <div class="overflow-hidden flex-grow-1">
+                                        <p class="mb-0 small text-dark fw-bold">${noti.title || 'System Alert'}</p>
+                                        <p class="mb-0 text-muted text-truncate" style="font-size: 11px;">${noti.message}</p>
+                                    </div>
+                                </a>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
                         `;
                     });
 
                     if (notiBadge) {
                         notiBadge.className = "badge badge-number";
-                        notiBadge.style.backgroundColor = "#32cd32"; // Administrative Theme Lime Hex Match
+                        notiBadge.style.backgroundColor = "#32cd32"; 
                         notiBadge.style.color = "#ffffff";
                         notiBadge.style.display = "inline-block";
                         notiBadge.textContent = totalNotifications;
                     }
                     
                     if (notiHeader) {
-                        notiHeader.innerHTML = `You have ${totalNotifications} new notifications <a href="Reports"><span class="badge rounded-pill p-2 ms-2" style="background-color: #32cd32; color: white;">View all</span></a>`;
+                        notiHeader.innerHTML = `You have ${totalNotifications} new notifications <a href="Reports" id="clearAllAdminNotis"><span class="badge rounded-pill p-2 ms-2" style="background-color: #32cd32; color: white;">View all</span></a>`;
                     }
                     
                     if (notiPreviewList) {
                         notiPreviewList.innerHTML = notiDropdownHTML;
                     }
+
+                    // Attach Event Listeners to individual dynamic row item clicks
+                    document.querySelectorAll('.admin-noti-click').forEach(element => {
+                        element.addEventListener('click', function(e) {
+                            const notiId = this.getAttribute('data-id');
+                            if(notiId) {
+                                navigator.sendBeacon(`${ADMIN_API}?action=markNotificationRead&id=${notiId}`);
+                            }
+                        });
+                    });
+
+                    // Attach Event Listener to "View all" link button to dismiss everything instantly
+                    const clearAllBtn = document.getElementById('clearAllAdminNotis');
+                    if (clearAllBtn) {
+                        clearAllBtn.addEventListener('click', function() {
+                            navigator.sendBeacon(`${ADMIN_API}?action=clearAllNotifications`);
+                        });
+                    }
+
                 } else {
                     if (notiBadge) {
                         notiBadge.className = "";
@@ -153,7 +171,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => console.error("⚠️ Admin Notification Target Connection Error:", err));
     }
 
-    // Initialize immediate execution and establish loop cycle
     checkGlobalLiveUpdates();
     setInterval(checkGlobalLiveUpdates, 5000);
 });

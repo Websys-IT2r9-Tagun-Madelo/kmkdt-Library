@@ -13,6 +13,7 @@ $adminId = $_SESSION['authUser']['user_id'] ?? $_SESSION['user_id'] ?? 4;
     <nav>
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="index">Home</a></li>
+        <li class="breadcrumb-item">Admin Hub</li>
         <li class="breadcrumb-item active">Contacts</li>
       </ol>
     </nav>

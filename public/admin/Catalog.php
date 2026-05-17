@@ -45,6 +45,7 @@ include('./includes/sidebar.php');
   <nav>
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="index">Home</a></li>
+      <li class="breadcrumb-item">Library Management</li>
       <li class="breadcrumb-item active">Catalog</li>
     </ol>
   </nav>

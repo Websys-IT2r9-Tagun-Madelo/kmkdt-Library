@@ -193,7 +193,6 @@ h6 {
   border: none;
   border-radius: 5px;
   box-shadow: 0px 0 30px rgba(50, 205, 50, 0.1);
-  /* Lime-tinted shadow */
 }
 
 .card-title {
@@ -209,7 +208,6 @@ h6 {
   color: #1e4d1e;
   /* Deep Lime text */
   background-color: #f0fdf4;
-  /* Light Lime background */
 }
 
 .accordion-flush .accordion-button:not(.collapsed) {
@@ -569,7 +567,7 @@ h6 {
 /* Main Top-Level Links */
 .sidebar-nav .nav-link {
   background-color: transparent;
-  color: var(--text-dark);
+  color: var(--primary-green);
   font-size: 1.1rem;
   font-weight: 500;
   padding: 12px 16px;
@@ -707,7 +705,7 @@ h6 {
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 1px;
-  color: #aab7cf;
+  color: #aacfbe;
   margin-bottom: 0;
   padding: 0;
 }
@@ -739,7 +737,7 @@ h6 {
 }
 
 .dashboard .sales-card .card-icon {
-  color: #4154f1;
+  color: #41f14a;
   background: #f6f6fe;
 }
 
@@ -890,7 +888,7 @@ h6 {
   background-color: #fff;
   border-radius: 0.25rem;
   text-align: center;
-  color: #012970;
+  color: #2d7001;
   /* Kept dark for icon contrast */
   padding: 15px 0;
 }
@@ -940,14 +938,13 @@ h6 {
   font-size: 20px;
   display: inline-block;
   color: rgba(50, 205, 50, 0.5);
-  /* Swapped from blue-tint to lime-tint */
   line-height: 0;
   margin-right: 10px;
   transition: 0.3s;
 }
 
 .profile .profile-card .social-links a:hover {
-  color: #356635;
+  color: #57cb57;
   /* Swapped to Lime */
 }
 
@@ -957,18 +954,18 @@ h6 {
 }
 
 .profile .profile-overview .card-title {
-  color: #012970;
+  color: #57cb57;
 }
 
 .profile .profile-overview .label {
   font-weight: 600;
-  color: rgba(1, 41, 112, 0.6);
-  /* Kept for readability on labels */
+  color: rgba(1, 112, 21, 0.6);
+
 }
 
 .profile .profile-edit label {
   font-weight: 600;
-  color: rgba(1, 41, 112, 0.6);
+  color: #01703a99;
 }
 
 .profile .profile-edit img {

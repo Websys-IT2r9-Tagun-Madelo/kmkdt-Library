@@ -5,7 +5,9 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // ===== FOR REAL-TIME NAVBAR NOTIFICATIONS =====
-if (isset($_GET['action']) && $_GET['action'] === 'getNotifications') {
+if (isset($_GET['action'])) {
+    $action = $_GET['action'];
+
     // Clear any accidental whitespace or layouts from corrupting the JSON payload
     if (ob_get_length()) {
         ob_clean();
@@ -23,15 +25,46 @@ if (isset($_GET['action']) && $_GET['action'] === 'getNotifications') {
         }
     }
 
-    // Call your now safely defined notification core query function
-    $notifications = getLiveOverdueNotifications($conn);
+    // 1. ACTION: GET SYSTEM NOTIFICATIONS (WITH UNLIMITED OVERRIDE)
+    if ($action === 'getNotifications') {
+        // Remove structural limitations if 'limit=none' was received by the JS Engine
+        $isUnlimited = (isset($_GET['limit']) && $_GET['limit'] === 'none');
+        $notifications = getLiveOverdueNotifications($conn, $isUnlimited);
 
-    // Ship the dynamic block cleanly to the JavaScript polling handler
-    echo json_encode([
-        'success' => true,
-        'notifications' => $notifications
-    ]);
-    exit();
+        echo json_encode([
+            'success' => true,
+            'notifications' => $notifications
+        ]);
+        exit();
+    }
+
+    // 2. ACTION: MARK A SINGLE NOTIFICATION AS READ / DISMISSED
+    if ($action === 'markNotificationRead') {
+        $id = (int)($_GET['id'] ?? 0);
+        if ($id > 0) {
+            // Track dismissed updates using an internal session array so we don't alter database tables
+            if (!isset($_SESSION['dismissed_notifications'])) {
+                $_SESSION['dismissed_notifications'] = [];
+            }
+            $_SESSION['dismissed_notifications'][] = $id;
+        }
+        echo json_encode(['success' => true]);
+        exit();
+    }
+
+    // 3. ACTION: CLEAR ALL CURRENT NOTIFICATIONS INSTANTLY
+    if ($action === 'clearAllNotifications') {
+        // Fetch current active records and dump their IDs into the session suppression array
+        $allActive = getLiveOverdueNotifications($conn, true);
+        if (!isset($_SESSION['dismissed_notifications'])) {
+            $_SESSION['dismissed_notifications'] = [];
+        }
+        foreach ($allActive as $noti) {
+            $_SESSION['dismissed_notifications'][] = $noti['id'];
+        }
+        echo json_encode(['success' => true]);
+        exit();
+    }
 }
 
 // 1. Safe Logout Interceptor
@@ -113,10 +146,12 @@ function getCirculationRecords($conn) {
     return ($result) ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
 }
 
-function getLiveOverdueNotifications($conn) {
+function getLiveOverdueNotifications($conn, $isUnlimited = false) {
     $currentDate = date('Y-m-d');
     
-    // Scans borrowing_history for all status transitions, mapping clean user alerts
+    // Check if we need to remove the layout's structural cap rule
+    $limitClause = $isUnlimited ? "" : " LIMIT 5";
+    
     $sql = "SELECT 
                 CASE 
                     WHEN h.status = 'returned' THEN 'success'
@@ -137,11 +172,24 @@ function getLiveOverdueNotifications($conn) {
             FROM borrowing_history h
             JOIN user u ON h.user_id = u.id
             JOIN books b ON h.book_id = b.id
-            ORDER BY h.id DESC LIMIT 5";
+            ORDER BY h.id DESC" . $limitClause;
             
     try {
         $result = mysqli_query($conn, $sql);
-        return ($result) ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
+        if (!$result) return [];
+        
+        $rawRecords = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        
+        // Filter out any notification IDs that have been added to the dismissal array session tracking
+        $dismissedIds = $_SESSION['dismissed_notifications'] ?? [];
+        if (empty($dismissedIds)) {
+            return $rawRecords;
+        }
+        
+        return array_values(array_filter($rawRecords, function($item) use ($dismissedIds) {
+            return !in_array((int)$item['id'], $dismissedIds);
+        }));
+        
     } catch (mysqli_sql_exception $e) {
         return [];
     }
@@ -151,7 +199,6 @@ function getLiveOverdueNotifications($conn) {
  * Fetches aggregate circulation metrics for the Admin Dashboard Overview
  */
 function getCirculationStats($conn) {
-    // Collect raw counts for every single system status type
     $query = "SELECT 
                 SUM(CASE WHEN status = 'borrowed' THEN 1 ELSE 0 END) AS total_borrowed,
                 SUM(CASE WHEN status = 'returned' THEN 1 ELSE 0 END) AS total_returned,
@@ -161,28 +208,24 @@ function getCirculationStats($conn) {
               FROM borrowing_history";
               
     $result = mysqli_query($conn, $query);
-    
     if (!$result) {
         die("Circulation Stats Query Failed: " . mysqli_error($conn));
     }
     
     $stats = mysqli_fetch_assoc($result);
     
-    // Normalize metric counters to prevent unexpected evaluation errors
     $total    = isset($stats['total_transactions']) ? (int)$stats['total_transactions'] : 0;
     $borrowed = isset($stats['total_borrowed'])     ? (int)$stats['total_borrowed'] : 0;
     $returned = isset($stats['total_returned'])     ? (int)$stats['total_returned'] : 0;
     $overdue  = isset($stats['total_overdue'])      ? (int)$stats['total_overdue'] : 0;
     $dueSoon  = isset($stats['total_due_soon'])     ? (int)$stats['total_due_soon'] : 0;
     
-    // 📊 Dynamically calculate mathematical percentages for all layout elements
     if ($total > 0) {
         $stats['borrowed_pct'] = round(($borrowed / $total) * 100, 1);
         $stats['returned_pct'] = round(($returned / $total) * 100, 1);
         $stats['overdue_pct']  = round(($overdue / $total) * 100, 1);
         $stats['due_soon_pct'] = round(($dueSoon / $total) * 100, 1);
     } else {
-        // Fallback layout bounds to avoid mathematical division-by-zero errors
         $stats['borrowed_pct'] = 0;
         $stats['returned_pct'] = 0;
         $stats['overdue_pct']  = 0;
@@ -191,4 +234,3 @@ function getCirculationStats($conn) {
     
     return $stats;
 }
-?>
