@@ -284,7 +284,6 @@ if ($action === 'startConversation' || $action === 'create_by_email') {
 }
 
 // ===== ADMIN: GET ALL USER CONVERSATIONS =====
-// ===== ADMIN: GET ALL USER CONVERSATIONS =====
 if ($action === 'adminGetConversations') {
     $current_role = $_SESSION['role'] ?? $_SESSION['authUser']['role'] ?? '';
     $username_check = $_SESSION['username'] ?? $_SESSION['authUser']['username'] ?? '';
@@ -301,36 +300,52 @@ if ($action === 'adminGetConversations') {
     }
     
     try {
-        // ALIGNED ALIASES: We provide recipient_name and recipient_email properties 
-        // to match client-side parsing patterns natively and protect JS logic.
+        // FIXED QUERY: Uses a conditional CASE statement to ensure the Admin views the 
+        // student/other user as the recipient, dynamically deduping the sidebar loop.
         $query = "
             SELECT 
                 c.id,
                 c.created_at,
                 c.user_id as creator_id,
                 c.admin_id as assign_id,
-                u.id as recipient_id,
-                u.fullName as recipient_name,
-                u.emailAddress as recipient_email,
-                COALESCE((SELECT message FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1), 'No messages yet') as last_message,
-                COALESCE((SELECT DATE_FORMAT(created_at, '%h:%i %p') FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1), DATE_FORMAT(c.created_at, '%h:%i %p')) as last_message_time,
-                COALESCE((SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1), c.updated_at) as raw_sort_time,
-                (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id = c.user_id AND status = 'sent') as unread_count
+                CASE 
+                    WHEN c.user_id = ? THEN u2.id
+                    ELSE u1.id
+                END as recipient_id,
+                CASE 
+                    WHEN c.user_id = ? THEN u2.fullName
+                    ELSE u1.fullName
+                END as recipient_name,
+                CASE 
+                    WHEN c.user_id = ? THEN u2.emailAddress
+                    ELSE u1.emailAddress
+                END as recipient_email,
+                COALESCE((SELECT message FROM messages WHERE conversation_id = c.id ORDER BY id DESC LIMIT 1), 'No messages yet') as last_message,
+                COALESCE((SELECT DATE_FORMAT(created_at, '%h:%i %p') FROM messages WHERE conversation_id = c.id ORDER BY id DESC LIMIT 1), DATE_FORMAT(c.created_at, '%h:%i %p')) as last_message_time,
+                COALESCE((SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY id DESC LIMIT 1), c.updated_at) as raw_sort_time,
+                (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id != ? AND status = 'sent') as unread_count
             FROM conversations c
-            JOIN user u ON c.user_id = u.id
-            WHERE c.admin_id IS NOT NULL
-            ORDER BY c.updated_at DESC
+            LEFT JOIN user u1 ON c.user_id = u1.id
+            LEFT JOIN user u2 ON c.admin_id = u2.id
+            WHERE c.user_id = ? OR c.admin_id = ?
+            ORDER BY raw_sort_time DESC
         ";
         
-        $result = $conn->query($query);
-        
-        if (!$result) {
+        $stmt = $conn->prepare($query);
+        if (!$stmt) {
             throw new Exception($conn->error);
         }
         
+        $stmt->bind_param("iiiiii", $current_user_id, $current_user_id, $current_user_id, $current_user_id, $current_user_id, $current_user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
         $conversations = [];
         while ($row = $result->fetch_assoc()) {
-            $conversations[] = $row;
+            // Deduplication safety guard check: ensure we don't display a thread targeting the admin themselves
+            if ((int)$row['recipient_id'] !== (int)$current_user_id) {
+                $conversations[] = $row;
+            }
         }
         
         echo json_encode(['success' => true, 'conversations' => $conversations]);
@@ -346,13 +361,3 @@ if ($action === 'adminGetConversations') {
         exit;
     }
 }
-
-// Invalid fallback handling 
-http_response_code(400);
-die(json_encode([
-    'success' => false, 
-    'message' => 'Invalid action handling format requested.',
-    'debug_received_action' => $action,
-    'debug_request_method' => $_SERVER['REQUEST_METHOD']
-]));
-?>

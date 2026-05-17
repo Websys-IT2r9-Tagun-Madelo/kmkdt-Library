@@ -98,7 +98,7 @@ $sessionUserId = $_SESSION['user_id'] ?? $_SESSION['authUser']['user_id'] ?? 0;
                   <h4 class="conversations-title">Messages</h4>
 
                   <div class="library-support-chat" id="librarySupport">
-                    <span class="support-badge">?</span>
+                    <span class="support-badge"><i class="bi bi-info-circle fs-4"></i></span>
                     <div class="support-info" style="flex: 1;">
                       <div class="support-title">Library Support</div>
                       <div class="support-subtitle">Get help anytime</div>
