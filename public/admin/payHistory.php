@@ -38,7 +38,7 @@ include('./includes/sidebar.php');
   <h1>Penalty Payments History</h1>
   <nav>
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="Index">Home</a></li>
+      <li class="breadcrumb-item"><a href="index">Home</a></li>
       <li class="breadcrumb-item">Reports</li>
       <li class="breadcrumb-item active">Payment History</li>
     </ol>

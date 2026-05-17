@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             const initial = convo.recipient_name ? convo.recipient_name.charAt(0).toUpperCase() : '?';
                             messageDropdownHTML += `
                                 <li class="message-item px-3 py-2">
-                                    <a href="Contacts" class="d-flex align-items-center text-decoration-none text-dark">
+                                    <a href="messageHub" class="d-flex align-items-center text-decoration-none text-dark">
                                         <div class="rounded-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px; min-width: 35px; font-size:12px;">
                                             ${initial}
                                         </div>
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         msgBadge.textContent = totalUnreadMessages;
                         msgBadge.style.display = "inline-block";
                     }
-                    if (msgHeader) msgHeader.innerHTML = `You have ${totalUnreadMessages} new message threads <a href="Contacts"><span class="badge rounded-pill bg-success p-2 ms-2">View all</span></a>`;
+                    if (msgHeader) msgHeader.innerHTML = `You have ${totalUnreadMessages} new message threads <a href="messageHub"><span class="badge rounded-pill bg-success p-2 ms-2">View all</span></a>`;
                     if (msgPreviewList) msgPreviewList.innerHTML = messageDropdownHTML;
                 } else {
                     if (msgBadge) {
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         msgBadge.textContent = "";
                         msgBadge.style.display = "none";
                     }
-                    if (msgHeader) msgHeader.innerHTML = `Support Chat Center <a href="Contacts"><span class="badge rounded-pill bg-success p-2 ms-2">Open Chat</span></a>`;
+                    if (msgHeader) msgHeader.innerHTML = `Support Chat Center <a href="messageHub"><span class="badge rounded-pill bg-success p-2 ms-2">Open Chat</span></a>`;
                     if (msgPreviewList) msgPreviewList.innerHTML = `<li class="text-center py-3 text-muted small">No unread threads.</li>`;
                 }
             })

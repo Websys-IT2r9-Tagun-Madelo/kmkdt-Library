@@ -146,4 +146,49 @@ function getLiveOverdueNotifications($conn) {
         return [];
     }
 }
+
+/**
+ * Fetches aggregate circulation metrics for the Admin Dashboard Overview
+ */
+function getCirculationStats($conn) {
+    // Collect raw counts for every single system status type
+    $query = "SELECT 
+                SUM(CASE WHEN status = 'borrowed' THEN 1 ELSE 0 END) AS total_borrowed,
+                SUM(CASE WHEN status = 'returned' THEN 1 ELSE 0 END) AS total_returned,
+                SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END) AS total_overdue,
+                SUM(CASE WHEN status = 'due soon' THEN 1 ELSE 0 END) AS total_due_soon,
+                COUNT(*) AS total_transactions
+              FROM borrowing_history";
+              
+    $result = mysqli_query($conn, $query);
+    
+    if (!$result) {
+        die("Circulation Stats Query Failed: " . mysqli_error($conn));
+    }
+    
+    $stats = mysqli_fetch_assoc($result);
+    
+    // Normalize metric counters to prevent unexpected evaluation errors
+    $total    = isset($stats['total_transactions']) ? (int)$stats['total_transactions'] : 0;
+    $borrowed = isset($stats['total_borrowed'])     ? (int)$stats['total_borrowed'] : 0;
+    $returned = isset($stats['total_returned'])     ? (int)$stats['total_returned'] : 0;
+    $overdue  = isset($stats['total_overdue'])      ? (int)$stats['total_overdue'] : 0;
+    $dueSoon  = isset($stats['total_due_soon'])     ? (int)$stats['total_due_soon'] : 0;
+    
+    // 📊 Dynamically calculate mathematical percentages for all layout elements
+    if ($total > 0) {
+        $stats['borrowed_pct'] = round(($borrowed / $total) * 100, 1);
+        $stats['returned_pct'] = round(($returned / $total) * 100, 1);
+        $stats['overdue_pct']  = round(($overdue / $total) * 100, 1);
+        $stats['due_soon_pct'] = round(($dueSoon / $total) * 100, 1);
+    } else {
+        // Fallback layout bounds to avoid mathematical division-by-zero errors
+        $stats['borrowed_pct'] = 0;
+        $stats['returned_pct'] = 0;
+        $stats['overdue_pct']  = 0;
+        $stats['due_soon_pct'] = 0;
+    }
+    
+    return $stats;
+}
 ?>
