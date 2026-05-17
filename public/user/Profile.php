@@ -83,9 +83,23 @@ include('./includes/tsbar.php');
                             <div class="p-4 rounded-4 border-start border-5 mb-3 d-flex justify-content-between align-items-center shadow-sm bg-white"
                                 style="border-color: #22c55e !important;">
                                 <div>
-                                    <h4 class="mb-1 fw-bold text-dark"><?php echo htmlspecialchars($book['title']); ?></h4>
-                                    <p class="mb-1 text-muted small">Category: <?php echo htmlspecialchars($book['genre']); ?></p>
-                                    <p class="text-muted mb-0 small">Due: <?= $book['due_date'] ?? 'N/A'; ?></p>
+                                    <h4 class="mb-2 fw-bold text-dark"><?php echo htmlspecialchars($book['title']); ?></h4>
+                                    
+                                    <div class="mb-2 d-flex gap-1 align-items-center">
+                                        <span class="badge rounded-pill text-uppercase"
+                                            style="background-color: rgba(50, 205, 50, 0.1); color: #57cb57; font-size: 0.7rem; font-weight: 700; padding: 4px 8px;">
+                                            <?= htmlspecialchars($book['category'] ?? 'General'); ?>
+                                        </span>
+                                        
+                                        <span class="badge rounded-pill text-uppercase"
+                                            style="background-color: rgba(50, 205, 50, 0.1); color: #57cb57; font-size: 0.7rem; font-weight: 700; padding: 4px 8px;">
+                                            <?= htmlspecialchars($book['genre'] ?? 'General'); ?>
+                                        </span>
+                                    </div>
+                                    
+                                    <p class="text-muted mb-0 small" style="font-size: 0.8rem;">
+                                        Due: <?= $book['due_date'] ?? 'N/A'; ?></p>
+                                    </p>
                                 </div>
                                 
                                 <div class="d-flex gap-2 align-items-center">
@@ -98,8 +112,8 @@ include('./includes/tsbar.php');
                                         </button>
                                     <?php endif; ?>
 
-                                    <a href="MBB" class="btn rounded-pill px-4 fw-bold shadow-sm"
-                                        style="background-color: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">Go to MBB</a>
+                                    <a href="myBooks" class="btn rounded-pill px-4 fw-bold shadow-sm"
+                                        style="background-color: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">Go to My Books</a>
                                 </div>
                             </div>
 
@@ -128,7 +142,7 @@ include('./includes/tsbar.php');
                         <div class="p-5 text-center border rounded-4 shadow-sm" style="background-color: #1e293b; border-color: #334155 !important;">
                             <iconify-icon icon="lucide:book-check" class="mb-2" style="color: #64748b; font-size: 2.5rem;"></iconify-icon>
                             <p class="m-0 fw-medium" style="color: #94a3b8; font-size: 1rem;">No active book loans found.</p> 
-                            <a href="BrowseBooks" class="text-primary fw-bold text-decoration-none d-inline-flex align-items-center gap-2 hover-lime"> Browse the Library
+                            <a href="browseBooks" class="text-primary fw-bold text-decoration-none d-inline-flex align-items-center gap-2 hover-lime"> Browse the Library
                             </a>
                         </div>
                     <?php endif; ?>
@@ -234,7 +248,7 @@ include('./includes/tsbar.php');
                         <table class="table table-borderless align-middle m-0 w-100" style="font-size: 0.85rem; table-layout: fixed; min-width: 500px;">
                             <thead>
                                 <tr class="text-muted fw-bold" style="font-size: 0.72rem; border-bottom: 1px solid #f1f5f9; letter-spacing: 0.5px;">
-                                    <th class="pb-3 ps-0 text-start" style="width: 45%;">BOOK DETAILS</th>
+                                    <th class="pb-3 ps-0 text-start" style="width: 45%;">BOOK TITLE</th>
                                     <th class="pb-3 text-start" style="width: 35%;">DATE CLEARED</th>
                                     <th class="pb-3 text-end pe-0" style="width: 20%;">SETTLED</th>
                                 </tr>

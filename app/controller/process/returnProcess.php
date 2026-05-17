@@ -11,7 +11,7 @@ $loanId = $_GET['id'] ?? null;
 
 
 if (!$currentUserId || !$loanId) {
-    header("Location: /kmkdt-Library/public/user/MBB?error=unauthorized");
+    header("Location: /kmkdt-Library/public/user/myBooks?error=unauthorized");
     exit();
 }
 
@@ -27,7 +27,7 @@ if ($stmt = $conn->prepare($checkSql)) {
 
 
 if ($loan && $loan['status'] === 'overdue') {
-    header("Location: /kmkdt-Library/public/user/MBB?error=payment_required");
+    header("Location: /kmkdt-Library/public/user/myBooks?error=payment_required");
     exit();
 }
 
@@ -40,8 +40,8 @@ if ($actualBookId) {
 }
 
 if ($success) {
-    header("Location: /kmkdt-Library/public/user/MBB?success=returned");
+    header("Location: /kmkdt-Library/public/user/myBooks?success=returned");
 } else {
-    header("Location: /kmkdt-Library/public/user/MBB?error=failed");
+    header("Location: /kmkdt-Library/public/user/myBooks?error=failed");
 }
 exit();

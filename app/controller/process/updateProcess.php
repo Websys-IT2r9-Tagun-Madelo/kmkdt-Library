@@ -69,6 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-    header("Location: ../../../public/user/Profile");
+    header("Location: ../../../public/user/profile");
     exit();
 }

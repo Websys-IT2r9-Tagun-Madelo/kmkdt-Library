@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->execute()) {
             $stmt->close();
             // Redirect back to profile page with the payment success status trigger
-            header("Location: /kmkdt-Library/public/user/Profile?status=paid");
+            header("Location: /kmkdt-Library/public/user/profile?status=paid");
             exit();
         } else {
             die("Database Error: Failed to update loan status. " . $stmt->error);
@@ -65,6 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 } else {
     // Direct link guard redirect safety fallback
-    header("Location: /kmkdt-Library/public/user/Profile");
+    header("Location: /kmkdt-Library/public/user/profile");
     exit();
 }

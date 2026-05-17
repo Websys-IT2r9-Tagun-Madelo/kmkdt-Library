@@ -1,4 +1,15 @@
-<?php session_start(); ?>
+<?php session_start();
+
+if (isset($_SESSION['authUser']) && is_array($_SESSION['authUser'])) {
+    if (isset($_SESSION['authUser']['userRole']) && $_SESSION['authUser']['userRole'] === 'admin') {
+        // Clear any output buffers to prevent headers already sent errors
+        if (ob_get_length()) ob_clean();
+        
+        header("Location: /kmkdt-Library/public/admin/index");
+        exit();
+    }
+}
+?>
 
 <!doctype html>
 <html lang="en">
@@ -175,7 +186,7 @@
 
             <p class="mb-0 fw-medium text-center">
               Not a member yet?
-              <a class="text-dark" href="sign-up">
+              <a class="text-dark" href="signUp">
                 Sign Up
               </a>
             </p>

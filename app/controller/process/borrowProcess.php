@@ -23,14 +23,14 @@ if ($userId && $bookId) {
             $_SESSION['message'] = "Book borrowed successfully!";
             $_SESSION['code'] = "success";
             
-            header("Location: ../../../public/user/MBB?status=borrowed");
+            header("Location: ../../../public/user/myBooks?status=borrowed");
             exit();
         } else {
             // Failed condition block where the operation is safe but book criteria weren't met
             $_SESSION['message'] = "This book is currently unavailable or already taken.";
             $_SESSION['code'] = "error";
             
-            header("Location: ../../../public/user/BrowseBooks?status=unavailable");
+            header("Location: ../../../public/user/browseBooks?status=unavailable");
             exit();
         }
 
@@ -41,11 +41,11 @@ if ($userId && $bookId) {
         $_SESSION['message'] = "System processing failure. Please refresh and try again.";
         $_SESSION['code'] = "error";
         
-        header("Location: ../../../public/user/BrowseBooks?status=failed_transaction");
+        header("Location: ../../../public/user/browseBooks?status=failed_transaction");
         exit();
     }
 }
 
-header("Location: ../../../public/user/BrowseBooks?status=error");
+header("Location: ../../../public/user/browseBooks?status=error");
 exit();
 

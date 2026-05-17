@@ -70,7 +70,7 @@ include_once 'includes/tsbar.php';
                         </p>
                     </div>
 
-                    <a href="/kmkdt-Library/public/user/BrowseBooks"
+                    <a href="/kmkdt-Library/public/user/browseBooks"
                         class="btn btn-lg rounded-pill px-4 fw-bold d-flex align-items-center gap-2"
                         style="background-color: #57cb57; color: #000; border: none;">
 
@@ -84,9 +84,10 @@ include_once 'includes/tsbar.php';
                     <?php while ($book = $myBooks->fetch_assoc()): ?>
 
                         <?php
-                        $category = $book['genre'] ?? 'General';
+                        
+                        $category = $book['category'] ?? 'General';
 
-                        // Loan duration
+                       
                         if (stripos($category, 'Online') !== false) {
                             $loanDays = 0;
                         } elseif (
@@ -96,13 +97,15 @@ include_once 'includes/tsbar.php';
                             $loanDays = 3;
                         } elseif (stripos($category, 'Research') !== false) {
                             $loanDays = 7;
-                        } elseif (stripos($category, 'Non-Fiction') !== false) {
+                        } elseif (
+                            stripos($category, 'Non-Fiction') !== false || 
+                            stripos($category, 'Fiction') !== false
+                        ) {
                             $loanDays = 14;
-                        } elseif (stripos($category, 'Fiction') !== false) {
-                            $loanDays = 30;
                         } else {
                             $loanDays = 18;
                         }
+
 
                         // Due date
                         if (!empty($book['due_date'])) {
@@ -150,14 +153,17 @@ include_once 'includes/tsbar.php';
 
                                                 <div>
                                                     <span class="badge mb-2 px-3 py-2 rounded-pill text-uppercase"
-                                                        style="background-color: rgba(50, 205, 50, 0.1); color: #57cb57; font-weight: 700;">
-
+                                                        style="background-color: rgba(50, 205, 50, 0.1); color: #57cb57; font-weight: 700; margin-right: 6px;">
                                                         <?= htmlspecialchars($category); ?>
+                                                    </span>
+
+                                                    <span class="badge mb-2 px-3 py-2 rounded-pill text-uppercase"
+                                                        style="background-color: rgba(50, 205, 50, 0.1); color: #57cb57; font-weight: 700;">
+                                                        <?= htmlspecialchars($book['genre'] ?? 'General'); ?>
                                                     </span>
 
                                                     <h2 class="display-5 fw-bold text-dark mt-2"
                                                         style="font-size: 2.2rem;">
-
                                                         <?= htmlspecialchars($book['title']); ?>
                                                     </h2>
                                                 </div>
@@ -304,7 +310,7 @@ include_once 'includes/tsbar.php';
                             No books currently borrowed.
                         </h2>
 
-                        <a href="/kmkdt-Library/public/user/BrowseBooks"
+                        <a href="/kmkdt-Library/public/user/browseBooks"
                             class="btn btn-primary rounded-pill px-5 py-3 mt-3 fw-bold"
                             style="background-color: #57cb57; color: #000; border: none;">
 

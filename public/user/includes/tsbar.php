@@ -15,13 +15,43 @@ if (isset($_SESSION['current_reading_id'])) {
   <div class="container">
     <div class="header-wrapper d-flex align-items-center justify-content-between">
       <div class="logo">
-        <a href="index" class="logo-white">
-          <!-- <img src="../assets/images/logos/logo-white.svg" alt="logo" class="img-fluid"> -->
-        </a>
-        <a href="index" class="logo-dark">
-          <!-- <img src="../assets/images/logos/logo-dark.svg" alt="logo" class="img-fluid"> -->
-        </a>
+        <a></a>
       </div>
+
+    <!-- notification bell -->
+        <div class="d-flex align-items-center gap-3 pe-3">
+
+            <div class="dropdown">
+                <a href="#" class="position-relative d-flex align-items-center justify-content-center header-notification-link" 
+                  id="userNotiDropdown" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                    
+                    <i class="bi bi-bell-fill bell-outline-stroke"></i>
+                    
+                    <span id="userNotiBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                        0
+                    </span>
+                </a>
+                
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-3 p-0" aria-labelledby="userNotiDropdown" id="userNotiMenu">
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center dropdown-header-bg">
+                        <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                            <i class="bi bi-lightning-charge-fill text-lime-accent"></i> Activity Updates
+                        </h6>
+                        <span class="badge text-uppercase px-2 py-1 rounded-pill live-feed-badge">
+                            Live 
+                        </span>
+                    </div>
+                    
+                    <div id="userNotiContainer" class="custom-noti-scrollbar">
+                        <div class="text-center py-5 text-muted small">
+                            <i class="bi bi-bell-fill d-block text-secondary opacity-50 mb-2 empty-bell-icon"></i>
+                            <span class="fw-medium">No current notifications</span>
+                        </div>
+                    </div>
+                </ul>
+            </div>
+    
+<!-- menu dropdown -->
       <div class="d-flex align-items-center gap-4">
 
         <div class="btn-group">
@@ -54,7 +84,7 @@ if (isset($_SESSION['current_reading_id'])) {
                         class="img-fluid animate-spin"> My Profile </a>
                   </li>
                   <li class="header-item">
-                    <a href="MBB" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="myBooks" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
                         class="img-fluid animate-spin"> My Borrowed Books</a>
                   </li>
@@ -64,14 +94,14 @@ if (isset($_SESSION['current_reading_id'])) {
                         class="img-fluid animate-spin"> My E-Books</a>
                   </li>
                   <li class="header-item">
-                    <a href="BrowseBooks" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="browseBooks" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
                         class="img-fluid animate-spin"> Browse Books</a>
                   </li>
                   <li class="header-item">
                     <a href="contact" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                        class="img-fluid animate-spin"> Support & Community </a>
+                        class="img-fluid animate-spin"> Connect Hub </a>
                   </li>
                   <li class="header-item">
                     <form action="/kmkdt-Library/app/controller/userController.php" method="POST">
@@ -86,8 +116,11 @@ if (isset($_SESSION['current_reading_id'])) {
             </div>
         </div>
         </ul>
+        </div>
+       </div>
       </div>
     </div>
   </div>
-  </div>
+</div>
+
 </header>

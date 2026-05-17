@@ -283,25 +283,47 @@ if ($action === 'startConversation' || $action === 'create_by_email') {
     exit;
 }
 
-// ===== ADMIN: GET ALL USER CONVERSATIONS =====
+// ===== ADMIN: GET ALL USER CONVERSATIONS + LIVE OVERDUE REPORT ALERTS =====
 if ($action === 'adminGetConversations') {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    // 1. EXTRACT FROM DEEP ROOT OR NESTED AUTH USER ARRAY
     $current_role = $_SESSION['role'] ?? $_SESSION['authUser']['role'] ?? '';
     $username_check = $_SESSION['username'] ?? $_SESSION['authUser']['username'] ?? '';
     
+    // Look everywhere for the logged-in User's ID
+    $current_user_id = (int)(
+        $_SESSION['id'] ?? 
+        $_SESSION['user_id'] ?? 
+        $_SESSION['authUser']['id'] ?? 
+        $_SESSION['authUser']['user_id'] ?? 
+        0
+    );
+
+    // 2. PRIVILEGE AND LOGGED-IN VALIDATION
     if (strtolower($current_role) !== 'admin' && strpos(strtolower($username_check), 'admin') === false) {
         http_response_code(403);
         echo json_encode([
             'success' => false, 
             'message' => 'Access Denied: Administrative privileges required.',
-            'debug_session_role' => $current_role,
-            'debug_session_username' => $username_check
+            'debug' => ['role_found' => $current_role, 'uid' => $current_user_id]
+        ]);
+        exit;
+    }
+    
+    if ($current_user_id === 0) {
+        http_response_code(401);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Session Mismatch: No active User ID could be recovered from PHP session state context.'
         ]);
         exit;
     }
     
     try {
-        // FIXED QUERY: Uses a conditional CASE statement to ensure the Admin views the 
-        // student/other user as the recipient, dynamically deduping the sidebar loop.
+        // 3. COLLECT ACTIVE CHAT THREADS
         $query = "
             SELECT 
                 c.id,
@@ -342,13 +364,45 @@ if ($action === 'adminGetConversations') {
         
         $conversations = [];
         while ($row = $result->fetch_assoc()) {
-            // Deduplication safety guard check: ensure we don't display a thread targeting the admin themselves
-            if ((int)$row['recipient_id'] !== (int)$current_user_id) {
+            if ((int)$row['recipient_id'] !== $current_user_id) {
                 $conversations[] = $row;
             }
         }
         
-        echo json_encode(['success' => true, 'conversations' => $conversations]);
+        // 4. COLLECT LIVE REPORT NOTIFICATIONS (SAFE EXECUTION)
+        $notifications = [];
+        $currentDate = date('Y-m-d');
+        
+        $notiQuery = "
+            SELECT 
+                'overdue' AS type,
+                'Overdue Book Warning' AS title,
+                CONCAT(u.fullName, ' is past the deadline for \"', b.title, '\"') AS message,
+                h.due_date
+            FROM borrowing_history h
+            LEFT JOIN user u ON h.user_id = u.id
+            LEFT JOIN books b ON h.book_id = b.id
+            WHERE h.status = 'overdue' OR (h.status = 'borrowed' AND h.due_date < ?)
+            ORDER BY h.due_date ASC LIMIT 5
+        ";
+        
+        $notiStmt = $conn->prepare($notiQuery);
+        if ($notiStmt) {
+            $notiStmt->bind_param("s", $currentDate);
+            if ($notiStmt->execute()) {
+                $notiResult = $notiStmt->get_result();
+                while ($notiRow = $notiResult->fetch_assoc()) {
+                    $notifications[] = $notiRow;
+                }
+            }
+        }
+
+        // Output combined dynamic JSON blocks safely
+        echo json_encode([
+            'success' => true, 
+            'conversations' => $conversations,
+            'notifications' => $notifications
+        ]);
         exit;
 
     } catch (Exception $e) {

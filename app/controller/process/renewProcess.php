@@ -12,7 +12,7 @@ $loanId = $_GET['id'] ?? null;
 
 // 1. Authorization Check
 if (!$currentUserId || !$loanId) {
-    header("Location: /kmkdt-Library/public/user/MBB?error=unauthorized");
+    header("Location: /kmkdt-Library/public/user/myBooks?error=unauthorized");
     exit();
 }
 
@@ -33,19 +33,19 @@ if ($stmt = $conn->prepare($checkSql)) {
 
 // Security boundary check: If no loan record matches, drop out safely
 if (!$loan) {
-    header("Location: /kmkdt-Library/public/user/MBB?error=not_found");
+    header("Location: /kmkdt-Library/public/user/myBooks?error=not_found");
     exit();
 }
 
 // Block renewal if the user attempts to bypass an overdue penalty lock
 if ($loan['status'] === 'overdue') {
-    header("Location: /kmkdt-Library/public/user/MBB?error=payment_required");
+    header("Location: /kmkdt-Library/public/user/myBooks?error=payment_required");
     exit();
 }
 
 // Enforce your maximum 3-renewal limit restriction policy
 if ((int)$loan['renewal_count'] >= 2) {
-    header("Location: /kmkdt-Library/public/user/MBB?error=limit_reached");
+    header("Location: /kmkdt-Library/public/user/myBooks?error=limit_reached");
     exit();
 }
 
@@ -53,7 +53,7 @@ $bookCategory = $loan['category'] ?? 'General';
 
 // E-Books check fallback safety (Online options don't use renewals)
 if (stripos($bookCategory, 'Online') !== false) {
-    header("Location: /kmkdt-Library/public/user/MBB?error=online_unlimited");
+    header("Location: /kmkdt-Library/public/user/myBooks?error=online_unlimited");
     exit();
 }
 
@@ -65,7 +65,6 @@ if (stripos($bookCategory, 'Reserve') !== false) {
 } elseif (stripos($bookCategory, 'Research') !== false) {
     $daysToAdd = 7;
 } else {
-    // This accurately captures Fiction, Manga, etc. to get 18 Days
     $daysToAdd = 18;
 }
 
@@ -90,8 +89,8 @@ if ($stmt = $conn->prepare($updateSql)) {
 
 // Absolute paths to guarantee that folder doubling URL bug stays dead
 if ($success) {
-    header("Location: /kmkdt-Library/public/user/MBB?success=renewed&days=$daysToAdd");
+    header("Location: /kmkdt-Library/public/user/myBooks?success=renewed&days=$daysToAdd");
 } else {
-    header("Location: /kmkdt-Library/public/user/MBB?error=failed");
+    header("Location: /kmkdt-Library/public/user/myBooks?error=failed");
 }
 exit();

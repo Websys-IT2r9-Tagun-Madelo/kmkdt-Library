@@ -49,7 +49,7 @@ include('./includes/tsbar.php');
               <h4 class="fw-bold text-dark mb-2">My Profile</h4>
               <p class="text-muted small mb-4 flex-grow-1">Manage your account settings, contact details, and security
                 credentials.</p>
-              <a href="Profile" class="btn btn-portal w-100 rounded-pill">Manage Account</a>
+              <a href="profile" class="btn btn-portal w-100 rounded-pill">Manage Account</a>
             </div>
           </div>
         </div>
@@ -62,7 +62,7 @@ include('./includes/tsbar.php');
               <h4 class="fw-bold text-dark mb-2">Borrowed Books</h4>
               <p class="text-muted small mb-4 flex-grow-1">Monitor your current loans, check due dates, and request
                 extensions.</p>
-              <a href="MBB" class="btn btn-portal w-100 rounded-pill">View Your Books</a>
+              <a href="myBooks" class="btn btn-portal w-100 rounded-pill">View Your Books</a>
             </div>
           </div>
         </div>
@@ -151,7 +151,7 @@ include('./includes/tsbar.php');
         <div class="col-md-4">
           <div class="card portal-card border-0 shadow-sm overflow-hidden">
             <div class="img-container">
-              <img src="assets/images/books/ebok.jpg" alt="Ebooks">
+              <img src="assets/images/books/ebok.jpg" alt="eBooks">
               <div
                 class="portfolio-hover-overlay d-flex align-items-center justify-content-center position-absolute top-0 w-100 h-100"
                 style="background:rgba(50,205,50,0.8); opacity:0; transition:0.3s;">

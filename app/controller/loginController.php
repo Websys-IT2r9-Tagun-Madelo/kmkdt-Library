@@ -96,7 +96,7 @@ if (isset($_POST['registerbutton'])) {
     if (empty($fullName) || empty($username) || empty($email) || empty($password) || empty($street) || empty($barangay) || empty($city)) {
         $_SESSION['message'] = "Please fill in all details before signing up.";
         $_SESSION['code'] = "error";
-        header("Location: ../../public/sign-up");
+        header("Location: ../../public/signUp");
         exit();
     }
 
@@ -104,7 +104,7 @@ if (isset($_POST['registerbutton'])) {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['message'] = "Invalid Email format!";
         $_SESSION['code'] = "error";
-        header("Location: ../../public/sign-up");
+        header("Location: ../../public/signUp");
         exit();
     }
 
@@ -116,7 +116,7 @@ if (isset($_POST['registerbutton'])) {
     if ($stmt->get_result()->num_rows > 0) {
         $_SESSION['message'] = "Username or Email already taken.";
         $_SESSION['code'] = "error";
-        header("Location: ../../public/sign-up");
+        header("Location: ../../public/signUp");
         exit();
     }
 
@@ -124,7 +124,7 @@ if (isset($_POST['registerbutton'])) {
     if ($password !== $confirm) {
         $_SESSION['message'] = "Passwords do not match!";
         $_SESSION['code'] = "error";
-        header("Location: ../../public/sign-up");
+        header("Location: ../../public/signUp");
         exit();
     }
 
@@ -154,7 +154,7 @@ if (isset($_POST['registerbutton'])) {
     } else {
         $_SESSION['message'] = "Database Error: " . $conn->error;
         $_SESSION['code'] = "error";
-        header("Location: ../../public/sign-up");
+        header("Location: ../../public/signUp");
     }
     exit();
 }
@@ -187,7 +187,7 @@ if (isset($_POST['forgotPasswordButton'])) {
             $_SESSION['code'] = "success";
             
             // Absolute path redirect to prevent the blank page issue
-            header("Location: /kmkdt-Library/public/reset-password?token=" . $token);
+            header("Location: /kmkdt-Library/public/resetPassword?token=" . $token);
             exit(); 
         }
     } else {
@@ -209,7 +209,7 @@ if (isset($_POST['updatePasswordButton'])) {
     if ($newPass !== $confirmPass) {
         $_SESSION['message'] = "Passwords do not match!";
         $_SESSION['code'] = "error";
-        header("Location: /kmkdt-Library/public/reset-password?token=" . $token);
+        header("Location: /kmkdt-Library/public/resetPassword?token=" . $token);
         exit();
     }
 

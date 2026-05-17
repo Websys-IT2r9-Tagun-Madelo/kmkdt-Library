@@ -13,7 +13,79 @@ if (file_exists($configPath)) {
     die("Config file not found at: " . $configPath);
 }
 
-// 2. LOGOUT LOGIC
+// 2. REAL-TIME STUDENT NOTIFICATION POLLING INTERCEPTOR
+if (isset($_GET['action']) && $_GET['action'] === 'get_live_user_updates') {
+    if (ob_get_length()) ob_clean();
+    header('Content-Type: application/json; charset=UTF-8');
+    
+    // Extract user ID using the exact fallback chain matching your messaging system
+    $userId = $_SESSION['user_id'] ?? $_SESSION['authUser']['id'] ?? $_SESSION['authUser']['user_id'] ?? null;
+    
+    if (!$userId) {
+        echo json_encode(['notifications' => []]);
+        exit();
+    }
+    
+    $currentDate = date('Y-m-d');
+    $notifications = [];
+    
+    try {
+        // FIXED QUERY: Uses your actual 'messages' and 'conversations' tables
+        $sql = "
+            (
+                SELECT 
+                    'warning' AS type,
+                    'New Message Received' AS title,
+                    CONCAT(SUBSTRING(m.message, 1, 45), '...') AS message,
+                    m.created_at AS sort_time
+                FROM messages m
+                JOIN conversations c ON m.conversation_id = c.id
+                WHERE (c.user_id = $userId OR c.admin_id = $userId)
+                  AND m.sender_id != $userId 
+                  AND m.status = 'sent'
+            )
+            UNION ALL
+            (
+                SELECT 
+                    CASE 
+                        WHEN bh.due_date < '$currentDate' THEN 'danger' 
+                        ELSE 'warning' 
+                    END AS type,
+                    CASE 
+                        WHEN bh.due_date < '$currentDate' THEN 'Book Overdue Alert!' 
+                        ELSE 'Return Due Soon' 
+                    END AS title,
+                    CONCAT('\"', b.title, '\" is due on ', DATE_FORMAT(bh.due_date, '%b %d, %Y')) AS message,
+                    bh.borrowed_at AS sort_time
+                FROM borrowing_history bh
+                JOIN books b ON bh.book_id = b.id
+                WHERE bh.user_id = $userId 
+                  AND bh.status IN ('borrowed', 'overdue')
+                  AND (bh.due_date < '$currentDate' OR bh.due_date <= DATE_ADD('$currentDate', INTERVAL 3 DAY))
+            )
+            ORDER BY sort_time DESC 
+            LIMIT 5";
+                
+        $result = mysqli_query($conn, $sql);
+        
+        if ($result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $notifications[] = [
+                    'type' => $row['type'],
+                    'title' => $row['title'],
+                    'message' => $row['message']
+                ];
+            }
+        }
+    } catch (Exception $e) {
+        // Graceful catch block avoids rendering broken HTML elements on query failure
+    }
+    
+    echo json_encode(['notifications' => $notifications]);
+    exit();
+}
+
+// 3. LOGOUT LOGIC
 if (isset($_POST['logoutButton'])) {
     unset($_SESSION['authUser']);
     unset($_SESSION['user_id']);
@@ -22,7 +94,6 @@ if (isset($_POST['logoutButton'])) {
     header("Location: /kmkdt-Library/public/login");
     exit();
 }
-
 /**
  * Fetch books for the Browse catalog 
  */
@@ -124,12 +195,13 @@ function processBookBorrow($conn, $userId, $bookId) {
 }
 
 /**
- * Fetches user books for MBB.php
+ * Fetches user books for myBooks.php
  */
 function getMyBooks($conn, $userId) {
     $userId = intval($userId);
 
-    $query = "SELECT bh.id AS loan_id, b.id AS book_id, b.title, b.genre, b.cover_image, 
+    // Added b.category directly to the selection statement array fields
+    $query = "SELECT bh.id AS loan_id, b.id AS book_id, b.title, b.category, b.genre, b.cover_image, 
                     bh.due_date, bh.status, bh.renewal_count, bh.penalty
             FROM books b 
             JOIN borrowing_history bh ON b.id = bh.book_id 

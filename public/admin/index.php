@@ -1,5 +1,5 @@
 <?php
-include('../../app/middleware/admin.php');
+require_once $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/middleware/admin.php'; 
 include('./includes/header.php');
 include('./includes/topbar.php');
 include('./includes/sidebar.php');

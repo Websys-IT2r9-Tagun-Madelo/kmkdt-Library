@@ -35,6 +35,8 @@
 <script src="assets/js/catalog.js"></script>
 <script src="/kmkdt-Library/public/admin/assets/js/admin-messenger.js"></script>
 <script src="/kmkdt-Library/public/admin/assets/js/messenger.js"></script>
+<script src="assets/js/noti.js"></script>
+
 
 <?php
 if (isset($_SESSION['message']) && $_SESSION['code'] != '') {

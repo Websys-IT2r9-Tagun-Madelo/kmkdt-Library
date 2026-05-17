@@ -58,7 +58,7 @@ if (bookModal) {
 
       if (data.isOnline) {
         actionContainer.innerHTML = `
-            <a href="${projectRoot}/public/user/Ebook?id=${data.id}" 
+            <a href="${projectRoot}/public/user/eBook?id=${data.id}" 
                class="btn rounded-pill w-100" 
                style="background-color: #07427a; color: white;"
                onclick="return confirm('Warning: Opening this may remove your previous e-book.');">Read Online</a>`;
@@ -76,29 +76,4 @@ if (bookModal) {
   });
 }
 
-// ===== SETUP EVENT LISTENERS (ADMIN) =====
-function adminSetupEventListeners() {
-    // Send button
-    const sendBtn = document.querySelector('.admin-send-btn');
-    if (sendBtn) {
-        sendBtn.addEventListener('click', adminSendMessage);
-    }
-    
-    // Message input - send on Enter (Shift+Enter for new line)
-    const textarea = document.querySelector('.admin-message-input-wrapper textarea');
-    if (textarea) {
-        textarea.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                adminSendMessage();
-            }
-        });
-        
-        // Auto-expand textarea
-        textarea.addEventListener('input', () => {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
-        });
-    }
-}
 

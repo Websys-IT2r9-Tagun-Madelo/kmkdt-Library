@@ -18649,6 +18649,128 @@ textarea.form-control-lg {
   display: flex;
 }
 
+/* --- Header Notification Bell Trigger --- */
+.header-notification-link {
+  display: inline-block;
+  padding: 4px;
+  color: #1a252f;
+  text-decoration: none;
+  -webkit-transition: -webkit-transform 0.2s ease;
+  transition: -webkit-transform 0.2s ease;
+  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, -webkit-transform 0.2s ease;
+}
+
+.header-notification-link:hover {
+  -webkit-transform: scale(1.08);
+          transform: scale(1.08);
+}
+
+.header-notification-link .bi-bell-fill {
+  font-size: 1.7rem; /* Matches the visual weight of the menu button icon */
+}
+
+.header-notification-link #userNotiBadge {
+  font-size: 0.65rem;
+  padding: 0.35em 0.5em;
+  margin-top: 3px;
+  margin-left: -3px;
+}
+
+/* --- Dropdown Layout Container --- */
+#userNotiMenu {
+  width: 340px;
+  overflow: hidden;
+  z-index: 1050;
+  background: #ffffff;
+}
+
+.dropdown-header-bg {
+  background: #fdfdfd;
+}
+
+.dropdown-header-bg h6, .dropdown-header-bg .h6 {
+  font-size: 0.95rem;
+}
+
+.text-lime-accent {
+  color: #32cd32;
+}
+
+/* --- Badge Components --- */
+.live-feed-badge {
+  background-color: rgba(50, 205, 50, 0.1);
+  color: #32cd32;
+  font-weight: 700;
+  font-size: 0.65rem;
+  letter-spacing: 0.5px;
+}
+
+.empty-bell-icon {
+  font-size: 2rem;
+}
+
+/* --- Scrollbar and Inside Feed --- */
+#userNotiContainer {
+  max-height: 320px;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.custom-noti-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-noti-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-noti-scrollbar::-webkit-scrollbar-thumb {
+  background: #32cd32; /* Slid track styling color to matching lime green */
+  border-radius: 10px;
+}
+
+.custom-noti-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #28a745;
+}
+
+/* --- Dynamic Notification Row Cards --- */
+.noti-item-row {
+  -webkit-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+  border-left: 4px solid transparent;
+  cursor: pointer;
+}
+
+.noti-item-row:hover {
+  background-color: rgba(50, 205, 50, 0.04) !important;
+  border-left-color: #32cd32 !important;
+}
+
+.noti-item-row:last-child {
+  border-bottom: none !important;
+}
+
+/* Icon backgrounds inside rows */
+.noti-icon-wrapper-warning {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.noti-icon-wrapper-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.bell-outline-stroke {
+  color: #81e98f !important;
+  font-size: 1.7rem;
+  display: inline-block;
+  line-height: 1;
+  /* Complete 8-point outline mapping to remove visual gaps and jagged edges */
+  text-shadow: -2px -2px 0 #1F2A2E, 2px -2px 0 #1F2A2E, -2px 2px 0 #1F2A2E, 2px 2px 0 #1F2A2E, 0px -2px 0 #1F2A2E, 0px 2px 0 #1F2A2E, -2px 0px 0 #1F2A2E, 2px 0px 0 #1F2A2E;
+}
+
 * {
   margin: 0;
   padding: 0;

@@ -1600,3 +1600,44 @@ h6 {
     }
   }
 }
+
+.cursor-pointer {
+    cursor: pointer;
+}
+.active-chat-lime {
+    background-color: #eafaf1 !important; 
+    border-left: 4px solid #32cd32 !important; 
+}
+.custom-msg-bubble {
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+
+
+.bg-light-primary { background-color: #e9ecef; }
+
+.bg-light-success { background-color: #eafaf1; }
+
+.bg-light-danger { background-color: #fce8e6; }
+
+.bg-light-info { background-color: #e3f2fd; }
+
+.bg-success-lime { background-color: #32cd32 !important; }
+
+.nav-tabs-buffered .nav-link.active {
+
+  border-bottom: 3px solid #32cd32 !important;
+
+  color: #32cd32 !important;
+
+  background: none;
+
+}
+
+.custom-report-table th { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.custom-report-table td { font-size: 14px; }
+
+
+

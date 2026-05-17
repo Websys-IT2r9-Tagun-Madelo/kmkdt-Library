@@ -12,7 +12,7 @@
           <li><a class="link-hover fs-5 text-white" href="index">Home</a></li>
           <li><a class="link-hover fs-5 text-white" href="profile">Profile</a></li>
           <li><a class="link-hover fs-5 text-white" href="browseBooks">Browse Books</a></li>
-          <li><a class="link-hover fs-5 text-white" href="MBB">My Borrowed Books</a></li>
+          <li><a class="link-hover fs-5 text-white" href="myBooks">My Borrowed Books</a></li>
           <li><a class="link-hover fs-5 text-white" href="contact">Contact Us</a></li>
         </ul>
       </div>
@@ -46,7 +46,8 @@
 <script src="../assets/libs/aos-master/dist/aos.js"></script>
 <script src="../assets/js/custom.js"></script>
 <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/modal-handler.js"></script>
+<script src="/kmkdt-Library/public/user/assets/js/userNoti.js"></script>
+<script src="assets/js/modalHandler.js"></script>
 <script src="assets/js/messenger.js"></script>
 
 

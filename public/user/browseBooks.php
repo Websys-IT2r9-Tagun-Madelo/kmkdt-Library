@@ -74,7 +74,7 @@ include_once 'includes/tsbar.php';
 
                     foreach ($filters as $key => $label):
                         $active = ($search == $key) ? 'active' : '';
-                        $link = ($key == '') ? '/kmkdt-Library/public/user/BrowseBooks' : "?search=$key";
+                        $link = ($key == '') ? '/kmkdt-Library/public/user/browseBooks' : "?search=$key";
                     ?>
 
                         <a href="<?= $link; ?>" class="filter-pill text-decoration-none <?= $active; ?>">
@@ -96,7 +96,7 @@ include_once 'includes/tsbar.php';
                 <?php if ($booksResult && $booksResult->num_rows > 0): ?>
                     <?php while ($row = $booksResult->fetch_assoc()): 
                         $category = $row['category'] ?? 'General';
-                        $genre = $row['genre'] ?? ''; // Safely collect dynamic database genre metadata
+                        $genre = $row['genre'] ?? '';
                         
 
                         $isOnline = (stripos($category, 'Online') !== false);
@@ -175,7 +175,7 @@ include_once 'includes/tsbar.php';
                         <p class="text-muted">No books found matching your search.</p>
                         <iconify-icon icon="lucide:search-x" class="display-1 text-muted opacity-25"></iconify-icon>
                         <h3 class="text-muted mt-3">No matches found for "<?= htmlspecialchars($search) ?>"</h3>
-                        <a href="/kmkdt-Library/public/user/BrowseBooks" class="btn btn-success rounded-pill px-4 py-2 fw-bold text-dark text-decoration-none shadow-sm">Clear filters</a>
+                        <a href="/kmkdt-Library/public/user/browseBooks" class="btn btn-success rounded-pill px-4 py-2 fw-bold text-dark text-decoration-none shadow-sm">Clear filters</a>
                     </div>
                 <?php endif; ?>
             </div>
