@@ -25,6 +25,68 @@ $sessionUserId = $_SESSION['user_id'] ?? $_SESSION['authUser']['user_id'] ?? 0;
       </div>
     </section>
 
+<!-- Contact Info Cards -->
+    <section class="contact-info-section py-5" data-admin-id="<?php echo htmlspecialchars($adminId); ?>">
+        <div class="container">
+            <div class="row g-4">
+                
+                <!-- Card 1: Address -->
+                <div class="col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card border-0 shadow-sm h-100 p-4 transition-hover">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-avatar me-3 bg-primary bg-opacity-10 text-primary rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="bi bi-geo-alt-fill fs-4"></i>
+                            </div>
+                            <span class="text-muted fw-bold small tracking-wider">LIBRARY ADDRESS</span>
+                        </div>
+                        <p class="mb-0 text-secondary fw-semibold"> secret city <br> coming soon</p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Phone -->
+                <div class="col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card border-0 shadow-sm h-100 p-4 transition-hover">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-avatar me-3 bg-success bg-opacity-10 text-success rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="bi bi-telephone-fill fs-4"></i>
+                            </div>
+                            <span class="text-muted fw-bold small tracking-wider">CONTACT NUMBER</span>
+                        </div>
+                        <p class="mb-0 text-secondary fw-semibold">+63 912 345 6789<br>+63 992 892 2973</p>
+                    </div>
+                </div>
+
+                <!-- Card 3: Email -->
+                <div class="col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card border-0 shadow-sm h-100 p-4 transition-hover">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-avatar me-3 bg-danger bg-opacity-10 text-danger rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="bi bi-envelope-fill fs-4"></i>
+                            </div>
+                            <span class="text-muted fw-bold small tracking-wider">ANOTHER GMAIL SUPPORT</span>
+                        </div>
+                        <p class="mb-0 text-secondary fw-semibold text-break">admin2@gmail.com<br>support@kmkdtlibrary.edu.ph</p>
+                    </div>
+                </div>
+
+                <!-- Card 4: Hours -->
+                <div class="col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="400">
+                    <div class="card border-0 shadow-sm h-100 p-4 transition-hover">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-avatar me-3 bg-warning bg-opacity-10 text-warning rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="bi bi-clock-fill fs-4"></i>
+                            </div>
+                            <span class="text-muted fw-bold small tracking-wider">LIBRARY HOURS</span>
+                        </div>
+                        <p class="mb-0 text-secondary fw-semibold">Monday - Saturday<br>8:00 AM - 6:00 PM</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section> <!-- FIX: Correctly closed section tag -->
+
+<!-- messaging space -->
     <section class="get-in-touch py-5 py-lg-9 py-xl-10">
       <div class="container">
           

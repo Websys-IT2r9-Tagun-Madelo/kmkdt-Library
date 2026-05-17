@@ -71,7 +71,7 @@ if (isset($_SESSION['current_reading_id'])) {
                   <li class="header-item">
                     <a href="contact" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                        class="img-fluid animate-spin"> Contact Us</a>
+                        class="img-fluid animate-spin"> Support & Community </a>
                   </li>
                   <li class="header-item">
                     <form action="/kmkdt-Library/app/controller/userController.php" method="POST">

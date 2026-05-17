@@ -76,3 +76,29 @@ if (bookModal) {
   });
 }
 
+// ===== SETUP EVENT LISTENERS (ADMIN) =====
+function adminSetupEventListeners() {
+    // Send button
+    const sendBtn = document.querySelector('.admin-send-btn');
+    if (sendBtn) {
+        sendBtn.addEventListener('click', adminSendMessage);
+    }
+    
+    // Message input - send on Enter (Shift+Enter for new line)
+    const textarea = document.querySelector('.admin-message-input-wrapper textarea');
+    if (textarea) {
+        textarea.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                adminSendMessage();
+            }
+        });
+        
+        // Auto-expand textarea
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+        });
+    }
+}
+

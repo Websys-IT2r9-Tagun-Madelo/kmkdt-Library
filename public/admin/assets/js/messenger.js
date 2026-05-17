@@ -3,6 +3,7 @@
 const MESSAGING_API = '/kmkdt-Library/app/controller/messagingController.php';
 const REFRESH_INTERVAL = 3000; // 3 seconds - refresh messages
 const ADMIN_ID = 4; // Normalized Admin ID reference 
+const ADMIN_ID = 14;
 
 let currentConversationId = null;
 let currentRecipientId = null;

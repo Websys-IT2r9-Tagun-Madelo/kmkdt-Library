@@ -32,6 +32,7 @@
 
 <!-- Template Main JS File -->
 <script src="assets/js/main.js"></script>
+<script src="assets/js/catalog.js"></script>
 <script src="/kmkdt-Library/public/admin/assets/js/admin-messenger.js"></script>
 <script src="/kmkdt-Library/public/admin/assets/js/messenger.js"></script>
 

@@ -1,13 +1,32 @@
+// ===== MESSENGER ADMIN PANEL CONTROLLER =====
 const ADMIN_MESSAGING_API = '../../app/controller/messagingController.php';
 const ADMIN_REFRESH_INTERVAL = 3000; // 3 seconds - refresh messages
+const ADMIN_DEFAULT_ID = 14;          // Fixed fallback admin ID configuration
 
 let adminCurrentConversationId = null;
 let adminCurrentUserId = null;
 let adminRefreshInterval = null;
+let isAdminPolling = false;          // Flag to prevent stacking asynchronous polling cycles
+
+// Cached DOM Elements 
+let adminDomElements = {};
+
+function cacheAdminElements() {
+    adminDomElements = {
+        conversationsList: document.querySelector('.admin-conversations-list'),
+        messagesContainer: document.querySelector('.admin-messages-container'),
+        inputArea: document.querySelector('.admin-message-input-area'),
+        headerTitle: document.querySelector(".current-chat-title"),
+        headerSub: document.querySelector(".current-chat-subtitle"),
+        textarea: document.querySelector('.admin-message-input-wrapper textarea'),
+        sendBtn: document.querySelector('.admin-send-btn')
+    };
+}
 
 // ===== INITIALIZE ADMIN MESSENGER =====
 function initializeAdminMessenger() {
     console.log('Initializing admin messenger...');
+    cacheAdminElements();
     
     // Load conversations on page load
     adminLoadConversations();
@@ -19,358 +38,343 @@ function initializeAdminMessenger() {
     adminStartAutoRefresh();
 }
 
+// ===== SAFE HTML ESCAPING UTILITY =====
+function escapeHtmlAdmin(text) {
+    if (!text) return '';
+    return text
+        .toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// ===== GET CURRENT ADMIN USER SESSION ID =====
+function getAdminUserId() {
+    const adminIdElement = document.querySelector('[data-admin-id]');
+    if (adminIdElement) {
+        return parseInt(adminIdElement.getAttribute('data-admin-id'), 10) || ADMIN_DEFAULT_ID;
+    }
+    return ADMIN_DEFAULT_ID; 
+}
+
 // ===== LOAD ADMIN CONVERSATIONS =====
-function adminLoadConversations() {
-    fetch(`${ADMIN_MESSAGING_API}?action=adminGetConversations`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                adminRenderConversations(data.conversations);
-            } else {
-                console.error('Error loading conversations:', data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
+async function adminLoadConversations() {
+    try {
+        const response = await fetch(`${ADMIN_MESSAGING_API}?action=adminGetConversations`);
+        const data = await response.json();
+        if (data.success) {
+            adminRenderConversations(data.conversations);
+        } else {
+            console.error('Error loading conversations:', data.message);
+        }
+    } catch (error) {
+        console.error('Network transport error loading admin list views:', error);
+    }
 }
 
 // ===== RENDER ADMIN CONVERSATIONS LIST =====
 function adminRenderConversations(conversations) {
-    const conversationsList = document.querySelector('.admin-conversations-list');
+    const listContainer = adminDomElements.conversationsList;
+    if (!listContainer) return;
     
-    if (!conversationsList) return;
-    
-    if (conversations.length === 0) {
-        conversationsList.innerHTML = '<li style="padding: 16px; text-align: center; color: #999;">No conversations yet</li>';
+    if (!conversations || conversations.length === 0) {
+        listContainer.innerHTML = '<li style="padding: 16px; text-align: center; color: #999; list-style: none;">No conversations yet</li>';
         return;
     }
     
-    conversationsList.innerHTML = conversations.map(conv => {
-        const isActive = adminCurrentConversationId === conv.id ? 'active' : '';
-        const unreadClass = conv.unread_count > 0 ? '' : 'hidden';
-        const unreadBadge = conv.unread_count > 0 ? `<span class="conversation-badge ${unreadClass}">${conv.unread_count}</span>` : '';
-        const lastMessageTime = conv.last_message_time || '';
+    // Sort incoming conversations chronologically
+    const sortedConversations = [...conversations].sort((a, b) => {
+        const timeA = a.last_message_time ? new Date(a.last_message_time.replace(/-/g, "/")) : new Date(0);
+        const timeB = b.last_message_time ? new Date(b.last_message_time.replace(/-/g, "/")) : new Date(0);
+        return timeB - timeA;
+    });
+    
+    listContainer.innerHTML = sortedConversations.map(conv => {
+        const isActive = adminCurrentConversationId && parseInt(adminCurrentConversationId, 10) === parseInt(conv.id, 10);
+        const unreadBadge = conv.unread_count > 0 ? `<span class="conversation-badge">${conv.unread_count}</span>` : '';
+        const lastMessageTime = formatTimeAdmin(conv.last_message_time || conv.created_at);
         const lastMessage = conv.last_message || 'No messages yet';
         
-        // SAFELY FALLBACK IF NAMES MISMATCH VIA THE CONTROLLER
         const displayName = conv.recipient_name || conv.fullName || 'Unknown User';
         const displayEmail = conv.recipient_email || conv.email || '';
         const displayUserId = conv.recipient_id || conv.user_id;
         
         return `
-            <li class="conversation-item ${isActive}" data-conversation-id="${conv.id}" data-user-id="${displayUserId}">
-                <div class="conversation-avatar">${displayName.charAt(0).toUpperCase()}</div>
+            <li class="conversation-item ${isActive ? 'active' : ''}" 
+                data-conversation-id="${conv.id}" 
+                data-user-id="${displayUserId}"
+                data-recipient-name="${escapeHtmlAdmin(displayName)}">
+                <div class="conversation-avatar">${escapeHtmlAdmin(displayName.charAt(0).toUpperCase())}</div>
                 <div class="conversation-info">
                     <div class="conversation-header">
-                        <span class="conversation-name">${displayName}</span>
+                        <span class="conversation-name">${escapeHtmlAdmin(displayName)}</span>
                         ${unreadBadge}
                     </div>
-                    <div style="font-size: 12px; color: #999; margin-bottom: 4px;">${displayEmail}</div>
-                    <div class="conversation-preview">${lastMessage}</div>
+                    <div class="user-email-row" style="font-size: 12px; color: #94a3b8; margin-bottom: 4px;">${escapeHtmlAdmin(displayEmail)}</div>
+                    <div class="conversation-preview">${escapeHtmlAdmin(lastMessage)}</div>
                 </div>
                 <div class="conversation-time">${lastMessageTime}</div>
             </li>
         `;
     }).join('');
     
-    // Add click listeners to conversation items
-    document.querySelectorAll('.admin-conversations-list .conversation-item').forEach(item => {
+    // Re-bind listeners
+    listContainer.querySelectorAll('.conversation-item').forEach(item => {
         item.addEventListener('click', () => {
-            const convId = item.getAttribute('data-conversation-id');
-            const userId = item.getAttribute('data-user-id');
-            adminSelectConversation(convId, userId);
+            adminSelectConversation(
+                item.getAttribute('data-conversation-id'),
+                item.getAttribute('data-user-id'),
+                item.getAttribute('data-recipient-name')
+            );
         });
     });
 }
 
 // ===== SELECT CONVERSATION (ADMIN) =====
-function adminSelectConversation(conversationId, userId) {
+function adminSelectConversation(conversationId, userId, recipientName) {
     adminCurrentConversationId = conversationId;
     adminCurrentUserId = userId;
     
-    // Update active state
-    document.querySelectorAll('.admin-conversations-list .conversation-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    document.querySelector(`.admin-conversations-list [data-conversation-id="${conversationId}"]`)?.classList.add('active');
+    if (adminDomElements.inputArea) {
+        adminDomElements.inputArea.style.setProperty('display', 'flex', 'important');
+    }
+
+    if (recipientName) {
+        if (adminDomElements.headerTitle) adminDomElements.headerTitle.innerText = recipientName;
+        if (adminDomElements.headerSub) adminDomElements.headerSub.innerText = "Direct Support Chat Session Open";
+    }
     
-    // Load messages
-    adminLoadMessages(conversationId);
+    document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
+    const activeItem = document.querySelector(`.conversation-item[data-conversation-id="${conversationId}"]`);
+    if (activeItem) activeItem.classList.add('active');
+
+    adminDomElements.messagesContainer.classList.remove('messages-empty');
+    adminLoadMessages(conversationId, true);
 }
 
 // ===== LOAD MESSAGES (ADMIN) =====
-function adminLoadMessages(conversationId) {
-    fetch(`${ADMIN_MESSAGING_API}?action=getMessages&conversation_id=${conversationId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                adminRenderMessages(data.messages);
-                adminScrollMessagesToBottom();
-            } else {
-                console.error('Error loading messages:', data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
+async function adminLoadMessages(conversationId, forceScroll = false) {
+    if (!conversationId) return;
+
+    try {
+        const response = await fetch(`${ADMIN_MESSAGING_API}?action=getMessages&conversation_id=${conversationId}`);
+        const data = await response.json();
+        if (data.success) {
+            adminRenderMessages(data.messages, forceScroll);
+        } else {
+            console.error('Error loading messages:', data.message);
+        }
+    } catch (error) {
+        console.error('Error fetching chat payload sync:', error);
+    }
 }
 
 // ===== RENDER MESSAGES (ADMIN) =====
-function adminRenderMessages(messages) {
-    const messagesContainer = document.querySelector('.admin-messages-container');
+function adminRenderMessages(messages, forceScroll = false) {
+    const container = adminDomElements.messagesContainer;
+    if (!container) return;
     
-    if (!messagesContainer) return;
+    const isAtBottom = (container.scrollHeight - container.scrollTop <= container.clientHeight + 100);
     
-    if (messages.length === 0) {
-        messagesContainer.innerHTML = '<div class="messages-empty"><p>No messages yet. Start the conversation!</p></div>';
+    if (!messages || messages.length === 0) {
+        container.innerHTML = '<div class="messages-empty" style="text-align: center; color: #94a3b8; padding: 40px 0;"><p>No messages yet. Start the conversation!</p></div>';
         return;
     }
     
-    // Align with global admin assignment definitions
     const currentAdminId = getAdminUserId();
     
-    messagesContainer.innerHTML = messages.map(msg => {
-        const isSent = parseInt(msg.sender_id) === parseInt(currentAdminId);
+    container.innerHTML = messages.map(msg => {
+        const isSent = String(msg.sender_id).trim() === String(currentAdminId).trim();
         const messageClass = isSent ? 'sent' : 'received';
-        const time = formatTimeAdmin(msg.created_at);
+        const time = msg.time_stamp ? msg.time_stamp : formatTimeAdmin(msg.created_at);
         
-        // REMOVED THE WRAPPING DIV TAGS INSIDE THE MESSAGE WRAPPER
         return `
             <div class="message ${messageClass}">
-                <div class="message-bubble">${escapeHtmlAdmin(msg.message)}</div>
-                <div class="message-time">${time}</div>
+                <div>
+                    <div class="message-bubble">${escapeHtmlAdmin(msg.message)}</div>
+                    <div class="message-time">${time}</div>
+                </div>
             </div>
         `;
     }).join('');
     
-    // Show message input area
-    document.querySelector('.admin-message-input-area').style.display = 'flex';
+    if (forceScroll || isAtBottom) {
+        adminScrollMessagesToBottom();
+    }
 }
 
 // ===== SEND MESSAGE (ADMIN) =====
-function adminSendMessage() {
-    const textarea = document.querySelector('.admin-message-input-wrapper textarea');
+async function adminSendMessage() {
+    const textarea = adminDomElements.textarea;
+    if (!textarea || !adminCurrentConversationId) return;
+
     const message = textarea.value.trim();
-    
-    if (!message || !adminCurrentConversationId) return;
+    if (!message) return;
     
     const formData = new FormData();
     formData.append('action', 'sendMessage');
     formData.append('conversation_id', adminCurrentConversationId);
     formData.append('message', message);
     
-    fetch(ADMIN_MESSAGING_API, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
+    textarea.value = '';
+    textarea.style.height = 'auto'; 
+    
+    try {
+        const response = await fetch(ADMIN_MESSAGING_API, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
         if (data.success) {
-            textarea.value = '';
-            adminLoadMessages(adminCurrentConversationId);
-            adminLoadConversations();
+            await Promise.all([
+                adminLoadMessages(adminCurrentConversationId, true),
+                adminLoadConversations()
+            ]);
         } else {
             alert('Error sending message: ' + data.message);
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error sending message');
-    });
+    } catch (error) {
+        console.error('Error execution failed:', error);
+    }
 }
 
-// ===== SETUP EVENT LISTENERS (ADMIN) =====
-function adminSetupEventListeners() {
-    // Send button
-    const sendBtn = document.querySelector('.admin-send-btn');
-    if (sendBtn) {
-        sendBtn.addEventListener('click', adminSendMessage);
+// ===== LIVE SEARCH CONVERSATIONS REGISTRATION =====
+function setupLiveSearchFilters() {
+    const searchInput = document.getElementById('adminConversationSearch');
+    const clearBtn = document.getElementById('clearSearchBtn');
+
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase().trim();
+        const items = document.querySelectorAll('.conversation-item');
+        
+        if (clearBtn) {
+            if (query.length > 0) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+        }
+
+        items.forEach(item => {
+            const name = item.querySelector('.conversation-name')?.textContent.toLowerCase() || '';
+            const emailRow = item.querySelector('.user-email-row');
+            const email = emailRow ? emailRow.textContent.toLowerCase() : '';
+            
+            if (name.includes(query) || email.includes(query)) {
+                item.style.setProperty('display', 'flex', 'important');
+            } else {
+                item.style.setProperty('display', 'none', 'important');
+            }
+        });
+
+        const visibleItems = Array.from(items).filter(item => item.style.display !== 'none');
+        const listContainer = adminDomElements.conversationsList;
+        let noResultPlaceholder = document.getElementById('search-no-results');
+
+        if (visibleItems.length === 0 && items.length > 0) {
+            if (!noResultPlaceholder && listContainer) {
+                noResultPlaceholder = document.createElement('li');
+                noResultPlaceholder.id = 'search-no-results';
+                noResultPlaceholder.style.cssText = 'padding: 24px; text-align: center; color: #94a3b8; font-size: 13.5px; list-style: none;';
+                noResultPlaceholder.textContent = 'No matching users found';
+                listContainer.appendChild(noResultPlaceholder);
+            }
+        } else if (noResultPlaceholder) {
+            noResultPlaceholder.remove();
+        }
+    });
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            clearBtn.classList.add('hidden');
+            searchInput.dispatchEvent(new Event('input'));
+            searchInput.focus();
+        });
     }
-    
-    // Message input - send on Enter (Shift+Enter for new line)
-    const textarea = document.querySelector('.admin-message-input-wrapper textarea');
+}
+
+// ===== EVENT LISTENERS REGISTRATION =====
+function adminSetupEventListeners() {
+    if (adminDomElements.sendBtn) {
+        adminDomElements.sendBtn.addEventListener('click', adminSendMessage);
+    }
+
+    const textarea = adminDomElements.textarea;
     if (textarea) {
-        textarea.addEventListener('keypress', (e) => {
+        textarea.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 adminSendMessage();
             }
         });
-        
-        // Auto-expand textarea
+
         textarea.addEventListener('input', () => {
             textarea.style.height = 'auto';
             textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
         });
     }
+
+    setupLiveSearchFilters();
 }
 
 // ===== AUTO-REFRESH MESSAGES (ADMIN) =====
 function adminStartAutoRefresh() {
     if (adminRefreshInterval) clearInterval(adminRefreshInterval);
 
-    adminRefreshInterval = setInterval(() => {
-        if (adminCurrentConversationId) {
-            adminLoadMessages(adminCurrentConversationId);
+    adminRefreshInterval = setInterval(async () => {
+        if (isAdminPolling) return;
+        isAdminPolling = true;
+        
+        try {
+            const tasks = [adminLoadConversations()];
+            if (adminCurrentConversationId) {
+                tasks.push(adminLoadMessages(adminCurrentConversationId, false));
+            }
+            await Promise.all(tasks);
+        } catch (error) {
+            console.error("Polling sequence frame dropped: ", error);
+        } finally {
+            isAdminPolling = false;
         }
-        adminLoadConversations();
     }, ADMIN_REFRESH_INTERVAL);
 }
 
-// ===== UTILITY FUNCTIONS =====
 function formatTimeAdmin(dateString) {
     if (!dateString) return '';
+    if (dateString.includes('AM') || dateString.includes('PM')) return dateString;
     
-    const date = new Date(dateString);
+    const date = new Date(dateString.replace(/-/g, "/"));
     const now = new Date();
+    if (isNaN(date.getTime())) return dateString; 
+    
     const diff = now - date;
-    
     if (diff < 60000) return 'just now';
-    
-    if (diff < 3600000) {
-        const mins = Math.floor(diff / 60000);
-        return mins + 'm ago';
-    }
-    
-    if (diff < 86400000) {
-        const hours = Math.floor(diff / 3600000);
-        return hours + 'h ago';
-    }
+    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
     
     const dateOnly = date.toLocaleDateString();
-    const todayOnly = now.toLocaleDateString();
-    
-    if (dateOnly === todayOnly) {
+    if (dateOnly === now.toLocaleDateString()) {
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
     
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
-    if (dateOnly === yesterday.toLocaleDateString()) {
-        return 'Yesterday';
-    }
+    if (dateOnly === yesterday.toLocaleDateString()) return 'Yesterday';
     
     return date.toLocaleDateString();
 }
 
 function adminScrollMessagesToBottom() {
-    const messagesContainer = document.querySelector('.admin-messages-container');
-    if (messagesContainer) {
-        setTimeout(() => {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }, 100);
+    const container = adminDomElements.messagesContainer;
+    if (container) {
+        setTimeout(() => { container.scrollTop = container.scrollHeight; }, 30);
     }
 }
 
-function escapeHtmlAdmin(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
-}
-
-function getAdminUserId() {
-    const adminIdElement = document.querySelector('[data-admin-id]');
-    if (adminIdElement) {
-        return adminIdElement.getAttribute('data-admin-id');
-    }
-    
-    const adminElement = document.querySelector('.current-admin-id');
-    if (adminElement) {
-        return adminElement.textContent;
-    }
-    
-    return 4; // Normalized Admin ID reference alignment
-}
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', initializeAdminMessenger);
-
-// ===== SETUP EVENT LISTENERS (ADMIN) =====
-function adminSetupEventListeners() {
-    // Send button
-    const sendBtn = document.querySelector('.admin-send-btn');
-    if (sendBtn) {
-        sendBtn.addEventListener('click', adminSendMessage);
-    }
-    
-    // Message input - send on Enter (Shift+Enter for new line)
-    const textarea = document.querySelector('.admin-message-input-wrapper textarea');
-    if (textarea) {
-        textarea.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                adminSendMessage();
-            }
-        });
-        
-        // Auto-expand textarea
-        textarea.addEventListener('input', () => {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
-        });
-    }
-
-    // ==========================================
-    // ADDED: LIVE SEARCH FILTER FOR CONVERSATIONS
-    // ==========================================
-    const searchInput = document.getElementById('adminConversationSearch');
-    const clearBtn = document.getElementById('clearSearchBtn');
-
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.toLowerCase().trim();
-            const items = document.querySelectorAll('.admin-conversations-list .conversation-item');
-            
-            // Toggle the 'X' clear button visibility if it exists
-            if (clearBtn) {
-                if (query.length > 0) {
-                    clearBtn.classList.remove('hidden');
-                } else {
-                    clearBtn.classList.add('hidden');
-                }
-            }
-
-            items.forEach(item => {
-                // Grab the name and email text content from the item elements
-                const name = item.querySelector('.conversation-name')?.textContent.toLowerCase() || '';
-                const email = item.style.cssText ? '' : item.querySelector('div[style*="font-size: 12px"]')?.textContent.toLowerCase() || ''; 
-                
-                // If the name or email matches the query, show it; otherwise hide it
-                if (name.includes(query) || email.includes(query)) {
-                    item.style.setProperty('display', 'flex', 'important');
-                } else {
-                    item.style.setProperty('display', 'none', 'important');
-                }
-            });
-
-            // Handle the "No results found" visual placeholder safely
-            const visibleItems = document.querySelectorAll('.admin-conversations-list .conversation-item[style*="display: flex"]');
-            const listContainer = document.querySelector('.admin-conversations-list');
-            let noResultPlaceholder = document.getElementById('search-no-results');
-
-            if (visibleItems.length === 0 && items.length > 0) {
-                if (!noResultPlaceholder) {
-                    noResultPlaceholder = document.createElement('li');
-                    noResultPlaceholder.id = 'search-no-results';
-                    noResultPlaceholder.style.cssText = 'padding: 24px; text-align: center; color: #94a3b8; font-size: 13.5px;';
-                    noResultPlaceholder.textContent = 'No matching users found';
-                    listContainer.appendChild(noResultPlaceholder);
-                }
-            } else if (noResultPlaceholder) {
-                noResultPlaceholder.remove();
-            }
-        });
-    }
-
-    // Optional: Make the clear button clear the text out when clicked
-    if (clearBtn && searchInput) {
-        clearBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            clearBtn.classList.add('hidden');
-            searchInput.dispatchEvent(new Event('input')); // Re-trigger filtering to reset list
-            searchInput.focus();
-        });
-    }
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAdminMessenger);
+} else {
+    initializeAdminMessenger();
 }

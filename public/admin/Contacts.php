@@ -72,7 +72,7 @@ $adminId = $_SESSION['authUser']['user_id'] ?? $_SESSION['user_id'] ?? 4;
 
 <!-- MESSAGING SURFACE -->
 <div class="row">
-      <div class="col-12 col-xl-11 col-xxl-10 mx-auto">
+      <div class="col-12 col-xl-12 col-xxl-10 mx-auto">
         <div class="card p-0 overflow-hidden shadow-sm border-0">
           
           <div class="admin-messenger-container">

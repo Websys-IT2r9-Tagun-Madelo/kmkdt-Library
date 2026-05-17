@@ -462,6 +462,7 @@
         margin: 10px 0 5px 0;
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         min-height: 2.6rem;
@@ -572,6 +573,7 @@
     to { transform: rotate(360deg); }
 }
 
+/* Temporary test - remove after testing */
 .modal-backdrop {
     display: none !important; /* Remove the dark overlay entirely */
 }

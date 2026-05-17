@@ -1,32 +1,40 @@
 <?php
-// app/controllers/userController.php
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 1. PATH CONFIGURATION 
-$configPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
+// 1. ABSOLUTE PATH CONFIGURATION
+$configPath = 'C:\xampp\htdocs\kmkdt-Library\app\config\config.php';
+
 if (file_exists($configPath)) {
     include_once($configPath);
 } else {
     die("Config file not found at: " . $configPath);
 }
 
+// LOAD THE CONTROLLER SO THE FUNCTIONS BELOW WORK
+$controllerPath = 'C:\xampp\htdocs\kmkdt-Library\app\controller\adminController.php';
+if (file_exists($controllerPath)) {
+    include_once($controllerPath);
+} else {
+    die("Controller file not found at: " . $controllerPath);
+}
+
 // 2. CENTRAL ROUTING ACTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
-    // Logout Action Route
     if (isset($_POST['logoutButton'])) {
-        unset($_SESSION['authUser']);
-        unset($_SESSION['user_id']);
-        unset($_SESSION['userRole']);
+        $_SESSION = []; 
         session_destroy();
         header("Location: /kmkdt-Library/public/login");
         exit();
     }
 }
 
+// Now these calls will execute flawlessly using PDO
+$books = getCatalog($conn);
+$activities = getRecentActivity($conn);
+
+// 3. RENDER LAYOUTS
 include('./includes/header.php');
 include('./includes/topbar.php');
 include('./includes/sidebar.php');
@@ -58,17 +66,16 @@ include('./includes/sidebar.php');
             </optgroup>
             <optgroup label="Academic Journals">
               <option value="research">Research</option>
-              <option value="science">Science</option>
+              <option value="Case studies">Case studies</option>
             </optgroup>
             <optgroup label="Digital eBooks">
-              <option value="e-book">E-Book</option>
-              <option value="online">Online Resources</option>
+              <option value="online">Online</option>
             </optgroup>
           </select>
         </div>
       </div>
 
-       <table class="table table-hover align-middle">
+       <table class="table table-hover align-middle" id="catalogTable">
         <thead class="table-light">
           <tr>
             <th>#</th>
@@ -82,16 +89,16 @@ include('./includes/sidebar.php');
         <tbody>
           <?php if (!empty($books)): ?>
             <?php foreach ($books as $index => $book): ?>
-              <tr class="shadow-sm">
+              <tr class="book-row shadow-sm">
                 <td class="py-3 ps-3 text-muted" style="width: 50px;"><?= $index + 1 ?></td>
                 <td class="py-3">
-                  <div class="fw-bold text-dark"><?= htmlspecialchars($book['title'] ?? '') ?></div>
+                  <div class="fw-bold text-dark book-title"><?= htmlspecialchars($book['title'] ?? '') ?></div>
                 </td>
-                <td class="py-3 text-secondary">
+                <td class="py-3 text-secondary book-author">
                    <i class="bi bi-person me-1"></i><?= htmlspecialchars($book['author'] ?? '') ?>
                 </td>
                 <td class="py-3">
-                  <span class="text-uppercase small fw-semibold text-muted bg-light px-2 py-1 rounded">
+                  <span class="text-uppercase small fw-semibold text-muted bg-light px-2 py-1 rounded book-category">
                     <?= htmlspecialchars($book['category'] ?? '') ?>
                   </span>
                 </td>
@@ -138,16 +145,20 @@ include('./includes/sidebar.php');
         <?php if (!empty($activities)): ?>
           <?php foreach ($activities as $act): ?>
             <?php
-              // Dynamic Icon picker depending on the action type
-              if ($act['type'] === 'payment') {
+              
+              $rawStatus = strtolower($act['status'] ?? '');
+              $timestamp = !empty($act['borrowed_at']) ? $act['borrowed_at'] : 'now';
+              $bookTitle = !empty($act['title']) ? '"' . $act['title'] . '"' : 'Unknown Book';
+
+              if ($rawStatus === 'payment') {
                   $iconClass = 'bg-success';
                   $icon = 'bi-cash-coin';
-                  $actionLabel = 'settled fine of';
+                  $actionLabel = 'settled fine';
               } else {
-                  $isReturn = (strtolower($act['status']) === 'returned');
+                  $isReturn = ($rawStatus === 'returned');
                   $iconClass = $isReturn ? 'bg-primary' : 'bg-warning text-dark';
                   $icon = $isReturn ? 'bi-arrow-return-left' : 'bi-book';
-                  $actionLabel = strtolower($act['status']);
+                  $actionLabel = $rawStatus ?: 'processed';
               }
             ?>
             <div class="activity-item d-flex align-items-start mb-3">
@@ -157,12 +168,12 @@ include('./includes/sidebar.php');
               </div>
               <div>
                 <div class="small text-muted">
-                  <?= date('g:i A', strtotime($act['time'])) ?>
+                  <?= date('g:i A', strtotime($timestamp)) ?>
                 </div>
                 <div>
-                  <strong><?= htmlspecialchars($act['fullName']) ?></strong> 
+                  <strong><?= htmlspecialchars($act['fullName'] ?? 'System User') ?></strong> 
                   <?= htmlspecialchars($actionLabel) ?> 
-                  <strong><?= htmlspecialchars($act['details']) ?></strong>
+                  <strong class="text-secondary"><?= htmlspecialchars($bookTitle) ?></strong>
                 </div>
               </div>
             </div>
@@ -174,7 +185,5 @@ include('./includes/sidebar.php');
     </div>
   </div>
 </div>
-
-<script src="../assets/js/catalog.js"></script>
 
 <?php include('./includes/footer.php'); ?>

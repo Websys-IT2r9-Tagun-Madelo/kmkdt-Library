@@ -1,14 +1,19 @@
 <?php
 include('../../app/middleware/admin.php');
 
-$base = 'C:/xampp/htdocs/kmkdt-Library/app'; 
+// Set root path constants
+define('ROOT_PATH', dirname(__DIR__, 2));
+define('APP_PATH', ROOT_PATH . '/app');
 
-require_once $base . '/config/config.php';
-require_once $base . '/controller/adminController.php';
+// Include core files
+require_once APP_PATH . '/config/config.php';
+require_once APP_PATH . '/controller/adminController.php';
 
+// Fetch data
 $stats = getCirculationStats($conn); 
 $records = getCirculationRecords($conn);
 
+// Render layouts
 include('./includes/header.php');
 include('./includes/topbar.php');
 include('./includes/sidebar.php');
