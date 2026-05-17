@@ -3,7 +3,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params(0, '/'); 
     session_start();
 }
-// Technical Requirement: Load database connection and controller logic
 require_once dirname(__DIR__, 1) . '/userController.php'; 
 
 
@@ -21,12 +20,12 @@ if (!$uid) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // 2. CSRF Security Validation for Midterm Requirements
+    
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("Security validation failed.");
     }
 
-    // 3. Capture and Sanitize Form Data
+    
     $fullName     = trim($_POST['fullName']);
     $username     = trim($_POST['username']);
     $emailAddress = trim($_POST['emailAddress']);

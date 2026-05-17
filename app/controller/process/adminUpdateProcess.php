@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 1. ARCHITECTURAL ROOT RESOLUTION
+
 $configPath = dirname(__DIR__, 2) . '/config/config.php';
 if (file_exists($configPath)) {
     require_once $configPath;
@@ -12,11 +12,10 @@ if (file_exists($configPath)) {
     require_once $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/config/config.php';
 }
 
-// Capture authenticated context
 $uid = $_SESSION['user_id'] ?? $_SESSION['authUser']['id'] ?? $_SESSION['authUser']['user_id'] ?? null;
 
 // =========================================================================
-// ADMIN PROFILE & PASSWORD COUPLING CONTROLLER ENGINE (EXTENDED PROCESSING)
+// ADMIN PROFILE & PASSWORD COUPLING CONTROLLER ENGINE 
 // =========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
@@ -77,15 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if ($stmt) {
             if (mysqli_stmt_execute($stmt)) {
                 
-                // =========================================================================
-                // CRITICAL HOTFIX: SESSION SYNCHRONIZATION ENGINE
-                // =========================================================================
-                // Update basic root session attributes instantly
                 if (isset($_SESSION['fullName'])) $_SESSION['fullName'] = $fullName;
                 if (isset($_SESSION['emailAddress'])) $_SESSION['emailAddress'] = $emailAddress;
                 if (isset($_SESSION['username'])) $_SESSION['username'] = $username;
 
-                // Update deep multi-dimensional authorization storage arrays (e.g., authUser or auth_user)
+    
                 if (isset($_SESSION['authUser']) && is_array($_SESSION['authUser'])) {
                     $_SESSION['authUser']['fullName']     = $fullName;
                     $_SESSION['authUser']['username']     = $username;

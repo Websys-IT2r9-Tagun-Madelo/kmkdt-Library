@@ -57,7 +57,7 @@ CREATE TABLE `books` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `books`
+-- data for table `books`
 --
 
 INSERT INTO `books` (`id`, `title`, `author`, `description`, `category`, `genre`, `cover_image`, `status`, `user_id`) VALUES

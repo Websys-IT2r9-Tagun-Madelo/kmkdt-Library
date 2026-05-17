@@ -25,7 +25,7 @@ if ($stmt = $conn->prepare($checkSql)) {
     $loan = $stmt->get_result()->fetch_assoc();
 }
 
-
+// overdue
 if ($loan && $loan['status'] === 'overdue') {
     header("Location: /kmkdt-Library/public/user/myBooks?error=payment_required");
     exit();
@@ -44,4 +44,4 @@ if ($success) {
 } else {
     header("Location: /kmkdt-Library/public/user/myBooks?error=failed");
 }
-exit();
+exit(); 

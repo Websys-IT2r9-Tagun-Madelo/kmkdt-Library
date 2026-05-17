@@ -18,7 +18,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_live_user_updates') {
     if (ob_get_length()) ob_clean();
     header('Content-Type: application/json; charset=UTF-8');
     
-    // Extract user ID using the exact fallback chain matching your messaging system
+    
     $userId = $_SESSION['user_id'] ?? $_SESSION['authUser']['id'] ?? $_SESSION['authUser']['user_id'] ?? null;
     
     if (!$userId) {

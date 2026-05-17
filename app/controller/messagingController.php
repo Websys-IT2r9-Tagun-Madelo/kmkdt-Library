@@ -289,11 +289,11 @@ if ($action === 'adminGetConversations') {
         session_start();
     }
 
-    // 1. EXTRACT FROM DEEP ROOT OR NESTED AUTH USER ARRAY
+    
     $current_role = $_SESSION['role'] ?? $_SESSION['authUser']['role'] ?? '';
     $username_check = $_SESSION['username'] ?? $_SESSION['authUser']['username'] ?? '';
     
-    // Look everywhere for the logged-in User's ID
+    
     $current_user_id = (int)(
         $_SESSION['id'] ?? 
         $_SESSION['user_id'] ?? 
@@ -302,7 +302,7 @@ if ($action === 'adminGetConversations') {
         0
     );
 
-    // 2. PRIVILEGE AND LOGGED-IN VALIDATION
+    
     if (strtolower($current_role) !== 'admin' && strpos(strtolower($username_check), 'admin') === false) {
         http_response_code(403);
         echo json_encode([
@@ -323,7 +323,7 @@ if ($action === 'adminGetConversations') {
     }
     
     try {
-        // 3. COLLECT ACTIVE CHAT THREADS
+        
         $query = "
             SELECT 
                 c.id,
@@ -369,7 +369,7 @@ if ($action === 'adminGetConversations') {
             }
         }
         
-        // 4. COLLECT LIVE REPORT NOTIFICATIONS (SAFE EXECUTION)
+        
         $notifications = [];
         $currentDate = date('Y-m-d');
         
@@ -397,7 +397,7 @@ if ($action === 'adminGetConversations') {
             }
         }
 
-        // Output combined dynamic JSON blocks safely
+        
         echo json_encode([
             'success' => true, 
             'conversations' => $conversations,

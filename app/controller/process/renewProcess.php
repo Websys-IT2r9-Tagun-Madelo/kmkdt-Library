@@ -31,19 +31,19 @@ if ($stmt = $conn->prepare($checkSql)) {
     $stmt->close();
 }
 
-// Security boundary check: If no loan record matches, drop out safely
+
 if (!$loan) {
     header("Location: /kmkdt-Library/public/user/myBooks?error=not_found");
     exit();
 }
 
-// Block renewal if the user attempts to bypass an overdue penalty lock
+
 if ($loan['status'] === 'overdue') {
     header("Location: /kmkdt-Library/public/user/myBooks?error=payment_required");
     exit();
 }
 
-// Enforce your maximum 3-renewal limit restriction policy
+
 if ((int)$loan['renewal_count'] >= 2) {
     header("Location: /kmkdt-Library/public/user/myBooks?error=limit_reached");
     exit();
@@ -51,7 +51,7 @@ if ((int)$loan['renewal_count'] >= 2) {
 
 $bookCategory = $loan['category'] ?? 'General';
 
-// E-Books check fallback safety (Online options don't use renewals)
+
 if (stripos($bookCategory, 'Online') !== false) {
     header("Location: /kmkdt-Library/public/user/myBooks?error=online_unlimited");
     exit();

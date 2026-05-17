@@ -79,7 +79,7 @@ if (isset($_POST['registerbutton'])) {
         $conn = $GLOBALS['conn'];
     }
 
-    // 1. Capture and Trim Inputs
+
     $fullName = trim($_POST['fullName']);
     $username = trim($_POST['username']);
     $email    = trim($_POST['emailAddress']);
@@ -89,10 +89,10 @@ if (isset($_POST['registerbutton'])) {
     $barangay = trim($_POST['barangay']);
     $city     = trim($_POST['city']);
 
-    // Store inputs in session so the form can "remember" them if there's an error
+
     $_SESSION['old_input'] = $_POST;
 
-    // --- CHECK FOR EMPTY FIELDS ---
+
     if (empty($fullName) || empty($username) || empty($email) || empty($password) || empty($street) || empty($barangay) || empty($city)) {
         $_SESSION['message'] = "Please fill in all details before signing up.";
         $_SESSION['code'] = "error";
@@ -100,7 +100,7 @@ if (isset($_POST['registerbutton'])) {
         exit();
     }
 
-    // 2. Validate Email Format
+
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['message'] = "Invalid Email format!";
         $_SESSION['code'] = "error";
@@ -108,7 +108,7 @@ if (isset($_POST['registerbutton'])) {
         exit();
     }
 
-    // 3. Check for Duplicates
+
     $checkUser = "SELECT id FROM user WHERE emailAddress = ? OR username = ? LIMIT 1";
     $stmt = $conn->prepare($checkUser);
     $stmt->bind_param("ss", $email, $username);
@@ -120,7 +120,7 @@ if (isset($_POST['registerbutton'])) {
         exit();
     }
 
-    // 4. Password Match Check
+
     if ($password !== $confirm) {
         $_SESSION['message'] = "Passwords do not match!";
         $_SESSION['code'] = "error";
@@ -128,8 +128,6 @@ if (isset($_POST['registerbutton'])) {
         exit();
     }
 
-    // 5. If everything is OK, proceed to Insert
-    // (Sanitize right before DB insert)
     function generate_uuid() {
         return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
             mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff),

@@ -1,5 +1,4 @@
 <?php
-// Start session if it hasn't been initialized yet
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -8,13 +7,13 @@ if (session_status() === PHP_SESSION_NONE) {
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
 
-    // Clear any accidental whitespace or layouts from corrupting the JSON payload
+    
     if (ob_get_length()) {
         ob_clean();
     }
     header('Content-Type: application/json');
 
-    // Dynamically safely resolve database instance context if it hasn't dropped into memory yet
+    
     if (!isset($conn)) {
         $configPath = $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/config/config.php';
         if (file_exists($configPath)) {
@@ -27,7 +26,7 @@ if (isset($_GET['action'])) {
 
     // 1. ACTION: GET SYSTEM NOTIFICATIONS (WITH UNLIMITED OVERRIDE)
     if ($action === 'getNotifications') {
-        // Remove structural limitations if 'limit=none' was received by the JS Engine
+        
         $isUnlimited = (isset($_GET['limit']) && $_GET['limit'] === 'none');
         $notifications = getLiveOverdueNotifications($conn, $isUnlimited);
 
@@ -42,7 +41,7 @@ if (isset($_GET['action'])) {
     if ($action === 'markNotificationRead') {
         $id = (int)($_GET['id'] ?? 0);
         if ($id > 0) {
-            // Track dismissed updates using an internal session array so we don't alter database tables
+            
             if (!isset($_SESSION['dismissed_notifications'])) {
                 $_SESSION['dismissed_notifications'] = [];
             }
@@ -52,9 +51,9 @@ if (isset($_GET['action'])) {
         exit();
     }
 
-    // 3. ACTION: CLEAR ALL CURRENT NOTIFICATIONS INSTANTLY
+    
     if ($action === 'clearAllNotifications') {
-        // Fetch current active records and dump their IDs into the session suppression array
+        
         $allActive = getLiveOverdueNotifications($conn, true);
         if (!isset($_SESSION['dismissed_notifications'])) {
             $_SESSION['dismissed_notifications'] = [];
@@ -67,9 +66,9 @@ if (isset($_GET['action'])) {
     }
 }
 
-// 1. Safe Logout Interceptor
+// Safe Logout Interceptor
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logoutButton'])) {
-    $_SESSION = array(); // Clear all session values completely
+    $_SESSION = array(); 
 
     if (ini_get("session.use_cookies")) {
         $params = session_get_cookie_params();
@@ -149,7 +148,6 @@ function getCirculationRecords($conn) {
 function getLiveOverdueNotifications($conn, $isUnlimited = false) {
     $currentDate = date('Y-m-d');
     
-    // Check if we need to remove the layout's structural cap rule
     $limitClause = $isUnlimited ? "" : " LIMIT 5";
     
     $sql = "SELECT 
@@ -180,7 +178,6 @@ function getLiveOverdueNotifications($conn, $isUnlimited = false) {
         
         $rawRecords = mysqli_fetch_all($result, MYSQLI_ASSOC);
         
-        // Filter out any notification IDs that have been added to the dismissal array session tracking
         $dismissedIds = $_SESSION['dismissed_notifications'] ?? [];
         if (empty($dismissedIds)) {
             return $rawRecords;

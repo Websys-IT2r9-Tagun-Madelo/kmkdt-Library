@@ -17,7 +17,7 @@ if ($userId && $bookId) {
             mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         }
 
-        // Execute transaction control block
+
         if (processBookBorrow($conn, $userId, $bookId)) {
             
             $_SESSION['message'] = "Book borrowed successfully!";
@@ -26,7 +26,6 @@ if ($userId && $bookId) {
             header("Location: ../../../public/user/myBooks?status=borrowed");
             exit();
         } else {
-            // Failed condition block where the operation is safe but book criteria weren't met
             $_SESSION['message'] = "This book is currently unavailable or already taken.";
             $_SESSION['code'] = "error";
             
