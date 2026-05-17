@@ -4,7 +4,7 @@ include('./includes/header.php');
 include('./includes/topbar.php');
 include('./includes/sidebar.php');
 
-// Consolidated session user lookup with standard fallback structure
+
 $adminId = $_SESSION['authUser']['user_id'] ?? $_SESSION['user_id'] ?? 4;
 ?>
 
