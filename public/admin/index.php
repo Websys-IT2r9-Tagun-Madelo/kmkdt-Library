@@ -1,569 +1,261 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/middleware/admin.php'; 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// ACCESS CONTROL
+include('../../app/middleware/admin.php');
+
+// DATABASE CONNECTION
+$configPath = $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/config/config.php';
+if (!file_exists($configPath)) {
+    die("Config file not found at: " . $configPath);
+}
+include_once($configPath);
+
+$currentDate = date('Y-m-d');
+
+// INITIALIZE COUNTERS
+$borrowedCount = 0;
+$overdueCount  = 0;
+$catalogCount   = 0;
+$totalRevenue = 0.00;
+$totalMembers = 0;
+
+// GET LOAN CODES AND OVERDUE CODES
+$countsQuery = $conn->query("
+    SELECT 
+        SUM(CASE WHEN status = 'borrowed' AND due_date >= '$currentDate' THEN 1 ELSE 0 END) as borrowed,
+        SUM(CASE WHEN status = 'overdue' OR (status = 'borrowed' AND due_date < '$currentDate') THEN 1 ELSE 0 END) as overdue
+    FROM borrowing_history
+");
+if ($countsQuery) {
+    $row = $countsQuery->fetch_assoc();
+    $borrowedCount = (int)($row['borrowed'] ?? 0);
+    $overdueCount  = (int)($row['overdue'] ?? 0);
+}
+
+// GET TOTAL BOOKS IN LIBRARY
+$catalogQuery = $conn->query("SELECT COUNT(*) as total FROM books");
+if ($catalogQuery) {
+    $catalogCount = (int)$catalogQuery->fetch_assoc()['total'];
+}
+
+// GET TOTAL FINES COLLECTED
+$revenueQuery = $conn->query("SELECT SUM(amount_paid) as total_fines FROM penalty_payments");
+if ($revenueQuery) {
+    $totalRevenue = (float)($revenueQuery->fetch_assoc()['total_fines'] ?? 0.00);
+}
+
+// GET TOTAL MEMBERS REGISTERED (FIXED TO SHOW ALL 7 ACCOUNTS)
+$memberQuery = $conn->query("SELECT COUNT(*) as total FROM user");
+if ($memberQuery) {
+    $totalMembers = (int)$memberQuery->fetch_assoc()['total'];
+}
+
+// LOCAL FUNCTION TO GET RECENT ACTIVITY LOGS
+function getDashboardRecentActivity($conn) {
+    $sql = "SELECT h.*, u.fullName, b.title 
+            FROM borrowing_history h
+            JOIN user u ON h.user_id = u.id
+            JOIN books b ON h.book_id = b.id
+            ORDER BY h.id DESC LIMIT 5";
+    $result = mysqli_query($conn, $sql);
+    return ($result) ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
+}
+
+// RUN THE LOCAL ACTIVITY FUNCTION
+$recentActivities = getDashboardRecentActivity($conn);
+
+// INCLUDE PAGE LAYOUTS
 include('./includes/header.php');
 include('./includes/topbar.php');
 include('./includes/sidebar.php');
 ?>
+
 <div class="pagetitle">
-  <h1>Dashboard</h1>
+  <h1>Dashboard Overview</h1>
   <nav>
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="index">Home</a></li>
+      <li class="breadcrumb-item"><a href="index.php">Home</a></li>
       <li class="breadcrumb-item active">Dashboard</li>
     </ol>
   </nav>
-</div><!-- End Page Title -->
+</div>
 
 <section class="section dashboard">
+  
   <div class="row">
-
-    <!-- Left side columns -->
-    <div class="col-lg-12">
-      <div class="row">
-
-        <!-- Sales Card -->
-        <div class="col-xxl-4 col-md-6">
-          <div class="card info-card sales-card">
-
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body">
-              <h5 class="card-title">Books Borrowed <span>| This Today</span></h5>
-
-              <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-journal-arrow-up"></i>
-                </div>
-                <div class="ps-3">
-                  <h6>4151</h6>
-                  <span class="text-success small pt-1 fw-bold">13%</span> <span
-                    class="text-muted small pt-2 ps-1">increase</span>
-
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div><!-- End Sales Card -->
-
-        <!-- Revenue Card -->
-        <div class="col-xxl-4 col-md-6">
-          <div class="card info-card revenue-card">
-
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body">
-              <h5 class="card-title">Members <span>| This Month</span></h5>
-
-              <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-people"></i>
-                </div>
-                <div class="ps-3">
-                  <h6>200</h6>
-                  <span class="text-success small pt-1 fw-bold">8%</span> <span
-                    class="text-muted small pt-2 ps-1">increase</span>
-
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div><!-- End Revenue Card -->
-
-        <!-- overdues Card -->
-        <div class="col-xxl-4 col-xl-12">
-
-          <div class="card info-card customers-card">
-
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body">
-              <h5 class="card-title">Overdue books <span>| This Year</span></h5>
-
-              <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-exclamation-square-fill"></i>
-                </div>
-                <div class="ps-3">
-                  <h6>1244</h6>
-                  <span class="text-danger small pt-1 fw-bold">4%</span> <span
-                    class="text-muted small pt-2 ps-1">decrease</span>
-
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-        </div><!-- End Customers Card -->
-
-
-        <!-- Reports -->
-        <div class="col-12">
-          <div class="card">
-
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body">
-              <h5 class="card-title">Reports <span>/Today</span></h5>
-
-              <!-- Line Chart -->
-              <div id="reportsChart"></div>
-
-              <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                  new ApexCharts(document.querySelector("#reportsChart"), {
-                    series: [{
-                      name: 'Borrowed Books',
-                      data: [31, 40, 28, 51, 42, 82, 56],
-                    }, {
-                      name: 'Members',
-                      data: [11, 32, 45, 32, 34, 52, 41]
-                    }, {
-                      name: 'Overdue Books',
-                      data: [15, 11, 32, 18, 9, 24, 11]
-                    }],
-                    chart: {
-                      height: 350,
-                      type: 'area',
-                      toolbar: {
-                        show: false
-                      },
-                    },
-                    markers: {
-                      size: 4
-                    },
-                    colors: ['#f1ce41', '#2eca6a', '#ee490d'],
-                    fill: {
-                      type: "gradient",
-                      gradient: {
-                        shadeIntensity: 1,
-                        opacityFrom: 0.3,
-                        opacityTo: 0.4,
-                        stops: [0, 90, 100]
-                      }
-                    },
-                    dataLabels: {
-                      enabled: false
-                    },
-                    stroke: {
-                      curve: 'smooth',
-                      width: 2
-                    },
-                    xaxis: {
-                      type: 'datetime',
-                      categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
-                    },
-                    tooltip: {
-                      x: {
-                        format: 'dd/MM/yy HH:mm'
-                      },
-                    }
-                  }).render();
-                });
-              </script>
-              <!-- End Line Chart -->
-
-            </div>
-
-          </div>
-        </div><!-- End Reports -->
-
-        <!-- Recent Circulation -->
-        <div class="col-12">
-          <div class="card recent-sales overflow-auto">
-
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body">
-              <h5 class="card-title">Recent Circulation <span>| Today</span></h5>
-
-              <table class="table table-borderless datatable">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Member</th>
-                    <th scope="col">Book</th>
-                    <th scope="col">Due Date</th>
-                    <th scope="col">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row"><a href="#">#2457</a></th>
-                    <td>John Doe</td>
-                    <td><a href="#" class="text-primary">Database Systems</a></td>
-                    <td>Apr 20, 2026</td>
-                    <td><span class="badge bg-success">Borrowed</span></td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#">#2147</a></th>
-                    <td>Anna Cruz</td>
-                    <td><a href="#" class="text-primary">Java Programming</a></td>
-                    <td>Apr 18, 2026</td>
-                    <td><span class="badge bg-primary">Returned</span></td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#">#2049</a></th>
-                    <td>Mark Lee</td>
-                    <td><a href="#" class="text-primary">Web Development Basics</a></td>
-                    <td>Apr 22, 2026</td>
-                    <td><span class="badge bg-warning">Pending</span></td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#">#2644</a></th>
-                    <td>Sarah Kim</td>
-                    <td><a href="#" class="text-primary">Data Structures</a></td>
-                    <td>Apr 10, 2026</td>
-                    <td><span class="badge bg-danger">Overdue</span></td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#">#2788</a></th>
-                    <td>Michael Tan</td>
-                    <td><a href="#" class="text-primary">Artificial Intelligence Basics</a></td>
-                    <td>Apr 25, 2026</td>
-                    <td><span class="badge bg-success">Borrowed</span></td>
-                  </tr>
-                </tbody>
-              </table>
-
-            </div>
-
-          </div>
-        </div><!-- End Recent Circulation -->
-
-        <!-- Top Borrowed Books -->
-        <div class="col-12">
-          <div class="card top-selling overflow-auto">
-
-            <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start">
-                  <h6>Filter</h6>
-                </li>
-
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div>
-
-            <div class="card-body pb-0">
-              <h5 class="card-title">Top Borrowed Books <span>| Today</span></h5>
-
-              <table class="table table-borderless">
-                <thead>
-                  <tr>
-                    <th scope="col">Preview</th>
-                    <th scope="col">Book</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Borrowed</th>
-                    <th scope="col">Available</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row"><a href="#"><img src="" alt=""></a></th>
-                    <td><a href="#" class="text-primary fw-bold">Database Systems</a></td>
-                    <td>IT / Programming</td>
-                    <td class="fw-bold">124</td>
-                    <td>12</td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#"><img src="" alt=""></a></th>
-                    <td><a href="#" class="text-primary fw-bold">Java Programming</a></td>
-                    <td>Software Dev</td>
-                    <td class="fw-bold">98</td>
-                    <td>8</td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#"><img src="" alt=""></a></th>
-                    <td><a href="#" class="text-primary fw-bold">Web Development Basics</a></td>
-                    <td>Web Tech</td>
-                    <td class="fw-bold">74</td>
-                    <td>15</td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#"><img src="" alt=""></a></th>
-                    <td><a href="#" class="text-primary fw-bold">Data Structures</a></td>
-                    <td>Computer Science</td>
-                    <td class="fw-bold">63</td>
-                    <td>5</td>
-                  </tr>
-                  <tr>
-                    <th scope="row"><a href="#"><img src="" alt=""></a></th>
-                    <td><a href="#" class="text-primary fw-bold">Artificial Intelligence Basics</a></td>
-                    <td>AI</td>
-                    <td class="fw-bold">41</td>
-                    <td>9</td>
-                  </tr>
-                </tbody>
-              </table>
-
-            </div>
-
-          </div>
-        </div><!-- End Top Borrowed Books -->
-
-      </div>
-    </div><!-- End Left side columns -->
-
-    <!-- Right side columns -->
-    <div class="col-lg-12">
-
-      <!-- Recent Activity -->
-      <div class="card">
-        <div class="filter">
-          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-            <li class="dropdown-header text-start">
-              <h6>Filter</h6>
-            </li>
-
-            <li><a class="dropdown-item" href="#">Today</a></li>
-            <li><a class="dropdown-item" href="#">This Month</a></li>
-            <li><a class="dropdown-item" href="#">This Year</a></li>
-          </ul>
-        </div>
-
+    
+    <div class="col-xxl-3 col-md-6">
+      <div class="card info-card sales-card rounded-0 shadow-sm border-start border-primary border-4">
         <div class="card-body">
-          <h5 class="card-title">Recent Activity <span>| Today</span></h5>
+          <h5 class="card-title text-muted small text-uppercase">Books On Loan</h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle bg-light-primary text-primary d-flex align-items-center justify-content-center p-3 fs-3 me-3" style="width:50px; height:50px;">
+              <i class="bi bi-journal-arrow-up"></i>
+            </div>
+            <div>
+              <h6 class="fs-3 fw-bold mb-0"><?= $borrowedCount; ?></h6>
+              <span class="text-muted small">Circulating volumes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-          <div class="activity">
+    <div class="col-xxl-3 col-md-6">
+      <div class="card info-card customers-card rounded-0 shadow-sm border-start border-danger border-4">
+        <div class="card-body">
+          <h5 class="card-title text-muted small text-uppercase">Overdue Breaches</h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle bg-light-danger text-danger d-flex align-items-center justify-content-center p-3 fs-3 me-3" style="width:50px; height:50px;">
+              <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div>
+              <h6 class="fs-3 fw-bold mb-0"><?= $overdueCount; ?></h6>
+              <span class="text-danger small fw-bold">Requires attention</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            <div class="activity-item d-flex">
-              <div class="activite-label">32 min</div>
-              <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-              <div class="activity-content">
-                John Doe borrowed <a href="#" class="fw-bold text-dark">Database Systems</a>
-              </div>
-            </div><!-- End activity item-->
+    <div class="col-xxl-3 col-md-6">
+      <div class="card info-card revenue-card rounded-0 shadow-sm border-start border-success border-4">
+        <div class="card-body">
+          <h5 class="card-title text-muted small text-uppercase">Fines Collected</h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle bg-light-success text-success d-flex align-items-center justify-content-center p-3 fs-3 me-3" style="width:50px; height:50px;">
+              <i class="bi bi-cash-coin"></i>
+            </div>
+            <div>
+              <h6 class="fs-4 fw-bold mb-0">Php <?= number_format($totalRevenue, 2); ?></h6>
+              <span class="text-muted small">Total system ledger</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            <div class="activity-item d-flex">
-              <div class="activite-label">56 min</div>
-              <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-              <div class="activity-content">
-                Michael Tan has overdue book <span class="fw-bold text-dark">Data Structures</span>
-              </div>
-            </div><!-- End activity item-->
+    <div class="col-xxl-3 col-md-6">
+      <div class="card info-card rounded-0 shadow-sm border-start border-info border-4">
+        <div class="card-body">
+          <h5 class="card-title text-muted small text-uppercase">Library Patrons</h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle bg-light-info text-info d-flex align-items-center justify-content-center p-3 fs-3 me-3" style="width:50px; height:50px;">
+              <i class="bi bi-people"></i>
+            </div>
+            <div>
+              <h6 class="fs-3 fw-bold mb-0"><?= $totalMembers; ?></h6>
+              <span class="text-muted small">Registered accounts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            <div class="activity-item d-flex">
-              <div class="activite-label">2 hrs</div>
-              <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-              <div class="activity-content">
-                Anna Cruz returned <span class="fw-bold text-dark">Java Programming</span>
-              </div>
-            </div><!-- End activity item-->
+  </div>
 
-            <div class="activity-item d-flex">
-              <div class="activite-label">1 day</div>
-              <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-              <div class="activity-content">
-                New member registered <a href="#" class="fw-bold text-dark">Mark Lee</a>
-              </div>
-            </div><!-- End activity item-->
+  <div class="row mt-3">
+    
+    <div class="col-lg-7">
+      <div class="card rounded-0 shadow-sm border-0">
+        <div class="card-body pt-3">
+          <h5 class="card-title">Management Engine</h5>
+          <p class="text-muted small">Quick navigation shortcuts directly connecting your dashboard modules.</p>
+          
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <a href="reports" class="btn btn-outline-primary d-flex align-items-center p-3 rounded-0 text-start w-100 h-100">
+                <i class="bi bi-graph-up fs-3 me-3"></i>
+                <div>
+                  <div class="fw-bold">View Reports</div>
+                  <small class="text-muted">Analyze loans and violations</small>
+                </div>
+              </a>
+            </div>
+            <div class="col-sm-6">
+              <a href="circulation" class="btn btn-outline-warning d-flex align-items-center p-3 rounded-0 text-start w-100 h-100 text-dark">
+                <i class="bi bi-arrow-repeat fs-3 me-3 text-warning"></i>
+                <div>
+                  <div class="fw-bold text-dark">Circulation Monitor</div>
+                  <small class="text-muted">Live update trackers & ratios</small>
+                </div>
+              </a>
+            </div>
+            <div class="col-sm-6">
+              <a href="penalty_payments" class="btn btn-outline-success d-flex align-items-center p-3 rounded-0 text-start w-100 h-100">
+                <i class="bi bi-receipt fs-3 me-3"></i>
+                <div>
+                  <div class="fw-bold">Audit Penalty Logs</div>
+                  <small class="text-muted">Track library invoice collections</small>
+                </div>
+              </a>
+            </div>
+            <div class="col-sm-6">
+              <a href="members" class="btn btn-outline-secondary d-flex align-items-center p-3 rounded-0 text-start w-100 h-100">
+                <i class="bi bi-person-lines-fill fs-3 me-3"></i>
+                <div>
+                  <div class="fw-bold">Manage Members</div>
+                  <small class="text-muted">Review library cards registry</small>
+                </div>
+              </a>
+            </div>
+          </div>
 
-            <div class="activity-item d-flex">
-              <div class="activite-label">2 days</div>
-              <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-              <div class="activity-content">
-                Sarah Kim renewed <span class="fw-bold text-dark">Web Development Basics</span>
-              </div>
-            </div><!-- End activity item-->
-
-            <div class="activity-item d-flex">
-              <div class="activite-label">4 weeks</div>
-              <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-              <div class="activity-content">
-                New book added <span class="fw-bold text-dark">Artificial Intelligence Basics</span>
-              </div>
-            </div><!-- End activity item-->
-
+          <div class="bg-light p-3 mt-4 border border-start border-3 border-info">
+             <small class="text-muted d-block"><i class="bi bi-info-circle me-1 text-info"></i> <strong>Catalog Total:</strong> Total registered titles currently in inventory storage: <strong><?= $catalogCount; ?></strong></small>
           </div>
 
         </div>
-      </div><!-- End Recent Activity -->
+      </div>
+    </div>
 
-      <!-- Library Usage Report -->
-      <div class="card">
-        <div class="filter">
-          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-            <li class="dropdown-header text-start">
-              <h6>Filter</h6>
-            </li>
-
-            <li><a class="dropdown-item" href="#">Today</a></li>
-            <li><a class="dropdown-item" href="#">This Month</a></li>
-            <li><a class="dropdown-item" href="#">This Year</a></li>
-          </ul>
-        </div>
-
-        <div class="card-body pb-0">
-          <h5 class="card-title">Library Usage Report <span>| This Month</span></h5>
-
-          <div id="budgetChart" style="min-height: 400px;" class="echart"></div>
-
-          <script>
-            document.addEventListener("DOMContentLoaded", () => {
-              var budgetChart = echarts.init(document.querySelector("#budgetChart")).setOption({
-                legend: {
-                  data: ['Borrowed', 'Returned']
-                },
-                radar: {
-                  indicator: [
-                    { name: 'Fiction', max: 6500 },
-                    { name: 'Science', max: 16000 },
-                    { name: 'Technology', max: 30000 },
-                    { name: 'History', max: 38000 },
-                    { name: 'Education', max: 52000 },
-                    { name: 'Others', max: 25000 }
-                  ]
-                },
-                series: [{
-                  name: 'Library Activity',
-                  type: 'radar',
-                  data: [
-                    {
-                      value: [4200, 3000, 20000, 35000, 50000, 18000],
-                      name: 'Borrowed'
-                    },
-                    {
-                      value: [5000, 14000, 28000, 26000, 42000, 21000],
-                      name: 'Returned'
-                    }
-                  ]
-                }]
-              });
-            });
-          </script>
+    <div class="col-lg-5">
+      <div class="card rounded-0 shadow-sm border-0 h-100">
+        <div class="card-body pt-3">
+          <h5 class="card-title">Live Transactions</h5>
+          <p class="text-muted small">Latest user activities updated in real-time from system logs.</p>
+          
+          <div class="activity mt-3">
+            <?php if (!empty($recentActivities)): ?>
+              <?php foreach ($recentActivities as $act): 
+                  $status = strtolower($act['status']);
+                  $badgeColor = ($status === 'returned') ? 'bg-success' : (($status === 'overdue') ? 'bg-danger' : 'bg-warning text-dark');
+              ?>
+                <div class="activity-item d-flex align-items-start mb-3 border-bottom pb-2">
+                  <span class="badge <?= $badgeColor; ?> me-3 px-2 py-1 rounded-0 text-uppercase" style="font-size:0.65rem; width: 75px; text-align: center;">
+                    <?= $status; ?>
+                  </span>
+                  <div class="w-100">
+                    <div class="small fw-semibold text-dark"><?= htmlspecialchars($act['fullName']); ?></div>
+                    <div class="text-muted small text-truncate" style="max-width: 200px;">
+                      Book: "<?= htmlspecialchars($act['title']); ?>"
+                    </div>
+                    <small class="text-muted d-block" style="font-size:0.75rem;">
+                      <i class="bi bi-clock me-1"></i><?= date('M d | g:i A', strtotime($act['borrowed_at'])); ?>
+                    </small>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <div class="text-center py-5 text-muted">
+                <i class="bi bi-cloud-slash d-block fs-2 opacity-50 mb-2"></i>
+                No historical checkout transactions processed yet.
+              </div>
+            <?php endif; ?>
+          </div>
 
         </div>
-      </div><!-- End Library Usage Report -->
-      <!-- Library Access -->
-      <div class="card">
-        <div class="filter">
-          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-            <li class="dropdown-header text-start">
-              <h6>Filter</h6>
-            </li>
+      </div>
+    </div>
 
-            <li><a class="dropdown-item" href="#">Today</a></li>
-            <li><a class="dropdown-item" href="#">This Month</a></li>
-            <li><a class="dropdown-item" href="#">This Year</a></li>
-          </ul>
-        </div>
+  </div>
 
-        <div class="card-body pb-0">
-          <h5 class="card-title">Library Access <span>| Today</span></h5>
-
-          <div id="trafficChart" style="min-height: 400px;" class="echart"></div>
-
-          <script>
-            document.addEventListener("DOMContentLoaded", () => {
-              echarts.init(document.querySelector("#trafficChart")).setOption({
-                tooltip: {
-                  trigger: 'item'
-                },
-                legend: {
-                  top: '5%',
-                  left: 'center'
-                },
-                series: [{
-                  name: 'Access Source',
-                  type: 'pie',
-                  radius: ['40%', '70%'],
-                  avoidLabelOverlap: false,
-                  label: {
-                    show: false,
-                    position: 'center'
-                  },
-                  emphasis: {
-                    label: {
-                      show: true,
-                      fontSize: '18',
-                      fontWeight: 'bold'
-                    }
-                  },
-                  labelLine: {
-                    show: false
-                  },
-                  data: [
-                    { value: 1048, name: 'Students' },
-                    { value: 735, name: 'Faculty' },
-                    { value: 580, name: 'Staff' },
-                    { value: 484, name: 'Guests' },
-                    { value: 300, name: 'Online Users' }
-                  ]
-                }]
-              });
-            });
-          </script>
-
-        </div>
-      </div><!-- End Library Access -->
-
-
-
+</section>
 
 <?php
+// FOOTER LAYOUT
 include('./includes/footer.php');
 ?>
