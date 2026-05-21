@@ -151,7 +151,8 @@ include_once 'includes/tsbar.php';
                                     <a href="/kmkdt-Library/public/user/eBook?id=<?= $row['id']; ?>" 
                                     class="btn rounded-pill w-100 mt-2 btn-read-online" 
                                     onclick="return confirm('Warning: Opening this may remove your previous e-book.');">
-                                    Read Online</a>
+                                    Read Online
+                                    </a>
                                 <?php elseif ($status === 'available'): ?>
                                     <a href="/kmkdt-Library/app/controller/process/borrowProcess.php?id=<?= $row['id']; ?>" 
                                     class="btn btn-success w-100 rounded-pill fw-bold"
@@ -161,7 +162,19 @@ include_once 'includes/tsbar.php';
                                 <?php elseif ($status === 'owned'): ?>  
                                     <button class="btn btn-secondary w-100 rounded-pill disabled">In Your Shelf</button>
                                 <?php else: ?>
-                                    <button class="btn btn-light w-100 rounded-pill text-muted disabled">Unavailable</button>
+                                    <div class="p-2 bg-dark rounded border border-secondary text-center small w-100">
+                                        <div class="text-white mb-1">
+                                            <iconify-icon icon="lucide:user" class="me-1"></iconify-icon>
+                                            Borrowed by: <strong class="text-white"><?= htmlspecialchars($row['borrower_name'] ?? 'Another User'); ?></strong>
+                                        </div>
+                                        <?php if (!empty($row['due_date'])): ?>
+                                            <div class="fw-bold text-warning due-countdown" data-due="<?= $row['due_date']; ?>">
+                                                Calculating time...
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="text-muted italic">Unavailable</div>
+                                        <?php endif; ?>
+                                    </div>
                                 <?php endif; ?>
                             </div>
                         </div>

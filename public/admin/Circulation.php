@@ -116,10 +116,10 @@ include('./includes/sidebar.php');
                     
                     <td><span class="badge <?= $badgeClass ?> px-3 py-2"><?= ucfirst($status) ?></span></td>
                     
-                    <!-- Renewal Tracking (Max 2 rule) -->
+                    <!-- Renewal Tracking -->
                     <td class="text-center">
-                       <span class="small fw-bold <?= ($row['renewal_count'] >= 2) ? 'text-danger' : 'text-muted' ?>">
-                          <?= $row['renewal_count'] ?> / 2
+                       <span class="small fw-bold <?= ($row['renewal_count'] >= 1) ? 'text-danger' : 'text-muted' ?>">
+                          <?= $row['renewal_count'] ?> / 1
                        </span>
                     </td>
                   </tr>

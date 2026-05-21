@@ -105,7 +105,7 @@ include_once 'includes/tsbar.php';
                             : 0;
 
                         $renewalsUsed = $book['renewal_count'] ?? 0;
-                        $renewalsLeft = 2 - $renewalsUsed;
+                        $renewalsLeft = 1 - $renewalsUsed;
                         ?>
 
                         <div class="col-12" data-aos="fade-up">

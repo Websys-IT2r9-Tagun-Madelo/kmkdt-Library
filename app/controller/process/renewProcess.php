@@ -44,7 +44,7 @@ if ($loan['status'] === 'overdue') {
 }
 
 
-if ((int)$loan['renewal_count'] >= 2) {
+if ((int)$loan['renewal_count'] >= 1) {
     header("Location: /kmkdt-Library/public/user/myBooks?error=limit_reached");
     exit();
 }

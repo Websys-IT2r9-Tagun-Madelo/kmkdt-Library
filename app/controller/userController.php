@@ -97,32 +97,41 @@ if (isset($_POST['logoutButton'])) {
 /**
  * Fetch books for the Browse catalog 
  */
+/**
+ * Fetch books for the Browse catalog 
+ * UPDATED: Performs a LEFT JOIN to gather real-time active borrower info and due dates
+ */
 function getAllBooks($conn, $search = '') {
     $search = trim($search);
     
+    // Base SQL string to perform the LEFT JOIN on active checkouts
+    // It pulls the borrower's username from the 'user' table and the due_date from 'borrowing_history'
+    $baseSelect = "SELECT b.*, u.username AS borrower_name, bh.due_date 
+                   FROM books b
+                   LEFT JOIN borrowing_history bh ON b.id = bh.book_id AND bh.status IN ('borrowed', 'overdue')
+                   LEFT JOIN user u ON bh.user_id = u.id";
+
     if (empty($search) || strtolower($search) === 'all') {
-        return $conn->query("SELECT * FROM books");
+        return $conn->query("$baseSelect");
     }
 
     $filterCategories = ['Fiction', 'Non-Fiction', 'Research', 'Online'];
 
     if (in_array($search, $filterCategories)) {
         if ($search === 'Fiction') {
-            $sql = "SELECT * FROM books WHERE 
-                    (category LIKE 'Fiction%' OR category LIKE '%, Fiction%') 
-                    AND category NOT LIKE '%Non-Fiction%'";
+            $sql = "$baseSelect WHERE 
+                    (b.category LIKE 'Fiction%' OR b.category LIKE '%, Fiction%') 
+                    AND b.category NOT LIKE '%Non-Fiction%'";
             $stmt = $conn->prepare($sql);
         } else {
-            
-            $sql = "SELECT * FROM books WHERE category LIKE ? OR genre LIKE ?";
+            $sql = "$baseSelect WHERE b.category LIKE ? OR b.genre LIKE ?";
             $searchTerm = "%$search%";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("ss", $searchTerm, $searchTerm);
         }
     } else {
-        
-        $sql = "SELECT * FROM books WHERE 
-                title LIKE ? OR author LIKE ? OR genre LIKE ? OR category LIKE ?";
+        $sql = "$baseSelect WHERE 
+                b.title LIKE ? OR b.author LIKE ? OR b.genre LIKE ? OR b.category LIKE ?";
         $searchTerm = "%$search%";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);
@@ -229,7 +238,7 @@ function processBookRenewal($conn, $userId, $bookId) {
     $stmtCheck->execute();
     $result = $stmtCheck->get_result()->fetch_assoc();
     
-    if ($result && $result['renewal_count'] >= 2) {
+    if ($result && $result['renewal_count'] >= 1) {
         return false; 
     }
     $query = "UPDATE borrowing_history 
