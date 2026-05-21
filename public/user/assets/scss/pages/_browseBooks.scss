@@ -1,0 +1,101 @@
+// Theme Variables
+$primary-blue: #07427a;
+$success-green: #22c55e;
+$text-white: #ffffff;
+$text-dark: #212529;
+$border-color: #dddddd;
+
+.page-wrapper {
+  // Header Banner Setup
+  .hero-banner {
+    color: $text-white;
+    text-align: center;
+    background-color: transparent;
+    
+    .lead {
+      max-width: 600px;
+    }
+  }
+
+  // Search Context
+  .search-wrapper {
+    .form-control {
+      font-size: 1.25rem; 
+    }
+
+    .filter-pill {
+      text-decoration: none;
+    }
+  }
+
+  // Grid Card System
+  .modern-book-card {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .card-body-custom {
+      flex-grow: 1;
+
+      .badge-category {
+        display: inline-block;
+        white-space: nowrap;
+      }
+
+      .loan-tag {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        line-height: 1 !important;
+        vertical-align: middle !important;
+        white-space: nowrap;
+      }
+    }
+
+    .card-footer-custom {
+      margin-top: auto;
+
+      .btn-read-online {
+        background-color: $primary-blue !important;
+        color: $text-white !important;
+        border: none;
+        
+        &:hover {
+          background-color: darken($primary-blue, 10%) !important;
+        }
+      }
+    }
+  }
+}
+
+// Modal Styling Container Rules
+#bookModal {
+  .modal-content {
+    border-radius: 20px;
+  }
+
+  .modal-header {
+    border-radius: 20px 20px 0 0;
+  }
+
+  .modal-body {
+    #modalImg {
+      max-height: 400px;
+    }
+
+    #modalGenre {
+      background-color: $success-green;
+      font-size: 0.85rem;
+    }
+
+    #modalDesc {
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+  }
+
+  .modal-footer {
+    border-radius: 0 0 20px 20px;
+  }
+}

@@ -1,0 +1,177 @@
+// Theme Variables
+$theme-green: #57cb57;
+$theme-green-dark: #32cd32;
+$theme-red: #ff4d4d;
+
+.my-borrowed-books-page {
+  
+/* Integrated Banner Design Control */
+  .main-banner {
+    background-image: url('../../assets/images/backgrounds/MBB.jpg'); 
+    min-height: 400px;
+    background-size: cover;
+
+    .highlight-text {
+      color: $theme-green;
+    }
+    
+    h1 {
+      font-size: 2.2rem; 
+    }
+  }
+
+
+  .btn-primary-theme {
+    background-color: $theme-green !important;
+    color: #000 !important;
+    border: none !important;
+    
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  .theme-badge {
+    background-color: rgba(50, 205, 50, 0.1);
+    color: $theme-green;
+    font-weight: 700;
+    
+    &.category-badge {
+      margin-right: 6px;
+    }
+  }
+
+
+  .active-loans-bar {
+    border-color: $theme-green !important;
+    
+    .btn-icon {
+      font-size: 1.5rem;
+    }
+  }
+
+  .loan-card {
+    &.status-on-time {
+      border-left: 12px solid $theme-green !important;
+    }
+    &.status-overdue {
+      border-left: 12px solid $theme-red !important;
+    }
+
+    .book-cover-img {
+      max-height: 350px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .book-title {
+      font-size: 2.2rem;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: $theme-green;
+    }
+  }
+
+
+  .payment-modal {
+    z-index: 1060;
+
+    .modal-content {
+      border-radius: 15px;
+    }
+
+    .modal-penalty-amount {
+      color: $theme-green-dark;
+    }
+
+    .modal-submit-btn {
+      background-color: $theme-green-dark;
+      border: none;
+    }
+  }
+
+
+  .empty-state-icon {
+    font-size: 5rem;
+    color: $theme-green;
+  }
+}
+
+$library-green: #57cb57;
+$library-black: #000000;
+
+.btn-custom-library {
+  display: inline-block;
+  background-color: $library-green !important; 
+  color: $library-black !important;
+  font-weight: 700; 
+  border-radius: 50rem; 
+  border: none;
+  
+
+  padding: 1rem 3rem; 
+  margin-top: 1rem; 
+  
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  
+
+  transition: none !important; 
+  transform: none !important;
+
+
+  &:hover, 
+  &:focus, 
+  &:active {
+    background-color: $library-green !important;
+    color: $library-black !important;
+    box-shadow: none !important;
+    transform: none !important;
+    outline: none;
+  }
+}
+
+$green-accent: #57cb57;
+$dark-text: #000000;
+$transition-speed: 0.2s ease-in-out;
+
+
+.btn-borrow-more {
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; 
+
+
+  padding: 0.5rem 1.5rem; 
+  font-weight: 700;       
+
+
+  background-color: $green-accent;
+  color: $dark-text;
+  border: none;
+  border-radius: 50rem;   
+  
+
+  transition: all $transition-speed;
+
+
+  iconify-icon {
+    font-size: 1.5rem;
+  }
+
+
+  &:hover {
+    background-color: darken($green-accent, 8%);
+    color: $dark-text;
+    transform: translateY(-1px); 
+  }
+
+  &:active {
+    background-color: darken($green-accent, 15%);
+    transform: translateY(0);
+  }
+}

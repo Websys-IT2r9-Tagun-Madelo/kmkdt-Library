@@ -1,0 +1,197 @@
+/* Integrated Banner Design Control */
+$banner-bg-url: '../../assets/images/backgrounds/ProfileBg.jpg';
+
+// Color Palette Variables
+$color-primary: #57cb57;
+$color-success: #22c55e;
+$color-success-dark: #16a34a;
+$color-success-light: #f0fdf4;
+$color-success-border: #bbf7d0;
+$color-alert-bg: #22c55e;
+$color-white: #ffffff;
+$color-dark: #1e293b;
+$color-border-dark: #334155;
+$color-text-muted: #64748b;
+$color-text-secondary: #94a3b8;
+$color-table-border-1: #f1f5f9;
+$color-table-border-2: #f8fafc;
+
+.page-wrapper {
+  // Global components within profile
+  .alert-success-custom {
+    background-color: $color-alert-bg;
+    border-radius: 12px;
+    padding: 15px 20px;
+  }
+
+  .profile-banner {
+    background-image: url($banner-bg-url);
+    min-height: 350px;
+    background-size: cover;
+
+    .avatar-container {
+      width: 150px;
+      height: 150px;
+      flex-shrink: 0;
+      border-radius: 15px;
+    }
+
+    .profile-name {
+      font-size: 2.5rem;
+    }
+  }
+
+  // Sidebar / Left column overview card
+  .overview-card {
+    .total-borrowed-val,
+    .current-holdings-val,
+    .total-returned-val {
+      color: $color-primary;
+    }
+    
+    .btn-update-account {
+      background-color: $color-primary;
+    }
+  }
+
+  // Main content items / Borrowed books section
+  .borrowed-books-title {
+    color: $color-success;
+  }
+
+  .book-loan-card {
+    border-color: $color-success !important;
+
+    .category-badge,
+    .genre-badge {
+      background-color: rgba(50, 205, 50, 0.1);
+      color: $color-primary;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 8px;
+    }
+
+    .due-date-text {
+      font-size: 0.8rem;
+    }
+
+    .btn-pay-penalty {
+      background-color: $color-success;
+      border: none;
+      color: $color-white;
+    }
+
+    .btn-go-books {
+      background-color: $color-success-light;
+      color: $color-success-dark;
+      border: 1px solid $color-success-border;
+    }
+  }
+
+  // Modals UI
+  .penalty-modal-content {
+    border-radius: 15px;
+    border: 2px solid $color-success;
+    background: $color-white;
+
+    .penalty-amount-display {
+      font-size: 3rem;
+    }
+
+    .btn-confirm-payment {
+      background-color: $color-success;
+      border: none;
+    }
+  }
+
+  .empty-loans-container {
+    background-color: $color-dark;
+    border-color: $color-border-dark !important;
+
+    iconify-icon {
+      color: $color-text-muted;
+      font-size: 2.5rem;
+    }
+
+    p {
+      color: $color-text-secondary;
+      font-size: 1rem;
+    }
+  }
+
+  .update-profile-modal {
+    .btn-submit-update {
+      background-color: $color-success;
+      border: none;
+    }
+  }
+
+  // Table & Payment History UI
+  .payment-history-card {
+    background-color: $color-white;
+    min-height: 250px;
+
+    .history-icon-box {
+      background-color: $color-success-light;
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+
+      iconify-icon {
+        color: $color-success;
+        font-size: 1.25rem;
+      }
+    }
+
+    .history-header-title {
+      font-size: 1.05rem;
+      letter-spacing: -0.2px;
+    }
+
+    .history-header-sub {
+      font-size: 0.75rem;
+    }
+
+    .history-table {
+      font-size: 0.85rem;
+      table-layout: fixed;
+      min-width: 500px;
+
+      thead tr {
+        font-size: 0.72rem;
+        border-bottom: 1px solid $color-table-border-1;
+        letter-spacing: 0.5px;
+      }
+
+      tbody tr {
+        border-bottom: 1px solid $color-table-border-2;
+      }
+
+      .settled-amount-text {
+        color: $color-success;
+      }
+    }
+
+    .empty-history-box {
+      height: 180px;
+
+      .icon-wrapper {
+        background-color: $color-table-border-2;
+        width: 56px;
+        height: 56px;
+
+        iconify-icon {
+          font-size: 1.5rem;
+        }
+      }
+
+      .primary-msg {
+        font-size: 0.85rem;
+      }
+
+      .secondary-msg {
+        font-size: 0.75rem;
+      }
+    }
+  }
+}

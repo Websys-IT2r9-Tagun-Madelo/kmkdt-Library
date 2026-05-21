@@ -5,19 +5,23 @@
 // Import Bootstrap source files (Required file)
 @import "../libs/bootstrap/scss/bootstrap.scss";
 
+
 // Theme Layouts style (Required file)
 @import "./layouts/header";
 
 // Pages style (Required file)
-@import "./pages/index";
-
+@import "./pages/index"; // 💥 Error happened here
+@import './pages/messageHub';
+@import './pages/myBooks';
+@import './pages/profile';
+@import './pages/eBook';
+@import './pages/browseBooks';
+// ... rest of your code
 // Component style (Required file)
 @import "./component/reboot";
 
 // Utilities style (Required file)
-@import "./utilities/icon-size";
+@import "./utilities/iconSize";
 @import "./utilities/override";
+@import "./utilities/jsStyle";
 
-
-@import './pages/support-chat';
-@import './pages/contactd';

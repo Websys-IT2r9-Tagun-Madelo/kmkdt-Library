@@ -1,0 +1,326 @@
+/* ==========================================================================
+   High-Performance Harmonized Messenger UI (Zero-Lag Transition Edition)
+   ========================================================================== */
+
+$lib-dark: #0f172a;
+$lib-border: #e2e8f0;
+$lib-text: #475569;
+$lib-panel-bg: #f8fafc;
+$lib-green: #22c55e; 
+
+/* HIGH PERFORMANCE TIMING: Drastically optimized to feel instantaneous */
+$butter-ease: cubic-bezier(0.2, 0.8, 0.2, 1); 
+$motion-speed: 100ms; 
+
+/* Integrated Banner Design Control */
+.messagehub-banner {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(255, 255, 255, 0.1) 100%), 
+              url('../../assets/images/backgrounds/mshub.jpg'); 
+  background-size: cover; 
+  background-position: center; 
+  min-height: 45vh;
+}
+
+/* MessageHub Information Cards Layout Control */
+.messagehub-info-section {
+  background-color: $lib-panel-bg;
+}
+.messagehub-info-section .card {
+  border-radius: 12px !important; 
+  background: #ffffff;
+  border: 1px solid $lib-border !important;
+  transition: transform $motion-speed $butter-ease, 
+              box-shadow $motion-speed $butter-ease, 
+              border-color $motion-speed $butter-ease;
+  will-change: transform, box-shadow;
+}
+.messagehub-info-section .transition-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e1 !important; 
+}
+.messagehub-info-section .icon-avatar {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  transition: transform $motion-speed $butter-ease;
+}
+.messagehub-info-section .transition-hover:hover .icon-avatar {
+  transform: scale(1.05); 
+}
+.messagehub-info-section .tracking-wider {
+  letter-spacing: 0.05em;
+  font-size: 0.75rem; 
+}
+.messagehub-info-section .text-secondary {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: $lib-text !important; 
+}
+
+/* Base Utility */
+.text-break {
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Main Workspace Grid Container Split */
+.messenger-container {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  background: #ffffff;
+  border-radius: 12px;
+  min-height: 620px;
+  max-height: 750px;
+  overflow: hidden;
+}
+
+.conversations-panel {
+  display: flex;
+  flex-direction: column;
+}
+.conversations-header {
+  padding: 20px;
+  background: #ffffff;
+  border-bottom: 1px solid $lib-border;
+}
+.conversations-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: $lib-dark;
+  margin-bottom: 14px;
+}
+
+/* Symmetrical Support Row Component Layout */
+.library-support-chat {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  background-color: #ffffff; /* Base matches standard list items */
+  border: 1px solid $lib-border;
+  border-radius: 12px; 
+  cursor: pointer;
+  overflow: hidden; 
+  will-change: background-color, border-color;
+  
+  transition: background-color $motion-speed $butter-ease, 
+              border-color $motion-speed $butter-ease;
+
+  /* Smooth unified accent bar indicator */
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background-color: $lib-green; /* Unified green indicator for all chats */
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform $motion-speed $butter-ease, opacity $motion-speed $butter-ease;
+  }
+}
+
+.library-support-chat:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* FIXED ZERO-DELAY ACTIVE STATE: Matches user list items seamlessly */
+.library-support-chat.active {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  
+  /* Instantly pop the indicator into view */
+  &::before {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  /* Make text dark and legible, removing low-contrast green text overlaps */
+  .support-title { color: $lib-dark !important; }
+  .support-subtitle { color: $lib-text !important; }
+  .support-badge i { color: $lib-green !important; }
+}
+
+.support-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #000000;
+  flex-shrink: 0;
+  transition: transform $motion-speed $butter-ease;
+}
+.library-support-chat:hover .support-badge {
+  transform: scale(1.05);
+}
+
+.support-info {
+  flex: 1;
+  min-width: 0;
+}
+.support-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $lib-dark;
+  line-height: 1.2;
+}
+.support-subtitle {
+  font-size: 0.75rem;
+  color: $lib-text;
+  margin-top: 2px;
+}
+
+.support-pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: #ff0000b4;
+  transition: transform $motion-speed $butter-ease;
+}
+
+/* Sidebar Action Buttons Control */
+.new-chat-btn {
+  width: 100%;
+  background-color: $lib-green; 
+  border: 1px solid $lib-green;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 30px; 
+  transition: background-color $motion-speed linear, opacity $motion-speed ease;
+}
+.new-chat-btn:hover {
+  background-color: #16a34a;
+  border-color: #16a34a;
+}
+
+/* Continuous Queue Lists Elements Box */
+.conversations-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+/* Structural Dynamic User Chat Rows Optimization */
+.conversations-list li {
+  position: relative;
+  padding: 16px 20px;
+  border-bottom: 1px solid $lib-border;
+  cursor: pointer;
+  background-color: #ffffff;
+  overflow: hidden;
+  will-change: background-color;
+  transition: background-color $motion-speed $butter-ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background-color: $lib-green; 
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform $motion-speed $butter-ease, opacity $motion-speed $butter-ease;
+  }
+}
+.conversations-list li:hover {
+  background-color: #f8fafc;
+}
+
+/* UNIFIED ACTIVE DESIGN: Transitions instantaneously */
+.conversations-list li.active {
+  background-color: #f1f5f9 !important;
+  border-bottom-color: $lib-border !important;
+
+  &::before {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.conversations-list .loading-item {
+  padding: 20px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  border-bottom: none;
+  cursor: default;
+  &::before { display: none !important; }
+}
+.conversations-list::-webkit-scrollbar {
+  width: 4px;
+}
+.conversations-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   CUSTOM COMPONENT: DYNAMIC LIBRARY NOTIFICATION BADGES
+   ========================================================================== */
+
+.style-icon-box {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  
+  i {
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.noti-item-row {
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    
+    .style-icon-box {
+      transform: scale(1.05);
+    }
+  }
+}
+
+// Standard Message Fallbacks
+.noti-icon-wrapper-warning {
+  background-color: rgba(255, 193, 7, 0.15) !important;
+  color: #ffc107 !important;
+}
+.noti-icon-wrapper-danger {
+  background-color: rgba(220, 53, 69, 0.15) !important;
+  color: #dc3545 !important;
+}
+
+// 📚 Book Modification Segments
+.noti-icon-wrapper-book-warning {
+  background-color: rgba(249, 115, 22, 0.15) !important; // Soft orange warning frame
+  color: #f97316 !important;
+}
+
+.noti-icon-wrapper-book-danger {
+  background-color: rgba(239, 68, 68, 0.15) !important;  // Warning alert red frame
+  color: #ef4444 !important;
+  
+  i {
+    animation: pulseWarning 2s infinite ease-in-out;
+  }
+}
+
+@keyframes pulseWarning {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}

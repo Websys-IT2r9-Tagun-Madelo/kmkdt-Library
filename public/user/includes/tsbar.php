@@ -5,9 +5,9 @@ if (session_status() === PHP_SESSION_NONE) {
 $current_page = basename($_SERVER['PHP_SELF']); 
 
 
-$eBookHref = "EBook"; 
+$eBookHref = "eBook"; 
 if (isset($_SESSION['current_reading_id'])) {
-    $eBookHref = "EBook?id=" . $_SESSION['current_reading_id'];
+    $eBookHref = "eBook?id=" . $_SESSION['current_reading_id'];
 }
 ?>
 
@@ -99,9 +99,9 @@ if (isset($_SESSION['current_reading_id'])) {
                         class="img-fluid animate-spin"> Browse Books</a>
                   </li>
                   <li class="header-item">
-                    <a href="contact" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="messageHub" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
-                        class="img-fluid animate-spin"> Connect Hub </a>
+                        class="img-fluid animate-spin"> Message Hub </a>
                   </li>
                   <li class="header-item">
                     <form action="/kmkdt-Library/app/controller/userController.php" method="POST">

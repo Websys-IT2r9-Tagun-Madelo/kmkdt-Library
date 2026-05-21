@@ -1,0 +1,93 @@
+/* ==========================================================================
+   CUSTOM COMPONENT: DYNAMIC LIBRARY NOTIFICATION BADGES
+   ========================================================================== */
+
+.noti-item-row {
+  list-style: none !important;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    
+    .style-icon-box {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.style-icon-box {
+  width: 35px;
+  height: 35px;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  
+  i {
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* --- Standard Core App Message Color Layouts --- */
+.noti-icon-wrapper-warning {
+  background-color: rgba(255, 193, 7, 0.15) !important;
+  color: #ffc107 !important;
+}
+
+.noti-icon-wrapper-danger {
+  background-color: rgba(220, 53, 69, 0.15) !important;
+  color: #dc3545 !important;
+}
+
+/* --- Specialized Book Alert & Overdue Segments --- */
+.noti-icon-wrapper-book-warning {
+  background-color: rgba(249, 115, 22, 0.15) !important; /* Warning Orange Box */
+  color: #f97316 !important;
+}
+
+.noti-icon-wrapper-book-danger {
+  background-color: rgba(220, 53, 69, 0.15) !important;  /* High-visibility Critical Red Box */
+  color: #dc3545 !important;
+  
+  i {
+    animation: pulseWarning 2s infinite ease-in-out;
+  }
+}
+
+/* ==========================================================================
+   MESSAGING PANEL: PINNED LIBRARY SUPPORT BOX LAYOUT CLEANUP
+   ========================================================================== */
+
+.library-support-pinned-card {
+  border-left: none !important;
+  border-inline-start: none !important;
+  box-shadow: none !important;
+  position: relative;
+  overflow: hidden;
+
+  /* Strips absolute-positioned left-accent lines if generated via pseudo elements */
+  &::before,
+  &::after {
+    display: none !important;
+    content: none !important;
+    width: 0 !important;
+  }
+  
+  transition: background 0.25s ease-in-out, transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* --- System Micro-animations --- */
+@keyframes pulseWarning {
+  0% { 
+    opacity: 1; 
+  }
+  50% { 
+    opacity: 0.6; 
+  }
+  100% { 
+    opacity: 1; 
+  }
+}

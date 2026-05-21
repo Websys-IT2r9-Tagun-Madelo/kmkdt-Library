@@ -23,7 +23,7 @@ include_once 'includes/tsbar.php';
                 <h1 class="mb-0 fs-14 text-white lh-1">Browse Books</h1>
             </div>
 
-            <p class="lead opacity-75 mx-auto" style="max-width: 600px;">
+            <p class="lead opacity-75 mx-auto">
                 Access thousands of books from our digital and physical library.
             </p>
 
@@ -98,10 +98,8 @@ include_once 'includes/tsbar.php';
                         $category = $row['category'] ?? 'General';
                         $genre = $row['genre'] ?? '';
                         
-
                         $isOnline = (stripos($category, 'Online') !== false);
                         $status = is_null($row['user_id']) ? 'available' : ($row['user_id'] == $currentUserId ? 'owned' : 'taken');
-                        
                         
                         if ($isOnline) { $loanPeriod = "Unlimited"; } 
                         elseif (stripos($category, 'Reserve') !== false) { $loanPeriod = "3 Days"; }
@@ -112,7 +110,6 @@ include_once 'includes/tsbar.php';
 
                     <div class="col-sm-6 col-lg-4 col-xl-3">
                         <div class="modern-book-card h-100 d-flex flex-column"
-                            style="cursor: pointer;"
                             data-bs-toggle="modal"
                             data-bs-target="#bookModal"
                             data-title="<?= htmlspecialchars($row['title']); ?>"
@@ -133,15 +130,15 @@ include_once 'includes/tsbar.php';
                             <div class="card-body-custom flex-grow-1 p-3">
                                 <div class="d-flex justify-content-between align-items-center mb-2 w-100">
                                     
-                                    <div class="d-flex align-items-center gap-1 text-truncate" style="max-width: 65%;">
-                                        <span class="badge-category" style="display: inline-block; white-space: nowrap;"><?= htmlspecialchars($category); ?></span>
+                                    <div class="d-flex align-items-center gap-1 text-truncate visual-badge-cap">
+                                        <span class="badge-category"><?= htmlspecialchars($category); ?></span>
                                         
                                         <?php if (!empty($genre) && strtolower($genre) !== strtolower($category)): ?>
-                                            <span class="badge-category" style="display: inline-block; white-space: nowrap;"><?= htmlspecialchars($genre); ?></span>
+                                            <span class="badge-category"><?= htmlspecialchars($genre); ?></span>
                                         <?php endif; ?>
                                     </div>
 
-                                    <div class="loan-tag text-nowrap" style="display: inline-flex !important; align-items: center !important; gap: 4px !important; line-height: 1 !important; vertical-align: middle !important;">
+                                    <div class="loan-tag text-nowrap">
                                         <iconify-icon icon="lucide:clock"></iconify-icon> <?= $loanPeriod; ?>
                                     </div>
                                 </div>
@@ -152,7 +149,7 @@ include_once 'includes/tsbar.php';
                             <div class="card-footer-custom p-3 mt-auto">
                                 <?php if ($isOnline): ?>
                                     <a href="/kmkdt-Library/public/user/eBook?id=<?= $row['id']; ?>" 
-                                    class="btn rounded-pill w-100 mt-2" style="background-color: #07427a; color: white;"
+                                    class="btn rounded-pill w-100 mt-2 btn-read-online" 
                                     onclick="return confirm('Warning: Opening this may remove your previous e-book.');">
                                     Read Online</a>
                                 <?php elseif ($status === 'available'): ?>
@@ -172,7 +169,6 @@ include_once 'includes/tsbar.php';
                     <?php endwhile; ?>
                 <?php else: ?>
                     <div class="col-12 text-center py-5">
-                        <p class="text-muted">No books found matching your search.</p>
                         <iconify-icon icon="lucide:search-x" class="display-1 text-muted opacity-25"></iconify-icon>
                         <h3 class="text-muted mt-3">No matches found for "<?= htmlspecialchars($search) ?>"</h3>
                         <a href="/kmkdt-Library/public/user/browseBooks" class="btn btn-success rounded-pill px-4 py-2 fw-bold text-dark text-decoration-none shadow-sm">Clear filters</a>
@@ -187,10 +183,9 @@ include_once 'includes/tsbar.php';
 <!-- Book Details Modal -->
 <div class="modal fade" id="bookModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
 
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-
-            <div class="modal-header border-0 bg-light" style="border-radius: 20px 20px 0 0;">
+            <div class="modal-header border-0 bg-light">
                 <h5 class="modal-title fw-bold" id="modalTitle">Book Overview</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -199,32 +194,30 @@ include_once 'includes/tsbar.php';
                 <div class="row">
 
                     <div class="col-md-5 mb-3 text-center">
-                        <img id="modalImg" src="" class="img-fluid rounded shadow" style="max-height: 400px;">
+                        <img id="modalImg" src="" class="img-fluid rounded shadow" alt="Book Cover View">
                     </div>
                     
                     <div class="col-md-7">
                         <div class="d-flex align-items-center gap-2 mb-3">
                             <div id="modalCategory" class="d-flex align-items-center gap-2 mb-3"></div>
-
-                            <div id="modalGenre" class="badge rounded-pill px-3 py-2 text-white" style="background-color: #22c55e; font-size: 0.85rem;"></div>
+                            <div id="modalGenre" class="badge rounded-pill px-3 py-2 text-white"></div>
                         </div>
                         
                         <h2 id="modalBookTitle" class="fw-bold mb-1"></h2>
                         <p id="modalAuthor" class="text-muted fs-5 mb-3"></p>
                         <hr>
                         <h6 class="fw-bold">About this book</h6>
-                        <p id="modalDesc" class="text-secondary" style="line-height:1.6;font-size:0.95rem;"></p>
+                        <p id="modalDesc" class="text-secondary"></p>
                     </div>
 
                 </div>
             </div>
 
-            <div class="modal-footer border-0 bg-light p-3" style="border-radius: 0 0 20px 20px;">
+            <div class="modal-footer border-0 bg-light p-3">
                 <div id="modalActionContainer" class="w-100"></div>
             </div>
 
         </div>
-
     </div>
 </div>
 

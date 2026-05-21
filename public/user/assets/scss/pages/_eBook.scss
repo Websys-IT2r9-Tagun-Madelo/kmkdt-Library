@@ -1,0 +1,59 @@
+// Theme Variables
+$theme-green: #32cd32;
+$theme-green-bg: #d4edda;
+$theme-green-text: #155724;
+$color-white: #ffffff;
+$color-light-gray: #f8f9fa;
+$color-border: #dddddd;
+$color-muted: #cccccc;
+
+.page-wrapper {
+  // Alert styles
+  .reader-success-alert {
+    background-color: $theme-green-bg;
+    color: $theme-green-text;
+    border-radius: 15px;
+  }
+
+  // Reader component container
+  .reader-main-container {
+    border-radius: 20px;
+    border-top: 5px solid $theme-green;
+    background-color: $color-white;
+
+    .reader-icon {
+      color: $theme-green;
+    }
+
+    // Secure viewer stage area
+    .secure-viewer-viewport {
+      border: 2px dashed $color-border;
+      border-radius: 10px;
+      min-height: 550px;
+      background-color: $color-light-gray;
+
+      .loading-spinner {
+        font-size: 50px;
+        color: $theme-green;
+      }
+    }
+
+    // Functional Action buttons
+    .btn-action-library {
+      background-color: $theme-green;
+      border: none;
+    }
+  }
+
+  // Empty placeholder view structural layout
+  .reader-empty-state {
+    .empty-icon {
+      color: $color-muted;
+    }
+
+    .btn-browse-trigger {
+      background-color: $theme-green;
+      border: none;
+    }
+  }
+}

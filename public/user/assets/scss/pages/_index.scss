@@ -709,3 +709,135 @@
         -2px  0px 0 #1F2A2E,
          2px  0px 0 #1F2A2E;
 }
+
+$lime-green: #32cd32;
+$muted-lime: #57cb57;
+$bright-lime: #7ce87c;
+$success-green: #28a745;
+$white: #ffffff;
+$dark: #212529;
+$accent-green: #28a745;
+$overlay-lime: rgba(50, 205, 50, 0.8);
+$accent-lime: #28a745;
+
+// Banner Layout Container
+.banner-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 45vh;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(255, 255, 255, 0.1) 100%), 
+              url('../../assets/images/backgrounds/home.jpg'); 
+  background-size: cover; 
+  background-position: center;
+
+  .asterisk-icon {
+    color: $muted-lime;
+  }
+
+  .banner-accent {
+    color: $bright-lime;
+  }
+}
+
+// Dashboard Module Layouts
+.dashboard-overview-badge {
+  background: rgba(50, 205, 50, 0.1); 
+  color: $success-green; 
+  font-weight: 800; 
+  border: 1px solid $lime-green;
+}
+
+// Portal Action Cards
+.portal-card {
+  .icon-box {
+    .text-lime {
+      color: $lime-green;
+    }
+  }
+
+}
+
+// Digital Hub Divider Layout
+.digital-hub-section {
+  .hub-title-accent {
+    color: $accent-green;
+  }
+
+  .hub-lead {
+    max-width: 600px;
+  }
+}
+
+// Featured Collections Layout Grid
+.collections-section {
+  // Card Hover Interaction States
+  .portal-card {
+    .img-container {
+      position: relative;
+      overflow: hidden;
+
+      .portfolio-hover-overlay {
+        background: $overlay-lime;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+      }
+
+      // Shows overlay smoothly when the parent card is hovered
+      &:hover {
+        .portfolio-hover-overlay {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+
+
+// Testimonials Interaction & Layout Structure
+.testimonials-section {
+  .card-lime-accent {
+    background-color: $accent-lime;
+  }
+  
+  .testimonial-avatar {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+// News Presentation Layout Grid
+.news-section {
+  .text-lime {
+    color: $brand-lime;
+  }
+
+  .news-img-large {
+    height: 300px;
+    object-fit: cover;
+  }
+
+  .news-img-thumb {
+    height: 180px;
+    object-fit: cover;
+  }
+
+}
+/* Custom Accordion Tweaks */
+.custom-accordion .accordion-button:not(.collapsed) {
+  color: var(--bs-primary) !important;
+}
+
+.custom-accordion .accordion-button::after {
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Smooth transition for the CTA link */
+.transition {
+  transition: all 0.25s ease-in-out;
+}
+
+.link-primary:hover .move-right-hover {
+  transform: translateX(4px);
+  transition: transform 0.2s ease;
+}

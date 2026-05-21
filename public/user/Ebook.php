@@ -23,26 +23,11 @@ $book = $bookId ? getBookForReader($conn, $bookId) : null;
 include('./includes/header.php');
 include('./includes/tsbar.php');
 ?>
-    
-  <div class="page-wrapper overflow-hidden">
-
-    <section class="banner-section position-relative d-flex align-items-center">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-7">
-            <div class="position-relative z-1" data-aos="fade-up">
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
 
 <div class="page-wrapper p-5">
     <!-- Success Alert -->
     <?php if (isset($_GET['msg']) && $_GET['msg'] === 'added'): ?>
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" 
-             style="background-color: #d4edda; color: #155724; border-radius: 15px;" role="alert">
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4 reader-success-alert" role="alert">
             <iconify-icon icon="lucide:check-circle" class="me-2"></iconify-icon>
             <strong>Success!</strong> This book is now active in your E-book reader.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -52,19 +37,19 @@ include('./includes/tsbar.php');
     <div class="row justify-content-center">
         <!-- Main Reader Column -->
         <div class="col-lg-10 col-12">
-            <div class="container text-center bg-white p-5 shadow" style="border-radius: 20px; border-top: 5px solid #32cd32;">
+            <div class="container text-center p-5 shadow reader-main-container">
                 <?php if ($book): ?>
-                    <iconify-icon icon="lucide:book-open" class="display-4 mb-3" style="color: #32cd32;"></iconify-icon>
+                    <iconify-icon icon="lucide:book-open" class="display-4 mb-3 reader-icon"></iconify-icon>
                     <h2 class="fw-bold"><?= htmlspecialchars($book['title']); ?></h2>
                     <p class="text-muted small">Author: <?= htmlspecialchars($book['author']); ?></p>
                     <hr class="my-4">
                     
                     <!-- Secure Viewer Placeholder -->
                     <div class="alert alert-light border">
-                        <div class="mt-2 p-4 bg-light d-flex align-items-center justify-content-center" style="border: 2px dashed #ddd; border-radius: 10px; min-height: 550px;">
+                        <div class="mt-2 p-4 d-flex align-items-center justify-content-center secure-viewer-viewport">
                              <div class="text-center">
-                                <iconify-icon icon="line-md:loading-twotone-loop" style="font-size: 50px; color: #32cd32;"></iconify-icon>
-                                <p class="mt-2 text-white-50">Loading Secure Digital Reader...</p>
+                                <iconify-icon icon="line-md:loading-twotone-loop" class="loading-spinner"></iconify-icon>
+                                <p class="mt-2 text-dark-50">Loading Secure Digital Reader...</p>
                              </div>
                         </div>
                     </div>
@@ -74,21 +59,24 @@ include('./includes/tsbar.php');
                         <a href="eBook?action=close" class="btn btn-outline-secondary rounded-pill px-4">
                             Close Reader
                         </a>
-                        <a href="browseBooks" class="btn btn-success rounded-pill px-5" style="background-color: #32cd32; border: none;">
+                        <a href="browseBooks" class="btn btn-success rounded-pill px-5 btn-action-library">
                             Back to Library
                         </a>
                     </div>
 
                 <?php else: ?>
                     <!-- Empty State -->
-                    <iconify-icon icon="hugeicons:book-open-01" class="display-1 mb-4" style="color: #ccc;"></iconify-icon>
-                    <h1 class="fw-bold text-secondary">No E-book Selected</h1>
-                    <p class="text-muted">Choose a title from the library to begin reading.</p>
-                    <a href="browseBooks" class="btn btn-success rounded-pill px-5 mt-4" style="background-color: #32cd32; border: none;">Browse Library</a>
+                    <div class="reader-empty-state">
+                        <iconify-icon icon="hugeicons:book-open-01" class="display-1 mb-4 empty-icon"></iconify-icon>
+                        <h1 class="fw-bold text-secondary">No E-book Selected</h1>
+                        <p class="text-muted">Choose a title from the library to begin reading.</p>
+                        <a href="browseBooks" class="btn btn-success rounded-pill px-5 mt-4 btn-browse-trigger">Browse Library</a>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
 </div>
+
 <?php include_once 'includes/footer.php'; ?>

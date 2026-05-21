@@ -12,8 +12,9 @@
           <li><a class="link-hover fs-5 text-white" href="index">Home</a></li>
           <li><a class="link-hover fs-5 text-white" href="profile">Profile</a></li>
           <li><a class="link-hover fs-5 text-white" href="browseBooks">Browse Books</a></li>
+          <li><a class="link-hover fs-5 text-white" href="eBook">eBook</a></li>
           <li><a class="link-hover fs-5 text-white" href="myBooks">My Borrowed Books</a></li>
-          <li><a class="link-hover fs-5 text-white" href="contact">Contact Us</a></li>
+          <li><a class="link-hover fs-5 text-white" href="messageHub">Message Hub</a></li>
         </ul>
       </div>
 
@@ -48,7 +49,7 @@
 <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/kmkdt-Library/public/user/assets/js/userNoti.js"></script>
 <script src="assets/js/modalHandler.js"></script>
-<script src="assets/js/messenger.js"></script>
+<script src="assets/js/messenge.js"></script>
 
 
 

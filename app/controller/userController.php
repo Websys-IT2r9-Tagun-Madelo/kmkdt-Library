@@ -61,7 +61,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_live_user_updates') {
                 JOIN books b ON bh.book_id = b.id
                 WHERE bh.user_id = $userId 
                   AND bh.status IN ('borrowed', 'overdue')
-                  AND (bh.due_date < '$currentDate' OR bh.due_date <= DATE_ADD('$currentDate', INTERVAL 3 DAY))
+                  AND (bh.due_date < '$currentDate' OR bh.due_date <= DATE_ADD('$currentDate', INTERVAL 2 DAY))
             )
             ORDER BY sort_time DESC 
             LIMIT 5";

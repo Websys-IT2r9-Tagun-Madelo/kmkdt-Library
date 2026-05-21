@@ -100,9 +100,12 @@ function renderConversations(conversations) {
     const adminConv = conversations.find(c => parseInt(c.recipient_id, 10) === ADMIN_ID);
     const librarySupportBtn = domElements.librarySupportBtn;
     
+    let isAdminActive = false;
+
     if (adminConv && librarySupportBtn) {
         // Attach the real conversation ID to the green HTML button container
         librarySupportBtn.setAttribute('data-conversation-id', adminConv.id);
+        librarySupportBtn.classList.add('library-support-pinned-card');
         
         // Update its text preview and time dynamically if messages exist
         const supportSubtitle = librarySupportBtn.querySelector('.support-subtitle');
@@ -110,11 +113,12 @@ function renderConversations(conversations) {
             supportSubtitle.innerText = adminConv.last_message;
         }
         
-        // Toggle an active background style if the user currently has the support chat open
+        // Check if user currently has the support chat open
         if (currentConversationId == adminConv.id) {
+            isAdminActive = true;
             librarySupportBtn.style.background = 'linear-gradient(135deg, #1e7e34 5%, #57cb57 95%)';
         } else {
-            librarySupportBtn.style.background = ''; // Resets to base CSS green
+            librarySupportBtn.style.background = ''; // Resets cleanly to layout base CSS
         }
     }
     
@@ -130,7 +134,8 @@ function renderConversations(conversations) {
     
     // Render only the non-admin rows
     listContainer.innerHTML = sorted.map((conv) => {
-        const isActive = currentConversationId == conv.id;
+        // If Admin is active, regular users must NEVER look active
+        const isActive = !isAdminActive && (currentConversationId == conv.id);
         const unreadBadge = conv.unread_count > 0 ? `<span class="badge bg-danger" style="float: right; margin-left: 8px;">${conv.unread_count}</span>` : '';
         const lastMessageTime = formatTime(conv.last_message_time);
         const lastMessage = conv.last_message || 'No messages yet';
@@ -185,15 +190,26 @@ function selectConversation(conversationId, recipientId, recipientName) {
         if (domElements.headerSub) domElements.headerSub.innerText = "Direct Chat Session Activity Open";
     }
     
+    // Clear styles across all standard items first
     document.querySelectorAll('.conversation-item').forEach(item => {
         item.classList.remove('active');
         item.style.background = 'transparent';
     });
     
-    const activeEl = document.querySelector(`[data-conversation-id="${conversationId}"]`);
-    if (activeEl) {
-        activeEl.classList.add('active');
-        activeEl.style.background = '#f1f5f9';
+    // Explicitly check if the recipient IS NOT the admin before rendering active gray backgrounds
+    if (parseInt(recipientId, 10) !== ADMIN_ID) {
+        const activeEl = document.querySelector(`.conversation-item[data-conversation-id="${conversationId}"]`);
+        if (activeEl) {
+            activeEl.classList.add('active');
+            activeEl.style.background = '#f1f5f9';
+        }
+        // Ensure support card drops its selection layout
+        if (domElements.librarySupportBtn) domElements.librarySupportBtn.style.background = '';
+    } else {
+        // If admin is chosen, explicitly apply the vibrant green gradient onto support button
+        if (domElements.librarySupportBtn) {
+            domElements.librarySupportBtn.style.background = 'linear-gradient(135deg, #1e7e34 5%, #57cb57 95%)';
+        }
     }
     
     loadMessages(conversationId, true);
@@ -369,11 +385,16 @@ async function startNewChat() {
             
             if (cData.success) {
                 renderConversations(cData.conversations);
-                const newConv = cData.conversations.find(c => c.id == data.conversation_id);
-                const rName = newConv ? newConv.recipient_name : email;
-                const rId = newConv ? newConv.recipient_id : null;
                 
-                selectConversation(data.conversation_id, rId, rName);
+                const newConv = cData.conversations
+                    .filter(c => parseInt(c.recipient_id, 10) !== ADMIN_ID)
+                    .find(c => c.id == data.conversation_id);
+                
+                if (newConv) {
+                    selectConversation(data.conversation_id, newConv.recipient_id, newConv.recipient_name);
+                } else {
+                    openLibrarySupport();
+                }
             }
         } else {
             alert('Error: ' + data.message);
@@ -389,16 +410,13 @@ async function openLibrarySupport() {
         const response = await fetch(`${MESSAGING_API}?action=getAdminConversation`);
         const data = await response.json();
         if (data.success) {
-            // Remove selection styling from standard list rows
             document.querySelectorAll('.conversation-item').forEach(item => {
                 item.classList.remove('active');
                 item.style.background = 'transparent';
             });
             
-            // Open the conversation window
             selectConversation(data.conversation_id, ADMIN_ID, "Library Support Admin");
             
-            // Re-render layout to make sure green card highlights properly
             if (domElements.conversationsList.innerHTML !== 'Loading...') {
                 const convResponse = await fetch(`${MESSAGING_API}?action=getConversations`);
                 const cData = await convResponse.json();
