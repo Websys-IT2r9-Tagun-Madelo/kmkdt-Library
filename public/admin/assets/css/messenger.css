@@ -533,3 +533,59 @@
 .messages-container::-webkit-scrollbar-thumb:hover {
     background: #b0b0b0;
 }
+
+
+.messaging-engine-header {
+  margin-bottom: 20px;
+}
+
+.messaging-engine-header .card-title {
+  margin: 0; 
+  padding-bottom: 10px;
+}
+
+.messaging-engine-header .messaging-subtitle {
+  color: #999; 
+  font-size: 12px; 
+  margin: 0;
+}
+
+.bg-primary-light { background-color: #eef2fa; }
+.bg-success-light { background-color: #e8f5e9; }
+.bg-danger-light  { background-color: #fce8e6; }
+.bg-warning-light { background-color: #fdf5e2; }
+
+
+.icon-avatar {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+
+.admin-messenger-container {
+  display: flex;
+  height: 600px;
+  background-color: #fff;
+}
+
+.admin-conversations-panel {
+  width: 320px;
+  border-right: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-messages-panel {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #fcfcfc;
+}
+
+.clear-search-btn.hidden {
+  display: none !important;
+}

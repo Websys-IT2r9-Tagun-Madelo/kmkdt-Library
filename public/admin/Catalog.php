@@ -3,43 +3,22 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 1. ABSOLUTE PATH CONFIGURATION
-$configPath = 'C:\xampp\htdocs\kmkdt-Library\app\config\config.php';
-
-if (file_exists($configPath)) {
-    include_once($configPath);
-} else {
-    die("Config file not found at: " . $configPath);
+if (!defined('APP_PATH')) {
+    define('APP_PATH', dirname(__DIR__, 2) . '/app');
 }
 
-// LOAD THE CONTROLLER SO THE FUNCTIONS BELOW WORK
-$controllerPath = 'C:\xampp\htdocs\kmkdt-Library\app\controller\adminController.php';
-if (file_exists($controllerPath)) {
-    include_once($controllerPath);
-} else {
-    die("Controller file not found at: " . $controllerPath);
-}
+require_once APP_PATH . '/config/config.php';
+require_once APP_PATH . '/controller/adminController.php';
 
-// 2. CENTRAL ROUTING ACTIONS
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['logoutButton'])) {
-        $_SESSION = []; 
-        session_destroy();
-        header("Location: /kmkdt-Library/public/login");
-        exit();
-    }
-}
+handleAdminLogoutRequest();
 
-// Fetch dynamic messages for user alerts
 $successMessage = $_SESSION['success'] ?? null;
-$errorMessage = $_SESSION['error'] ?? null;
+$errorMessage   = $_SESSION['error'] ?? null;
 unset($_SESSION['success'], $_SESSION['error']);
 
-// Execute catalog data loaders
-$books = getCatalog($conn);
+$books      = getCatalog($conn);
 $activities = getRecentActivity($conn);
 
-// 3. RENDER LAYOUTS
 include('./includes/header.php');
 include('./includes/topbar.php');
 include('./includes/sidebar.php');
@@ -106,7 +85,7 @@ include('./includes/sidebar.php');
       </div>
 
        <div class="table-responsive">
-         <table class="table align-middle" id="catalogTable">
+         <table class="table table-hover align-middle" id="catalogTable">
           <thead class="table-light text-secondary text-uppercase fs-7 small">
             <tr>
               <th class="ps-3" style="width: 60px;">#</th>
@@ -126,14 +105,14 @@ include('./includes/sidebar.php');
                   <td class="ps-3 text-muted fw-semibold"><?= $index + 1 ?></td>
                   <td>
                     <?php if (!empty($book['cover_image'])): ?>
-                      <img src="/kmkdt-Library/app/uploads/covers/<?= htmlspecialchars($book['cover_image']) ?>" alt="Cover" class="img-thumbnail rounded-0" style="width: 50px; height: 70px; object-fit: cover;">
+                      <img src="/kmkdt-Library/app/uploads/covers/<?= htmlspecialchars($book['cover_image']) ?>" alt="Cover" class="img-thumbnail rounded-0 cover-img-thumbnail">
                     <?php else: ?>
-                      <div class="bg-light text-muted border d-flex align-items-center justify-content-center fw-bold small text-uppercase" style="width: 50px; height: 70px; font-size: 10px;">No Cover</div>
+                      <div class="bg-light text-muted border d-flex align-items-center justify-content-center fw-bold small text-uppercase cover-placeholder">No Cover</div>
                     <?php endif; ?>
                   </td>
                   <td>
                     <div class="fw-bold text-dark book-title"><?= htmlspecialchars($book['title'] ?? '') ?></div>
-                    <small class="text-muted d-block text-truncate" style="max-width: 250px;"><?= htmlspecialchars($book['description'] ?? 'No description provided.') ?></small>
+                    <small class="text-muted d-block text-truncate book-title-description"><?= htmlspecialchars($book['description'] ?? 'No description provided.') ?></small>
                   </td>
                   <td class="text-secondary">
                      <span class="d-block text-dark book-author"><i class="bi bi-person me-1 text-muted"></i><?= htmlspecialchars($book['author'] ?? '') ?></span>
@@ -155,9 +134,9 @@ include('./includes/sidebar.php');
                               }
 
                               if ($trimmedTag === 'reserve') {
-                                  $badgeClass = 'bg-primary text-white';
+                                  $badgeClass = 'bg-reserve text-white';
                               } elseif ($trimmedTag === 'online') {
-                                  $badgeClass = 'bg-info text-dark';
+                                  $badgeClass = 'bg-online text-dark';
                               } else {
                                   $badgeClass = 'bg-light text-dark border';
                               }
@@ -171,11 +150,11 @@ include('./includes/sidebar.php');
                     <?php
                       $rawStatus = strtolower($book['status'] ?? 'available');
                       if ($rawStatus === 'borrowed') {
-                          $badgeClass = 'bg-warning-light text-warning-dark border border-warning-subtle'; 
+                          $badgeClass = 'bg-borrowed-light text-borrowed-dark border border-borrowed-subtle';
                           $displayStatus = 'Borrowed';
                       } elseif ($rawStatus === 'online') {
                           $badgeClass = 'bg-info-light text-info-dark border border-info-subtle'; 
-                          $displayStatus = 'Online Reading';
+                          $displayStatus = 'Online';
                       } else {
                           $badgeClass = 'bg-success-light text-success-dark border border-success-subtle';  
                           $displayStatus = 'Available';
@@ -253,9 +232,8 @@ include('./includes/sidebar.php');
                   $actionLabel = $rawStatus ?: 'processed';
               }
             ?>
-            <div class="activity-item d-flex align-items-start mb-3 border-start ps-3 position-relative" style="border-width: 2px !important;">
-              <div class="activity-icon <?= $iconClass ?> rounded-circle me-3" 
-                   style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <div class="activity-item d-flex align-items-start mb-3 border-start ps-3 position-relative">
+              <div class="activity-icon <?= $iconClass ?> rounded-circle me-3 activity-icon-wrapper">
                 <i class="bi <?= $icon ?> fs-6"></i>
               </div>
               <div>
@@ -277,6 +255,7 @@ include('./includes/sidebar.php');
     </div>
   </div>
 </div>
+
 <div class="modal fade" id="addBookModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content rounded-0 border-0 shadow">
@@ -306,7 +285,7 @@ include('./includes/sidebar.php');
                 <label class="form-label text-secondary small fw-bold mb-0">Collection Category <span class="text-danger">*</span></label>
               </div>
 
-              <div class="p-2.5 border bg-white rounded-0 d-flex flex-column gap-1 overflow-auto" style="max-height: 150px;" id="add_category_list_box">
+              <div class="p-2.5 border bg-white rounded-0 d-flex flex-column gap-1 overflow-auto category-selection-box" id="add_category_list_box">
                 <div class="d-flex flex-wrap gap-x-3 gap-y-1" id="add_base_categories_group">
                   <div class="form-check me-3">
                     <input class="form-check-input add-cat-check" type="checkbox" name="category[]" value="Fiction" id="add_cat_fiction">
@@ -331,11 +310,11 @@ include('./includes/sidebar.php');
                 <div class="d-flex gap-3 designation-item">
                   <div class="form-check">
                     <input class="form-check-input add-cat-check" type="checkbox" name="category[]" value="Reserve" id="add_cat_reserve">
-                    <label class="form-check-label small fw-bold text-primary" for="add_cat_reserve">Reserve</label>
+                    <label class="form-check-label small" for="add_cat_reserve">Reserve</label>
                   </div>
                   <div class="form-check">
                     <input class="form-check-input add-cat-check" type="checkbox" name="category[]" value="Online" id="add_cat_online">
-                    <label class="form-check-label small fw-bold text-info" for="add_cat_online">Online</label>
+                    <label class="form-check-label small" for="add_cat_online">Online</label>
                   </div>
                 </div>
               </div>
@@ -346,7 +325,6 @@ include('./includes/sidebar.php');
               <select name="status" class="form-select rounded-0" required>
                 <option value="available" selected>Available</option>
                 <option value="borrowed">Borrowed</option>
-                <option value="online">Online</option>
               </select>
             </div>
             <div class="col-md-6">
@@ -399,7 +377,7 @@ include('./includes/sidebar.php');
                 <label class="form-label text-secondary small fw-bold mb-0">Collection Category <span class="text-danger">*</span></label>
               </div>
 
-              <div class="p-2.5 border bg-white rounded-0 d-flex flex-column gap-1 overflow-auto" style="max-height: 150px;" id="edit_category_list_box">
+              <div class="p-2.5 border bg-white rounded-0 d-flex flex-column gap-1 overflow-auto category-selection-box" id="edit_category_list_box">
                 <div class="d-flex flex-wrap gap-x-3 gap-y-1" id="edit_base_categories_group">
                   <div class="form-check me-3">
                     <input class="form-check-input edit-cat-check" type="checkbox" name="category[]" value="Fiction" id="edit_cat_fiction">
@@ -424,11 +402,11 @@ include('./includes/sidebar.php');
                 <div class="d-flex gap-3 designation-item">
                   <div class="form-check">
                     <input class="form-check-input edit-cat-check" type="checkbox" name="category[]" value="Reserve" id="edit_cat_reserve">
-                    <label class="form-check-label small fw-bold text-primary" for="edit_cat_reserve">Reserve</label>
+                    <label class="form-check-label small" for="edit_cat_reserve">Reserve</label>
                   </div>
                   <div class="form-check">
                     <input class="form-check-input edit-cat-check" type="checkbox" name="category[]" value="Online" id="edit_cat_online">
-                    <label class="form-check-label small fw-bold text-info" for="edit_cat_online">Online</label>
+                    <label class="form-check-label small" for="edit_cat_online">Online</label>
                   </div>
                 </div>
               </div>
@@ -439,7 +417,6 @@ include('./includes/sidebar.php');
               <select name="status" id="edit_status" class="form-select rounded-0" required>
                 <option value="available">Available</option>
                 <option value="borrowed">Borrowed</option>
-                <option value="online">Online</option>
               </select>
             </div>
             <div class="col-md-6">

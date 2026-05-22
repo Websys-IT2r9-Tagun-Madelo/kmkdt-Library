@@ -71,7 +71,7 @@
     <?php $admin_active = in_array($page, ['aProfile.php']); ?>
     <li class="nav-item">
       <a class="nav-link <?= $admin_active ? '' : 'collapsed' ?>" data-bs-target="#admin-nav" data-bs-toggle="collapse" href="#">
-        <i class="bi bi-person-vcard-fill"></i><span class="ms-3">Admin Hub</span><i class="bi bi-chevron-down"></i>
+        <i class="bi bi-person-vcard-fill"></i><span class="ms-3">Admin Info</span><i class="bi bi-chevron-down"></i>
       </a>
       <ul id="admin-nav" class="nav-content collapse <?= $admin_active ? 'show' : '' ?>" data-bs-parent="#sidebar-nav">
         <li>

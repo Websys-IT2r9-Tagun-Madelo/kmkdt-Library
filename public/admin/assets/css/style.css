@@ -6,15 +6,39 @@
   --bg-lime: #f6f9ff;
 
   --bs-warning: #ff8f07 !important; 
-  --borrowed: #1da5ff;
+  --bs-online: #091268;
+  --bs-reserve:#92ca31;
+  --borrowed: #38aee1;
+  --borrowed-light: #edf9ff; 
+  --borrowed-subtle: #d6efff; 
 }
 
+.bg-borrowed-light {
+    background-color: var(--borrowed-light) !important;
+}
+
+.text-borrowed-dark {
+    color: var(--borrowed) !important;
+}
+
+.border-borrowed-subtle {
+    border-color: var(--borrowed-subtle) !important;
+}
 
 .bg-warning {
     background-color: var(--bs-warning) !important;
     color: #ffffff !important; 
 }
 
+.bg-online {
+    background-color: var(--bs-online) !important;
+    color: #ffffff !important; 
+}
+
+.bg-reserve {
+    background-color: var(--bs-reserve) !important;
+    color: #ffffff !important; 
+}
 
 .bg-success, .btn-success {
     background-color: var(--primary-lime) !important;
@@ -979,12 +1003,10 @@ h6 {
   font-size: 18px;
   font-weight: 600;
   color: #356635;
-  /* Swapped from #4154f1 to Lime */
 }
 
 .faq .basic p {
   color: #6980aa;
-  /* Kept grey-blue for text legibility */
 }
 
 /*--------------------------------------------------------------
@@ -998,7 +1020,6 @@ h6 {
   font-size: 38px;
   line-height: 0;
   color: #356635;
-  /* Swapped from Blue to Lime */
 }
 
 .contact .info-box h3 {
@@ -1045,7 +1066,6 @@ h6 {
   height: 24px;
   margin: 0 10px -6px 0;
   border: 3px solid #356635;
-  /* Swapped loading spinner to Lime */
   border-top-color: #eee;
   animation: animate-loading 1s linear infinite;
 }
@@ -1053,13 +1073,11 @@ h6 {
 .contact .php-email-form input:focus,
 .contact .php-email-form textarea:focus {
   border-color: #356635;
-  /* Swapped focus border to Lime */
   outline: none;
 }
 
 .contact .php-email-form button[type=submit] {
   background: #356635;
-  /* Swapped from Blue to Lime */
   border: 0;
   padding: 10px 30px;
   color: #fff;
@@ -1069,7 +1087,6 @@ h6 {
 
 .contact .php-email-form button[type=submit]:hover {
   background: #76ff03;
-  /* Swapped to Hover Lime */
 }
 
 @keyframes animate-loading {
@@ -1647,4 +1664,234 @@ h6 {
 #createMemberModal .form-select,
 #createMemberModal .input-group-text {
     height: 41px;
+}
+
+.custom-dropdown-link {
+  transition: all 0.2s ease-in-out !important;
+}
+.custom-dropdown-link:hover {
+  background-color: var(--bs-light) !important;
+  transform: translateX(3px);
+}
+
+
+.metric-icon-box {
+  width: 50px;
+  height: 50px;
+}
+
+
+.bg-light-primary { background-color: #eef2fa; }
+.bg-light-success { background-color: #e8f5e9; }
+.bg-light-danger  { background-color: #fce8e6; }
+.bg-light-info    { background-color: #e3f2fd; }
+
+.bg-success-lime {
+  background-color: #28a745;
+}
+
+.card-header-title {
+    font-size: 1.1rem;
+}
+
+.table th.col-index, 
+.table td.col-index {
+    width: 50px;
+}
+
+.table th.col-address, 
+.table td.col-address {
+    max-width: 220px;
+}
+
+.table th.col-actions, 
+.table td.col-actions {
+    width: 140px;
+}
+
+.modal-header-create {
+    background-color: #5cb85c;
+}
+
+.sub-profile-heading {
+    font-size: 0.95rem;
+}
+
+.btn-cancel-custom {
+    border-color: #ccc; 
+    color: #666;
+}
+
+.btn-cancel-custom:hover {
+    background-color: #f4f4f4;
+    border-color: #bbb;
+    color: #333;
+}
+
+.btn-save-custom {
+    background-color: #5cb85c; 
+    border-color: #4cae4c;
+}
+
+.btn-save-custom:hover {
+    background-color: #4cae4c;
+    border-color: #398439;
+}
+
+/* Metric & Progress bar wrappers */
+.progress-circulation {
+    height: 25px;
+}
+
+/* Custom platform context colors if not defined in Bootstrap base */
+.bg-borrowed {
+    background-color: #0d6efd; /* Fallback primary blueprint */
+    color: #ffffff;
+}
+
+/* Profile Presentation Styles */
+.profile-avatar-img {
+    max-width: 120px;
+    border: 3px solid #22c55e;
+}
+
+.profile-role-badge {
+    background-color: rgba(50, 205, 50, 0.1);
+    color: #57cb57;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 12px;
+}
+
+.profile-heading-title {
+    font-size: 1.25rem;
+}
+
+.btn-update-account {
+    background-color: #57cb57;
+    border: none;
+}
+
+.profile-snapshot-title {
+    color: #22c55e;
+}
+
+.profile-snapshot-card {
+    border-color: #22c55e !important;
+}
+
+.profile-identifier-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.profile-key-badge {
+    background-color: rgba(50, 205, 50, 0.1);
+    color: #57cb57;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+}
+
+.profile-role-text {
+    letter-spacing: 0.3px;
+}
+
+.btn-submit-profile {
+    background-color: #22c55e;
+    border: none;
+}
+
+/* Circulation Progress Metric Normalizations */
+.progress-circulation-track {
+    height: 1.6rem;
+    background-color: #f1f5f9;
+}
+
+.progress-circulation-track .progress-bar {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.text-wrap-title {
+    display: block;
+    max-width: 280px;
+    white-space: normal;
+    line-height: 1.4;
+}
+
+.font-tracking-wide {
+    letter-spacing: 0.5px;
+    font-size: 0.72rem;
+}
+
+/* ==========================================================================
+   Library Catalog Management Layout Styles
+   ========================================================================== */
+
+/* --- Typography & Global Utilities --- */
+.fs-7 {
+    font-size: 0.85rem !important;
+}
+
+/* --- Table Styles --- */
+#catalogTable th, 
+#catalogTable td {
+    vertical-align: middle;
+}
+
+#catalogTable th {
+    font-size: 0.75rem;
+}
+
+.book-title-description {
+    max-width: 250px;
+}
+
+/* --- Book Covers --- */
+.cover-img-thumbnail {
+    width: 50px;
+    height: 70px;
+    object-fit: cover;
+}
+
+.cover-placeholder {
+    width: 50px;
+    height: 70px;
+    font-size: 10px;
+}
+
+/* --- Badges & Custom Categories Selection Box --- */
+.p-2\.5 {
+    padding: 0.625rem !important;
+}
+
+.gap-x-3 {
+    column-gap: 1rem !important;
+}
+
+.gap-y-1 {
+    row-gap: 0.25rem !important;
+}
+
+.category-selection-box {
+    max-height: 150px;
+}
+
+/* --- Recent Activity Timeline --- */
+.activity-item {
+    border-width: 2px !important;
+}
+
+.activity-icon-wrapper {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }

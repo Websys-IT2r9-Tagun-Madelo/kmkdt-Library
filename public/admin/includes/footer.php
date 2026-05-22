@@ -29,7 +29,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
-
 <!-- Template Main JS File -->
 <script src="assets/js/main.js"></script>
 <script src="assets/js/catalog.js"></script>

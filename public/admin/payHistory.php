@@ -5,29 +5,14 @@ if (session_status() === PHP_SESSION_NONE) {
 
 include('../../app/middleware/admin.php');
 
-// 1. Get database configuration path
-$configPath = $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/config/config.php';
-if (!file_exists($configPath)) {
-    die("Config file not found at: " . $configPath);
+if (!defined('APP_PATH')) {
+    define('APP_PATH', dirname(__DIR__, 2) . '/app');
 }
-include_once($configPath);
 
-// 2. Fetch all penalty payments with user names and book titles
-$query = "SELECT pp.id, pp.amount_paid, pp.paid_at, u.fullName, u.username, IFNULL(b.title, 'System Fine Adjustment') as book_title
-          FROM penalty_payments pp
-          INNER JOIN user u ON pp.user_id = u.id
-          LEFT JOIN borrowing_history bh ON pp.loan_id = bh.id
-          LEFT JOIN books b ON bh.book_id = b.id
-          ORDER BY pp.paid_at DESC";
+require_once APP_PATH . '/config/config.php';
+require_once APP_PATH . '/controller/adminController.php'; 
 
-$result = $conn->query($query);
-$payments = [];
-
-if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $payments[] = $row;
-    }
-}
+$payments = getPenaltyPaymentsHistory($conn);
 
 include('./includes/header.php');
 include('./includes/topbar.php');
@@ -49,7 +34,6 @@ include('./includes/sidebar.php');
 
       <div class="card rounded-0">
         <div class="card-body">
-          <h5 class="card-title">Collected Penalty Fees Log</h5>
           <p class="text-muted small">A complete audit trail of all overdue book fines collected from library members.</p>
 
           <table class="table datatable table-hover align-middle">

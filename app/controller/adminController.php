@@ -168,22 +168,6 @@ function getAllMembers($conn) {
     return [];
 }
 
-function getCatalog($conn) {
-    $sql = "SELECT b.*, 
-            (SELECT h.status FROM borrowing_history h 
-             WHERE h.book_id = b.id 
-             AND h.status != 'returned' 
-             LIMIT 1) as active_status
-            FROM books b
-            ORDER BY b.id ASC";
-
-    $result = mysqli_query($conn, $sql);
-    if (!$result) {
-        return [];
-    }
-    return mysqli_fetch_all($result, MYSQLI_ASSOC);
-}
-
 function getRecentActivity($conn) {
     $sql = "SELECT h.*, u.fullName, b.title 
             FROM borrowing_history h
@@ -255,4 +239,333 @@ function getCirculationStats($conn) {
     
     return $stats;
 }
-?>
+function getPenaltyPaymentsHistory($conn) {
+    $query = "SELECT pp.id, pp.amount_paid, pp.paid_at, u.fullName, u.username, 
+                     IFNULL(b.title, 'System Fine Adjustment') as book_title
+              FROM penalty_payments pp
+              INNER JOIN user u ON pp.user_id = u.id
+              LEFT JOIN borrowing_history bh ON pp.loan_id = bh.id
+              LEFT JOIN books b ON bh.book_id = b.id
+              ORDER BY pp.paid_at DESC";
+
+    $payments = [];
+    $result = mysqli_query($conn, $query);
+
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $payments[] = $row;
+        }
+    }
+
+    return $payments;
+}
+
+function getLibraryMetrics($conn) {
+    $currentDate = date('Y-m-d');
+    $metrics = [
+        'borrowedCount' => 0,
+        'returnedCount' => 0,
+        'overdueCount'  => 0,
+        'catalogCount'  => 0
+    ];
+
+    // Aggregated counter queries
+    $countsQuery = mysqli_query($conn, "
+        SELECT 
+            SUM(CASE WHEN status = 'borrowed' AND due_date >= '$currentDate' THEN 1 ELSE 0 END) as borrowed,
+            SUM(CASE WHEN status = 'returned' THEN 1 ELSE 0 END) as returned,
+            SUM(CASE WHEN status = 'overdue' OR (status = 'borrowed' AND due_date < '$currentDate') THEN 1 ELSE 0 END) as overdue
+        FROM borrowing_history
+    ");
+
+    if ($countsQuery) {
+        $row = mysqli_fetch_assoc($countsQuery);
+        $metrics['borrowedCount'] = (int)($row['borrowed'] ?? 0);
+        $metrics['returnedCount'] = (int)($row['returned'] ?? 0);
+        $metrics['overdueCount']  = (int)($row['overdue'] ?? 0);
+    }
+
+    $catalogQuery = mysqli_query($conn, "SELECT COUNT(*) as total FROM books");
+    if ($catalogQuery) {
+        $row = mysqli_fetch_assoc($catalogQuery);
+        $metrics['catalogCount'] = (int)($row['total'] ?? 0);
+    }
+
+    return $metrics;
+}
+
+function getActiveBorrows($conn) {
+    $currentDate = date('Y-m-d');
+    $data = [];
+    $query = "SELECT h.id, u.fullName, b.title, h.borrowed_at, h.due_date 
+              FROM borrowing_history h
+              JOIN user u ON h.user_id = u.id
+              JOIN books b ON h.book_id = b.id
+              WHERE h.status = 'borrowed' AND h.due_date >= '$currentDate' 
+              ORDER BY h.borrowed_at DESC";
+              
+    $result = mysqli_query($conn, $query);
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+    }
+    return $data;
+}
+
+function getHistoricalReturns($conn) {
+    $data = [];
+    $query = "SELECT h.id, u.fullName, b.title, h.borrowed_at, h.due_date 
+              FROM borrowing_history history_tbl 
+              LEFT JOIN borrowing_history h ON h.id = history_tbl.id
+              JOIN user u ON h.user_id = u.id
+              JOIN books b ON h.book_id = b.id
+              WHERE h.status = 'returned' 
+              ORDER BY h.id DESC";
+
+    $result = mysqli_query($conn, $query);
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+    }
+    return $data;
+}
+
+function getOverdueViolations($conn) {
+    $currentDate = date('Y-m-d');
+    $data = [];
+    $query = "SELECT h.id, u.fullName, b.title, h.due_date, 
+                     GREATEST(0, DATEDIFF(CURDATE(), h.due_date)) as days_overdue
+              FROM borrowing_history h
+              JOIN user u ON h.user_id = u.id
+              JOIN books b ON h.book_id = b.id
+              WHERE h.status = 'overdue' OR (h.status = 'borrowed' AND h.due_date < '$currentDate') 
+              ORDER BY days_overdue DESC";
+
+    $result = mysqli_query($conn, $query);
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+    }
+    return $data;
+}
+
+function getCatalog($conn) {
+    $sql = "SELECT b.*, 
+            (SELECT h.status FROM borrowing_history h 
+             WHERE h.book_id = b.id 
+             AND h.status != 'returned' 
+             LIMIT 1) as active_status
+            FROM books b
+            ORDER BY b.id ASC";
+
+    $result = mysqli_query($conn, $sql);
+    if (!$result) {
+        return [];
+    }
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+function getProcessedAdminProfile($conn, $adminId) {
+    $adminData = [];
+    
+    // 1. Guard Clauses & Database Connectivity Check
+    if (!$conn instanceof mysqli) {
+        error_log("[Profile Error] Invalid or missing database connection object.");
+        return getAdminFallbackStructure([]);
+    }
+
+    if (!$adminId) {
+        error_log("[Profile Error] Attempted to fetch profile with an empty or null Admin ID.");
+        return getAdminFallbackStructure([]);
+    }
+
+    // 2. Database Fetching with Try-Catch Block
+    try {
+        $stmt = mysqli_prepare($conn, "SELECT * FROM user WHERE id = ? LIMIT 1");
+        
+        if ($stmt === false) {
+            throw new Exception("Failed to prepare statement: " . mysqli_error($conn));
+        }
+
+        mysqli_stmt_bind_param($stmt, "i", $adminId);
+        
+        if (!mysqli_stmt_execute($stmt)) {
+            throw new Exception("Failed to execute statement: " . mysqli_stmt_error($stmt));
+        }
+
+        $result = mysqli_stmt_get_result($stmt);
+        if ($result === false) {
+            throw new Exception("Failed to get statement result: " . mysqli_stmt_error($stmt));
+        }
+
+        $adminData = mysqli_fetch_assoc($result) ?: [];
+        mysqli_stmt_close($stmt);
+
+    } catch (Exception $e) {
+        // Log the real error code details to your server's private log file
+        error_log("[Profile Database Exception] " . $e->getMessage());
+        
+        // Ensure statement closes if it was initialized before the error occurred
+        if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+            mysqli_stmt_close($stmt);
+        }
+        
+        // Zero out data so the fallback engine handles the display gracefully
+        $adminData = []; 
+    }
+
+    // 3. Process and return the final safe structure
+    return getAdminFallbackStructure($adminData);
+}
+
+function getAdminFallbackStructure($adminData) {
+    $adminData = is_array($adminData) ? $adminData : [];
+
+    $processed = [
+        'raw'          => $adminData, // Fallback forms can still safely read empty arrays
+        'fullName'     => !empty($adminData['fullName']) ? htmlspecialchars($adminData['fullName']) : 'Admin User',
+        'emailAddress' => !empty($adminData['emailAddress']) ? htmlspecialchars($adminData['emailAddress']) : 'admin@example.com',
+        'role'         => !empty($adminData['role']) ? htmlspecialchars($adminData['role']) : 'Administrator'
+    ];
+
+    // Reconstruct structured address segments safely
+    $street   = !empty($adminData['street']) ? htmlspecialchars($adminData['street']) : '';
+    $barangay = !empty($adminData['barangay']) ? htmlspecialchars($adminData['barangay']) : '';
+    $city     = !empty($adminData['city']) ? htmlspecialchars($adminData['city']) : '';
+
+    $addressArray = array_filter([$street, $barangay, $city]);
+    $processed['address'] = !empty($addressArray) ? implode(', ', $addressArray) : 'N/A';
+
+    return $processed;
+}
+
+function getAllCategorizedUsers($conn) {
+    $categorized = [
+        'admins'        => [],
+        'standardUsers' => []
+    ];
+
+    if (!$conn instanceof mysqli) {
+        error_log("[Members Error] Invalid or missing database connection object.");
+        return $categorized;
+    }
+
+    try {
+        $result = $conn->query("SELECT * FROM user ORDER BY dateCreated ASC");
+        
+        if ($result === false) {
+            throw new Exception("Database query failed: " . $conn->error);
+        }
+
+
+        while ($row = $result->fetch_assoc()) {
+            $role = !empty($row['role']) ? strtolower(trim($row['role'])) : 'user';
+            
+            if ($role === 'admin' || $role === 'administrator') {
+                $categorized['admins'][] = $row;
+            } else {
+                $categorized['standardUsers'][] = $row;
+            }
+        }
+        
+        $result->free(); 
+
+    } catch (Exception $e) {
+        error_log("[Members Database Exception] " . $e->getMessage());
+    }
+
+    return $categorized;
+}
+
+function handleAdminLogoutRequest() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logoutButton'])) {
+        $_SESSION = [];
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
+        session_destroy();
+        header("Location: /kmkdt-Library/public/login");
+        exit();
+    }
+}
+
+function getDashboardAnalytics($conn) {
+    
+    $analytics = [
+        'borrowedCount'    => 0,
+        'overdueCount'     => 0,
+        'catalogCount'     => 0,
+        'totalRevenue'     => 0.00,
+        'totalMembers'     => 0,
+        'recentActivities' => []
+    ];
+
+    if (!$conn instanceof mysqli) {
+        error_log("[Dashboard Engine Error] Missing or invalid database connection context.");
+        return $analytics;
+    }
+
+    try {
+        $currentDate = date('Y-m-d');
+
+        
+        $countsQuery = $conn->query("
+            SELECT 
+                SUM(CASE WHEN status = 'borrowed' AND due_date >= '$currentDate' THEN 1 ELSE 0 END) as borrowed,
+                SUM(CASE WHEN status = 'overdue' OR (status = 'borrowed' AND due_date < '$currentDate') THEN 1 ELSE 0 END) as overdue
+            FROM borrowing_history
+        ");
+        if ($countsQuery) {
+            $row = $countsQuery->fetch_assoc();
+            $analytics['borrowedCount'] = (int)($row['borrowed'] ?? 0);
+            $analytics['overdueCount']  = (int)($row['overdue'] ?? 0);
+            $countsQuery->free();
+        }
+
+        
+        $catalogQuery = $conn->query("SELECT COUNT(*) as total FROM books");
+        if ($catalogQuery) {
+            $analytics['catalogCount'] = (int)($catalogQuery->fetch_assoc()['total'] ?? 0);
+            $catalogQuery->free();
+        }
+
+        
+        $revenueQuery = $conn->query("SELECT SUM(amount_paid) as total_fines FROM penalty_payments");
+        if ($revenueQuery) {
+            $analytics['totalRevenue'] = (float)($revenueQuery->fetch_assoc()['total_fines'] ?? 0.00);
+            $revenueQuery->free();
+        }
+
+        
+        $memberQuery = $conn->query("SELECT COUNT(*) as total FROM user");
+        if ($memberQuery) {
+            $analytics['totalMembers'] = (int)($memberQuery->fetch_assoc()['total'] ?? 0);
+            $memberQuery->free();
+        }
+
+        
+        $sql = "SELECT h.*, u.fullName, b.title 
+                FROM borrowing_history h
+                JOIN user u ON h.user_id = u.id
+                JOIN books b ON h.book_id = b.id
+                ORDER BY h.id DESC LIMIT 5";
+        
+        $activityResult = $conn->query($sql);
+        if ($activityResult) {
+            $analytics['recentActivities'] = $activityResult->fetch_all(MYSQLI_ASSOC) ?: [];
+            $activityResult->free();
+        }
+
+    } catch (Exception $e) {
+        error_log("[Dashboard Engine Exception] Compile failed: " . $e->getMessage());
+    }
+
+    return $analytics;
+}

@@ -3,71 +3,27 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// ACCESS CONTROL
+// ACCESS CONTROL MIDDLEWARE
 include('../../app/middleware/admin.php');
 
-// DATABASE CONNECTION
-$configPath = $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/config/config.php';
-if (!file_exists($configPath)) {
-    die("Config file not found at: " . $configPath);
+// ESTABLISH CORE APP PATH CONSTANTS
+if (!defined('APP_PATH')) {
+    define('APP_PATH', dirname(__DIR__, 2) . '/app');
 }
-include_once($configPath);
+require_once APP_PATH . '/config/config.php';
+require_once APP_PATH . '/controller/adminController.php';
 
-$currentDate = date('Y-m-d');
+// FETCH COMPACTED STATISTICS 
+$dashboardData = getDashboardAnalytics($conn);
 
-// INITIALIZE COUNTERS
-$borrowedCount = 0;
-$overdueCount  = 0;
-$catalogCount   = 0;
-$totalRevenue = 0.00;
-$totalMembers = 0;
+// DESTRUCTURE INTO LOCAL VARIABLES 
+$borrowedCount    = $dashboardData['borrowedCount'];
+$overdueCount     = $dashboardData['overdueCount'];
+$catalogCount     = $dashboardData['catalogCount'];
+$totalRevenue     = $dashboardData['totalRevenue'];
+$totalMembers     = $dashboardData['totalMembers'];
+$recentActivities = $dashboardData['recentActivities'];
 
-// GET LOAN CODES AND OVERDUE CODES
-$countsQuery = $conn->query("
-    SELECT 
-        SUM(CASE WHEN status = 'borrowed' AND due_date >= '$currentDate' THEN 1 ELSE 0 END) as borrowed,
-        SUM(CASE WHEN status = 'overdue' OR (status = 'borrowed' AND due_date < '$currentDate') THEN 1 ELSE 0 END) as overdue
-    FROM borrowing_history
-");
-if ($countsQuery) {
-    $row = $countsQuery->fetch_assoc();
-    $borrowedCount = (int)($row['borrowed'] ?? 0);
-    $overdueCount  = (int)($row['overdue'] ?? 0);
-}
-
-// GET TOTAL BOOKS IN LIBRARY
-$catalogQuery = $conn->query("SELECT COUNT(*) as total FROM books");
-if ($catalogQuery) {
-    $catalogCount = (int)$catalogQuery->fetch_assoc()['total'];
-}
-
-// GET TOTAL FINES COLLECTED
-$revenueQuery = $conn->query("SELECT SUM(amount_paid) as total_fines FROM penalty_payments");
-if ($revenueQuery) {
-    $totalRevenue = (float)($revenueQuery->fetch_assoc()['total_fines'] ?? 0.00);
-}
-
-// GET TOTAL MEMBERS REGISTERED 
-$memberQuery = $conn->query("SELECT COUNT(*) as total FROM user");
-if ($memberQuery) {
-    $totalMembers = (int)$memberQuery->fetch_assoc()['total'];
-}
-
-// LOCAL FUNCTION TO GET RECENT ACTIVITY LOGS
-function getDashboardRecentActivity($conn) {
-    $sql = "SELECT h.*, u.fullName, b.title 
-            FROM borrowing_history h
-            JOIN user u ON h.user_id = u.id
-            JOIN books b ON h.book_id = b.id
-            ORDER BY h.id DESC LIMIT 5";
-    $result = mysqli_query($conn, $sql);
-    return ($result) ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
-}
-
-// RUN THE LOCAL ACTIVITY FUNCTION
-$recentActivities = getDashboardRecentActivity($conn);
-
-// INCLUDE PAGE LAYOUTS
 include('./includes/header.php');
 include('./includes/topbar.php');
 include('./includes/sidebar.php');
@@ -96,7 +52,7 @@ include('./includes/sidebar.php');
               <i class="bi bi-journal-arrow-up"></i>
             </div>
             <div>
-              <h6 class="fs-3 fw-bold mb-0"><?= $borrowedCount; ?></h6>
+              <h6 class="fs-3 fw-bold mb-0"><?php echo $borrowedCount; ?></h6>
               <span class="text-muted small">Circulating volumes</span>
             </div>
           </div>
@@ -113,7 +69,7 @@ include('./includes/sidebar.php');
               <i class="bi bi-exclamation-triangle"></i>
             </div>
             <div>
-              <h6 class="fs-3 fw-bold mb-0"><?= $overdueCount; ?></h6>
+              <h6 class="fs-3 fw-bold mb-0"><?php echo $overdueCount; ?></h6>
               <span class="text-danger small fw-bold">Requires attention</span>
             </div>
           </div>
@@ -130,7 +86,7 @@ include('./includes/sidebar.php');
               <i class="bi bi-cash-coin"></i>
             </div>
             <div>
-              <h6 class="fs-4 fw-bold mb-0">Php <?= number_format($totalRevenue, 2); ?></h6>
+              <h6 class="fs-4 fw-bold mb-0">Php <?php echo number_format($totalRevenue, 2); ?></h6>
               <span class="text-muted small">Total system ledger</span>
             </div>
           </div>
@@ -147,7 +103,7 @@ include('./includes/sidebar.php');
               <i class="bi bi-people"></i>
             </div>
             <div>
-              <h6 class="fs-3 fw-bold mb-0"><?= $totalMembers; ?></h6>
+              <h6 class="fs-3 fw-bold mb-0"><?php echo $totalMembers; ?></h6>
               <span class="text-muted small">Registered accounts</span>
             </div>
           </div>
@@ -177,7 +133,7 @@ include('./includes/sidebar.php');
             </div>
             <div class="col-sm-6">
               <a href="circulation" class="btn btn-outline-warning d-flex align-items-center p-3 rounded-0 text-start w-100 h-100 text-dark">
-                <i class="bi bi-arrow-repeat fs-3 me-3 text-warning"></i>
+                <i class="bi bi-arrow-repeat fs-3 me-3 text-black"></i>
                 <div>
                   <div class="fw-bold text-dark">Circulation Monitor</div>
                   <small class="text-muted">Live update trackers & ratios</small>
@@ -185,10 +141,10 @@ include('./includes/sidebar.php');
               </a>
             </div>
             <div class="col-sm-6">
-              <a href="penalty_payments" class="btn btn-outline-success d-flex align-items-center p-3 rounded-0 text-start w-100 h-100">
-                <i class="bi bi-receipt fs-3 me-3"></i>
+              <a href="payHistory" class="btn btn-outline-success d-flex align-items-center p-3 rounded-0 text-start w-100 h-100">
+                <i class="bi bi-receipt fs-3 me-3 text-black"></i>
                 <div>
-                  <div class="fw-bold">Audit Penalty Logs</div>
+                  <div class="fw-bold text-dark">Penalty Logs</div>
                   <small class="text-muted">Track library invoice collections</small>
                 </div>
               </a>
@@ -205,7 +161,7 @@ include('./includes/sidebar.php');
           </div>
 
           <div class="bg-light p-3 mt-4 border border-start border-3 border-info">
-             <small class="text-muted d-block"><i class="bi bi-info-circle me-1 text-info"></i> <strong>Catalog Total:</strong> Total registered titles currently in inventory storage: <strong><?= $catalogCount; ?></strong></small>
+              <small class="text-muted d-block"><i class="bi bi-info-circle me-1 text-info"></i> <strong>Catalog Total:</strong> Total registered titles currently in inventory storage: <strong><?php echo $catalogCount; ?></strong></small>
           </div>
 
         </div>
@@ -225,16 +181,16 @@ include('./includes/sidebar.php');
                   $badgeColor = ($status === 'returned') ? 'bg-success' : (($status === 'overdue') ? 'bg-danger' : 'bg-warning text-dark');
               ?>
                 <div class="activity-item d-flex align-items-start mb-3 border-bottom pb-2">
-                  <span class="badge <?= $badgeColor; ?> me-3 px-2 py-1 rounded-0 text-uppercase" style="font-size:0.65rem; width: 75px; text-align: center;">
-                    <?= $status; ?>
+                  <span class="badge <?php echo $badgeColor; ?> me-3 px-2 py-1 rounded-0 text-uppercase" style="font-size:0.65rem; width: 75px; text-align: center;">
+                    <?php echo $status; ?>
                   </span>
                   <div class="w-100">
-                    <div class="small fw-semibold text-dark"><?= htmlspecialchars($act['fullName']); ?></div>
+                    <div class="small fw-semibold text-dark"><?php echo htmlspecialchars($act['fullName']); ?></div>
                     <div class="text-muted small text-truncate" style="max-width: 200px;">
-                      Book: "<?= htmlspecialchars($act['title']); ?>"
+                      Book: "<?php echo htmlspecialchars($act['title']); ?>"
                     </div>
                     <small class="text-muted d-block" style="font-size:0.75rem;">
-                      <i class="bi bi-clock me-1"></i><?= date('M d | g:i A', strtotime($act['borrowed_at'])); ?>
+                      <i class="bi bi-clock me-1"></i><?php echo date('M d | g:i A', strtotime($act['borrowed_at'])); ?>
                     </small>
                   </div>
                 </div>
@@ -256,6 +212,5 @@ include('./includes/sidebar.php');
 </section>
 
 <?php
-// FOOTER LAYOUT
 include('./includes/footer.php');
 ?>

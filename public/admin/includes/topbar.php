@@ -1,14 +1,11 @@
 <?php
-// Ensure session information is pulled accurately
 $sessionUser = $_SESSION['authUser'] ?? $_SESSION ?? [];
 $loggedInUserName = htmlspecialchars($sessionUser['fullName'] ?? $sessionUser['username'] ?? 'System User');
 $loggedInRole = htmlspecialchars($sessionUser['role'] ?? 'Staff/Admin');
 
-// Safe dynamic fallbacks for notification counts (managed in real-time by noti.js)
 $unreadNotificationCount = 0; 
 $unreadMessageCount = 0;      
 
-// Dynamic Route Resolver for reports based on Session Role
 $sessionRoleClean = strtolower($sessionUser['role'] ?? 'user');
 $reportRedirectUrl = ($sessionRoleClean === 'admin') ? 'reports' : '../admin/reports';
 ?>
@@ -90,30 +87,37 @@ $reportRedirectUrl = ($sessionRoleClean === 'admin') ? 'reports' : '../admin/rep
           <span class="d-none d-md-block dropdown-toggle ps-2"><?= $loggedInUserName ?></span>
         </a>
 
-        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-          <li class="dropdown-header">
-            <h6><?= $loggedInUserName ?></h6>
-            <span class="text-capitalize text-muted small"><?= $loggedInRole ?></span>
+        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile border-0 shadow-lg p-2" style="min-width: 230px; border-radius: 12px;">
+          <li class="px-3 py-2mb-1 bg-light rounded-3 text-center mx-1">
+            <div class="fw-bold text-dark fs-6" style="letter-spacing: -0.3px;"><?= htmlspecialchars($loggedInUserName) ?></div>
+            <span class="badge bg-dark-subtle text-dark border border-secondary-subtle px-2 py-0.5 mt-1 small font-monospace text-capitalize" style="font-size: 0.75rem;">
+              <i class="bi bi-shield-lock me-1"></i><?= htmlspecialchars($loggedInRole) ?>
+            </span>
           </li>
-          <li><hr class="dropdown-divider"></li>
+
+          <div class="my-1.5"></div>
+
           <li>
-            <a class="dropdown-item d-flex align-items-center" href="Aprofile">
-              <i class="bi bi-gear"></i>
-              <span>Account Settings</span>
+            <a class="dropdown-item d-flex align-items-center gap-2 rounded-2 py-2 text-secondary" href="Aprofile">
+              <div class="d-flex align-items-center justify-content-center text-muted" style="width: 24px; font-size: 1.1rem;">
+                <i class="bi bi-gear"></i>
+              </div>
+              <span class="fw-medium text-dark" style="font-size: 0.9rem;">Account Settings</span>
             </a>
           </li>
-          <li><hr class="dropdown-divider"></li>
+
           <li>
-            <form action="/kmkdt-Library/app/controller/adminController.php" method="post">
-              <button type="submit" name="logoutButton" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent w-100">
-                <i class="bi bi-box-arrow-right"></i>
-                <span class="ms-2">Sign Out</span>
+            <form action="/kmkdt-Library/app/controller/adminController.php" method="post" class="m-0">
+              <button type="submit" name="logoutButton" class="dropdown-item d-flex align-items-center gap-2 text-danger border-0 bg-transparent w-100 text-start rounded-2 py-2" style="padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);">
+                <div class="d-flex align-items-center justify-content-center text-danger" style="width: 24px; font-size: 1.1rem;">
+                  <i class="bi bi-box-arrow-right"></i>
+                </div>
+                <span class="fw-semibold" style="font-size: 0.9rem;">Sign Out</span>
               </button>
             </form>
           </li>
         </ul>
       </li>
-
     </ul>
   </nav>
 </header>

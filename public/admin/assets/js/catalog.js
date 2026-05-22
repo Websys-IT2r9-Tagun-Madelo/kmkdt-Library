@@ -35,12 +35,13 @@ function appendCustomCategoryCheckbox(prefix) {
     
     // Normalize and Capitalize the First Letter of each word safely
     let formattedValue = rawValue.replace(/[^a-zA-Z0-9\s\-]/g, '');
-    if (formattedValue.toLowerCase() === 'non fiction' || formattedValue.toLowerCase() === 'non-ficion') {
+    const lowerVal = formattedValue.toLowerCase();
+    if (lowerVal === 'non fiction' || lowerVal === 'non-ficion' || lowerVal === 'non-fiction') {
         formattedValue = 'Non-Fiction';
     } else {
         // Enforce Capitalization on the first letter
         formattedValue = formattedValue.split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .map(word => word.length > 0 ? word.charAt(0).toUpperCase() + word.slice(1) : '')
             .join(' ');
     }
     
@@ -51,7 +52,7 @@ function appendCustomCategoryCheckbox(prefix) {
     let targetExists = false;
     document.querySelectorAll(`.${prefix}-cat-check`).forEach(box => {
         const normalizedBoxVal = box.value.toLowerCase().replace(/[^a-zA-Z0-9\s\-]/g, '').replace(/\s+/g, '_').replace(/-/g, '_');
-        if (normalisedBoxVal === standardizedSearchVal) {
+        if (normalizadingBoxVal === standardizedSearchVal) {
             targetExists = true;
         }
     });
@@ -151,21 +152,17 @@ document.addEventListener("DOMContentLoaded", function () {
             const titleEl = row.querySelector('.book-title');
             const authorEl = row.querySelector('.book-author');
             const genreEl = row.querySelector('.book-genre');
-            
-            // FIX: target the hidden span specifically to extract the clean, comma-separated string
             const categorySpan = row.querySelector('.book-category span.d-none');
 
             const title = titleEl ? titleEl.textContent.toLowerCase().trim() : '';
             const author = authorEl ? authorEl.textContent.toLowerCase().trim() : '';
             const genre = genreEl ? genreEl.textContent.toLowerCase().trim() : '';
-            
-            // Clean up the text content out of the hidden database placeholder
             const rawCategoryText = categorySpan ? categorySpan.textContent.toLowerCase().trim() : '';
             
             // Parse categories into an array of clean, standardized strings
             const bookCategories = rawCategoryText.split(',').map(cat => {
                 let trimmed = cat.trim();
-                if (trimmed === 'non fiction' || trimmed === 'non-ficion') {
+                if (trimmed === 'non fiction' || trimmed === 'non-ficion' || trimmed === 'non-fiction') {
                     return 'non-fiction';
                 }
                 return trimmed;
@@ -180,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Dropdown option validation check
             const matchesCategory = selectedCat === "" || bookCategories.includes(selectedCat);
 
-            // Toggle table row visual display states dynamically
+            // Toggle table row display states dynamically
             if (matchesSearch && matchesCategory) {
                 row.style.display = "";
                 hasResults = true;
@@ -189,13 +186,11 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // Display "No results" row fallback if all items are hidden
         if (noResultsRow) {
             noResultsRow.style.display = hasResults ? "none" : "";
         }
     }
 
-    // Attach passive element mutation event triggers
     if (searchInput) searchInput.addEventListener('input', filterTable);
     if (categoryFilter) categoryFilter.addEventListener('change', filterTable);
 
@@ -206,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
         editModal.addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
             
-            // Map simple input element fields
+            // Map simple input elements
             document.getElementById('edit_id').value = button.getAttribute('data-id') || '';
             document.getElementById('edit_title').value = button.getAttribute('data-title') || '';
             document.getElementById('edit_author').value = button.getAttribute('data-author') || '';
@@ -218,10 +213,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const rawCategories = (button.getAttribute('data-category') || '').toLowerCase();
             const categoryList = rawCategories.split(',')
                 .map(c => c.trim())
-                .map(c => (c === 'non fiction' || c === 'non-ficion') ? 'non-fiction' : c)
+                .map(c => (c === 'non fiction' || c === 'non-ficion' || c === 'non-fiction') ? 'non-fiction' : c)
                 .filter(c => c !== "");
 
-            // Set checked states for hardcoded checklist items in the modal interface
+            // Set checked states for checkboxes (even elements newly added to DOM)
             document.querySelectorAll('.edit-cat-check').forEach(box => {
                 const boxValueNormalized = box.value.toLowerCase().trim();
                 

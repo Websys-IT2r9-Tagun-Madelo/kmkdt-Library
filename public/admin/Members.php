@@ -1,24 +1,29 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params(0, '/'); 
+    session_start();
+}
+
 include('../../app/middleware/admin.php');
+
+// Set root path constants
+define('ROOT_PATH', dirname(__DIR__, 2));
+define('APP_PATH', ROOT_PATH . '/app');
+
+// Include core dependencies
+require_once APP_PATH . '/config/config.php';
+require_once APP_PATH . '/controller/adminController.php';
+
+$userSnapshot  = getAllCategorizedUsers($conn);
+$admins        = $userSnapshot['admins'];
+$standardUsers = $userSnapshot['standardUsers'];
+$message     = $_SESSION['message'] ?? '';
+$messageType = $_SESSION['code'] ?? '';
+unset($_SESSION['message'], $_SESSION['code']);
+
 include('./includes/header.php');
 include('./includes/topbar.php');
 include('./includes/sidebar.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/config/config.php');
-
-$standardUsers = [];
-$admins = [];
-$result = $conn->query("SELECT * FROM user ORDER BY dateCreated ASC");
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        if (strtolower($row['role']) === 'admin') $admins[] = $row;
-        else $standardUsers[] = $row;
-    }
-}
-
-$message = $_SESSION['message'] ?? '';
-$messageType = $_SESSION['code'] ?? '';
-unset($_SESSION['message'], $_SESSION['code']);
 ?>
 
 <div class="pagetitle d-flex justify-content-between align-items-center mb-4">
@@ -82,7 +87,7 @@ unset($_SESSION['message'], $_SESSION['code']);
             <h6 class="text-muted small text-uppercase mb-1 fw-bold">Total Accounts</h6>
             <h3 class="m-0 fw-bold text-dark"><?php echo (count($standardUsers) + count($admins)); ?></h3>
           </div>
-          <div class="p-3 bg-light rounded-circle text-success"><i class="bi bi-database-fill-check fs-3"></i></div>
+          <div class="p-3 bg-light rounded-circle text-success"><i class="bi bi-person-lines-fill fs-3"></i></div>
         </div>
       </div>
     </div>
@@ -94,7 +99,7 @@ unset($_SESSION['message'], $_SESSION['code']);
   <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
     <div class="d-flex align-items-center gap-2">
       <div class="bg-primary-subtle text-primary px-2 py-1 rounded"><i class="bi bi-journal-bookmark-fill fs-5"></i></div>
-      <h5 class="m-0 fw-bold text-dark" style="font-size: 1.1rem;">Library Members / Borrowers</h5>
+      <h5 class="m-0 fw-bold text-dark card-header-title">Library Members / Borrowers</h5>
     </div>
   </div>
   <div class="card-body pt-3">
@@ -102,12 +107,12 @@ unset($_SESSION['message'], $_SESSION['code']);
       <table class="table table-hover align-middle datatable mb-0">
         <thead class="table-light text-secondary small text-uppercase">
           <tr>
-            <th style="width: 50px;">#</th>
+            <th class="col-index">#</th>
             <th>Name & Email</th>
             <th>Username</th>
-            <th>Address</th>
+            <th class="col-address">Address</th>
             <th>Creation Date</th>
-            <th class="text-end" style="width: 140px;">Actions</th>
+            <th class="text-end col-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -124,11 +129,11 @@ unset($_SESSION['message'], $_SESSION['code']);
                 </td>
                 <td>
                   <div class="badge bg-light text-dark border border-secondary-subtle px-2 py-1 mb-1">
-                    <i class="bi bi-person-badge text-primary me-1"></i>@<?php echo htmlspecialchars($row['username']); ?>
+                    <i class="badge text-primary me-1"></i>@<?php echo htmlspecialchars($row['username']); ?>
                   </div>
                   <div><span class="badge bg-success-subtle text-success border border-success-subtle px-2">Member</span></div>
                 </td>
-                <td class="small text-wrap" style="max-width: 220px;">
+                <td class="small text-wrap col-address">
                   <?php echo htmlspecialchars($locStr ?: 'No Address Added'); ?>
                 </td>
                 <td class="small text-secondary"><?php echo date('M d, Y', strtotime($row['dateCreated'])); ?></td>
@@ -169,7 +174,7 @@ unset($_SESSION['message'], $_SESSION['code']);
   <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
     <div class="d-flex align-items-center gap-2">
       <div class="bg-dark-subtle text-dark px-2 py-1 rounded"><i class="bi bi-shield-lock-fill fs-5"></i></div>
-      <h5 class="m-0 fw-bold text-dark" style="font-size: 1.1rem;">Library Admins & Staff</h5>
+      <h5 class="m-0 fw-bold text-dark card-header-title">Library Admins & Staff</h5>
     </div>
   </div>
   <div class="card-body pt-3">
@@ -177,12 +182,12 @@ unset($_SESSION['message'], $_SESSION['code']);
       <table class="table table-hover align-middle datatable mb-0">
         <thead class="table-light text-secondary small text-uppercase">
           <tr>
-            <th style="width: 50px;">#</th>
+            <th class="col-index">#</th>
             <th>Name & Email</th>
             <th>Username</th>
-            <th>Address</th>
+            <th class="col-address">Address</th>
             <th>Creation Date</th>
-            <th class="text-end" style="width: 140px;">Actions</th>
+            <th class="text-end col-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -199,11 +204,11 @@ unset($_SESSION['message'], $_SESSION['code']);
                 </td>
                 <td>
                   <div class="badge bg-light text-dark border border-secondary-subtle px-2 py-1 mb-1">
-                    <i class="bi bi-person-workspace text-danger me-1"></i>@<?php echo htmlspecialchars($row['username']); ?>
+                    <i class="text-danger me-1"></i>@<?php echo htmlspecialchars($row['username']); ?>
                   </div>
                   <div><span class="badge bg-danger text-white px-2">Admin</span></div>
                 </td>
-                <td class="small text-wrap" style="max-width: 220px;">
+                <td class="small text-wrap col-address">
                   <?php echo htmlspecialchars($locStr ?: 'Main Office'); ?>
                 </td>
                 <td class="small text-secondary"><?php echo date('M d, Y', strtotime($row['dateCreated'])); ?></td>
@@ -245,7 +250,7 @@ unset($_SESSION['message'], $_SESSION['code']);
     <form action="/kmkdt-Library/app/controller/adminController.php" method="POST" class="modal-content border-0 shadow rounded-3">
       <input type="hidden" name="action" value="create">
       
-      <div class="modal-header text-white border-0 py-3" style="background-color: #5cb85c;">
+      <div class="modal-header text-white border-0 py-3 modal-header-create">
         <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2">
           <i class="bi bi-person-plus-fill fs-5"></i> Create New Registry Entry
         </h5>
@@ -289,7 +294,7 @@ unset($_SESSION['message'], $_SESSION['code']);
         
         <div class="d-flex align-items-center gap-2 mb-3">
           <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
-          <h6 class="fw-bold m-0 text-dark" style="font-size: 0.95rem;">Residential/Location Profile</h6>
+          <h6 class="fw-bold m-0 text-dark sub-profile-heading">Residential/Location Profile</h6>
         </div>
         
         <div class="row g-3">
@@ -309,8 +314,8 @@ unset($_SESSION['message'], $_SESSION['code']);
       </div>
       
       <div class="modal-footer bg-white border-0 pt-0 pb-4 pe-4">
-        <button type="button" class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-2" data-bs-dismiss="modal" style="border-color: #ccc; color: #666;">Cancel</button>
-        <button type="submit" class="btn text-white px-4 py-2 fw-semibold rounded-2" style="background-color: #5cb85c; border-color: #4cae4c;">Save Entry</button>
+        <button type="button" class="btn btn-outline-secondary btn-cancel-custom px-4 py-2 fw-semibold rounded-2" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn text-white btn-save-custom px-4 py-2 fw-semibold rounded-2">Save Entry</button>
       </div>
     </form>
   </div>
@@ -363,7 +368,7 @@ unset($_SESSION['message'], $_SESSION['code']);
         
         <div class="d-flex align-items-center gap-2 mb-3">
           <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
-          <h6 class="fw-bold m-0 text-dark" style="font-size: 0.95rem;">Residential/Location Profile</h6>
+          <h6 class="fw-bold m-0 text-dark sub-profile-heading">Residential/Location Profile</h6>
         </div>
         
         <div class="row g-3">
@@ -390,7 +395,7 @@ unset($_SESSION['message'], $_SESSION['code']);
   </div>
 </div> 
 
-<!-- MODAL: Confirm Deletion (Moved outside of edit modal container) -->
+<!-- MODAL: Confirm Deletion -->
 <div class="modal fade" id="deleteMemberModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <form action="/kmkdt-Library/app/controller/adminController.php" method="POST" class="modal-content border-0 shadow rounded-3">
