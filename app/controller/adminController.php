@@ -3,146 +3,28 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// ===== FOR REAL-TIME NAVBAR NOTIFICATIONS =====
-if (isset($_GET['action'])) {
-    $action = $_GET['action'];
-
-    
-    if (ob_get_length()) {
-        ob_clean();
-    }
-    header('Content-Type: application/json');
-
-    
-    if (!isset($conn)) {
-        $configPath = $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/config/config.php';
-        if (file_exists($configPath)) {
-            include_once($configPath);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Database connection context link unavailable.']);
-            exit();
-        }
-    }
-
-    // 1. ACTION: GET SYSTEM NOTIFICATIONS (WITH UNLIMITED OVERRIDE)
-    if ($action === 'getNotifications') {
-        
-        $isUnlimited = (isset($_GET['limit']) && $_GET['limit'] === 'none');
-        $notifications = getLiveOverdueNotifications($conn, $isUnlimited);
-
-        echo json_encode([
-            'success' => true,
-            'notifications' => $notifications
-        ]);
-        exit();
-    }
-
-    // 2. ACTION: MARK A SINGLE NOTIFICATION AS READ / DISMISSED
-    if ($action === 'markNotificationRead') {
-        $id = (int)($_GET['id'] ?? 0);
-        if ($id > 0) {
-            
-            if (!isset($_SESSION['dismissed_notifications'])) {
-                $_SESSION['dismissed_notifications'] = [];
-            }
-            $_SESSION['dismissed_notifications'][] = $id;
-        }
-        echo json_encode(['success' => true]);
-        exit();
-    }
-
-    
-    if ($action === 'clearAllNotifications') {
-        
-        $allActive = getLiveOverdueNotifications($conn, true);
-        if (!isset($_SESSION['dismissed_notifications'])) {
-            $_SESSION['dismissed_notifications'] = [];
-        }
-        foreach ($allActive as $noti) {
-            $_SESSION['dismissed_notifications'][] = $noti['id'];
-        }
-        echo json_encode(['success' => true]);
-        exit();
-    }
+// 1. GLOBAL DATABASE CONNECTION
+$configPath = $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/config/config.php';
+if (file_exists($configPath)) {
+    require_once($configPath);
+} else {
+    die("Configuration file not found at: " . $configPath);
 }
 
-// Safe Logout Interceptor
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logoutButton'])) {
-    $_SESSION = array(); 
+// Ensure $conn is available
+if (!isset($conn) || !$conn) {
+    die("Database connection failed.");
+}
 
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000,
-            $params["path"], $params["domain"],
-            $params["secure"], $params["httponly"]
-        );
-    }
+// ==========================================
+// 2. HELPER FUNCTIONS
+// ==========================================
 
-    session_destroy();
-    header("Location: /kmkdt-Library/public/login");
+function redirect($message, $code) {
+    $_SESSION['message'] = $message;
+    $_SESSION['code'] = $code;
+    header("Location: " . $_SERVER['HTTP_REFERER']);
     exit();
-}
-
-// 2. Data Queries
-function getAllMembers($conn) {
-    $sql = "SELECT id, fullName, role, dateCreated FROM user ORDER BY dateCreated ASC";
-    try {
-        $result = mysqli_query($conn, $sql);
-        if ($result) {
-            return mysqli_fetch_all($result, MYSQLI_ASSOC);
-        }
-    } catch (mysqli_sql_exception $e) {
-        die("Database Error: " . $e->getMessage());
-    }
-    return [];
-}
-
-function getCatalog($conn) {
-    $sql = "SELECT b.*, 
-            (SELECT h.status FROM borrowing_history h 
-             WHERE h.book_id = b.id 
-             AND h.status != 'returned' 
-             LIMIT 1) as active_status
-            FROM books b
-            ORDER BY b.id DESC";
-
-    $result = mysqli_query($conn, $sql);
-    if (!$result) {
-        return [];
-    }
-    return mysqli_fetch_all($result, MYSQLI_ASSOC);
-}
-
-function getRecentActivity($conn) {
-    $sql = "SELECT h.*, u.fullName, b.title 
-            FROM borrowing_history h
-            JOIN user u ON h.user_id = u.id
-            JOIN books b ON h.book_id = b.id
-            ORDER BY h.id DESC LIMIT 5";
-    try {
-        $result = mysqli_query($conn, $sql);
-        return ($result) ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
-    } catch (mysqli_sql_exception $e) {
-        return [];
-    }
-}
-
-function getCirculationRecords($conn) {
-    $sql = "SELECT 
-                h.id, 
-                u.fullName, 
-                b.title, 
-                h.borrowed_at, 
-                h.due_date, 
-                h.status,
-                h.renewal_count
-            FROM borrowing_history h
-            LEFT JOIN user u ON h.user_id = u.id 
-            LEFT JOIN books b ON h.book_id = b.id
-            ORDER BY h.id ASC";
-
-    $result = mysqli_query($conn, $sql);
-    return ($result) ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
 }
 
 function getLiveOverdueNotifications($conn, $isUnlimited = false) {
@@ -192,6 +74,148 @@ function getLiveOverdueNotifications($conn, $isUnlimited = false) {
     }
 }
 
+// ==========================================
+// 3. AJAX REQUESTS (GET)
+// ==========================================
+if (isset($_GET['action'])) {
+    header('Content-Type: application/json');
+    $action = $_GET['action'];
+
+    if ($action === 'getNotifications') {
+        $isUnlimited = (isset($_GET['limit']) && $_GET['limit'] === 'none');
+        echo json_encode(['success' => true, 'notifications' => getLiveOverdueNotifications($conn, $isUnlimited)]);
+        exit();
+    }
+
+    if ($action === 'markNotificationRead') {
+        $id = (int)($_GET['id'] ?? 0);
+        if ($id > 0) {
+            $_SESSION['dismissed_notifications'][] = $id;
+        }
+        echo json_encode(['success' => true]);
+        exit();
+    }
+
+    if ($action === 'clearAllNotifications') {
+        $allActive = getLiveOverdueNotifications($conn, true);
+        foreach ($allActive as $noti) {
+            $_SESSION['dismissed_notifications'][] = $noti['id'];
+        }
+        echo json_encode(['success' => true]);
+        exit();
+    }
+}
+
+// ==========================================
+// FORM ACTIONS (POST)
+// ==========================================
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+    // Logout Handler
+    if (isset($_POST['logoutButton'])) {
+        $_SESSION = array();
+        session_destroy();
+        header("Location: /kmkdt-Library/public/login");
+        exit();
+    }
+
+    // CRUD Handlers
+    if (isset($_POST['action'])) {
+        
+        // CREATE
+        if ($_POST['action'] === 'create') {
+            $username = trim($_POST['username']);
+            $email = filter_var($_POST['emailAddress'], FILTER_VALIDATE_EMAIL);
+
+            $stmt = $conn->prepare("INSERT INTO user (fullName, username, emailAddress, role, street, barangay, city, password, dateCreated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+            $hash = password_hash(!empty($_POST['password']) ? $_POST['password'] : 'Library123!', PASSWORD_DEFAULT);
+            $stmt->bind_param("ssssssss", $_POST['fullName'], $username, $email, $_POST['role'], $_POST['street'], $_POST['barangay'], $_POST['city'], $hash);
+            
+            if ($stmt->execute()) redirect("Member created successfully!", "success");
+            else redirect("Error: " . $stmt->error, "error");
+        }
+
+        // UPDATE
+        elseif ($_POST['action'] === 'update') {
+            $stmt = $conn->prepare("UPDATE user SET fullName = ?, emailAddress = ?, role = ?, street = ?, barangay = ?, city = ? WHERE username = ?");
+            $stmt->bind_param("sssssss", $_POST['fullName'], $_POST['emailAddress'], $_POST['role'], $_POST['street'], $_POST['barangay'], $_POST['city'], $_POST['username']);
+            
+            if ($stmt->execute()) redirect("Account updated successfully.", "success");
+            else redirect("Update failed: " . $stmt->error, "error");
+        }
+
+        // DELETE
+        elseif ($_POST['action'] === 'delete') {
+            $stmt = $conn->prepare("DELETE FROM user WHERE username = ?");
+            $stmt->bind_param("s", $_POST['username']);
+            
+            if ($stmt->execute()) redirect("User deleted successfully.", "warning");
+            else redirect("Delete failed: " . $stmt->error, "error");
+        }
+    }
+}
+// 2. Data Queries
+function getAllMembers($conn) {
+    $sql = "SELECT id, fullName, role, dateCreated FROM user ORDER BY dateCreated ASC";
+    try {
+        $result = mysqli_query($conn, $sql);
+        if ($result) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    } catch (mysqli_sql_exception $e) {
+        die("Database Error: " . $e->getMessage());
+    }
+    return [];
+}
+
+function getCatalog($conn) {
+    $sql = "SELECT b.*, 
+            (SELECT h.status FROM borrowing_history h 
+             WHERE h.book_id = b.id 
+             AND h.status != 'returned' 
+             LIMIT 1) as active_status
+            FROM books b
+            ORDER BY b.id ASC";
+
+    $result = mysqli_query($conn, $sql);
+    if (!$result) {
+        return [];
+    }
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+function getRecentActivity($conn) {
+    $sql = "SELECT h.*, u.fullName, b.title 
+            FROM borrowing_history h
+            JOIN user u ON h.user_id = u.id
+            JOIN books b ON h.book_id = b.id
+            ORDER BY h.id DESC LIMIT 5";
+    try {
+        $result = mysqli_query($conn, $sql);
+        return ($result) ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
+    } catch (mysqli_sql_exception $e) {
+        return [];
+    }
+}
+
+function getCirculationRecords($conn) {
+    $sql = "SELECT 
+                h.id, 
+                u.fullName, 
+                b.title, 
+                h.borrowed_at, 
+                h.due_date, 
+                h.status,
+                h.renewal_count
+            FROM borrowing_history h
+            LEFT JOIN user u ON h.user_id = u.id 
+            LEFT JOIN books b ON h.book_id = b.id
+            ORDER BY h.id ASC";
+
+    $result = mysqli_query($conn, $sql);
+    return ($result) ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
+}
+
 /**
  * Fetches aggregate circulation metrics for the Admin Dashboard Overview
  */
@@ -231,3 +255,4 @@ function getCirculationStats($conn) {
     
     return $stats;
 }
+?>

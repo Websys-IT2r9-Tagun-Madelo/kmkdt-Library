@@ -9,12 +9,12 @@ $adminId = $_SESSION['authUser']['user_id'] ?? $_SESSION['user_id'] ?? 4;
 ?>
 
   <div class="pagetitle">
-    <h1>Contacts & Inquiries</h1>
+    <h1>Message & Inquiries</h1>
     <nav>
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="index">Home</a></li>
-        <li class="breadcrumb-item">Admin Hub</li>
-        <li class="breadcrumb-item active">Contacts</li>
+        <li class="breadcrumb-item">Member Management</li>
+        <li class="breadcrumb-item active">Message Hub</li>
       </ol>
     </nav>
   </div>
@@ -72,6 +72,13 @@ $adminId = $_SESSION['authUser']['user_id'] ?? $_SESSION['user_id'] ?? 4;
     </div>
 
 <!-- MESSAGING SURFACE -->
+   <div class="row">
+    <div class="col-12">
+      <div style="margin-bottom: 20px;">
+        <h5 class="card-title" style="margin: 0; padding-bottom: 10px;">User Inquiries</h5>
+        <p style="color: #999; font-size: 12px; margin: 0;">Real-time messaging with registered users and co-admins</p>
+      </div>
+
 <div class="row">
       <div class="col-12 col-xl-12 col-xxl-10 mx-auto">
         <div class="card p-0 overflow-hidden shadow-sm border-0">

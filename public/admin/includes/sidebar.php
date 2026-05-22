@@ -11,17 +11,12 @@
       </a>
     </li>
 
-    <?php $library_active = in_array($page, ['members.php', 'catalog.php', 'circulation.php']); ?>
+    <?php $library_active = in_array($page, [ 'catalog.php', 'circulation.php']); ?>
     <li class="nav-item">
       <a class="nav-link <?= $library_active ? '' : 'collapsed' ?>" data-bs-target="#library-nav" data-bs-toggle="collapse" href="#">
         <i class="bi bi-journal-bookmark-fill"></i><span class="ms-3">Library Management</span><i class="bi bi-chevron-down"></i>
       </a>
       <ul id="library-nav" class="nav-content collapse <?= $library_active ? 'show' : '' ?>" data-bs-parent="#sidebar-nav">
-        <li>
-          <a href="members" class="<?= ($page == 'members.php') ? 'active' : '' ?>">
-            <i class="bi bi-circle-fill"></i><span>Members</span>
-          </a>
-        </li>
         <li>
           <a href="catalog" class="<?= ($page == 'catalog.php') ? 'active' : '' ?>">
             <i class="bi bi-circle-fill"></i><span>Catalog</span>
@@ -35,15 +30,20 @@
       </ul>
     </li>
 
-    <?php $client_active = in_array($page, ['accounts.php']); ?>
+    <?php $client_active = in_array($page, ['members.php', 'messageHub.php']); ?>
     <li class="nav-item">
       <a class="nav-link <?= $client_active ? '' : 'collapsed' ?>" data-bs-target="#client-nav" data-bs-toggle="collapse" href="#">
-        <i class="bi bi-person-bounding-box"></i><span class="ms-3">Client Management</span><i class="bi bi-chevron-down"></i>
+        <i class="bi bi-person-bounding-box"></i><span class="ms-3">Member Management</span><i class="bi bi-chevron-down"></i>
       </a>
       <ul id="client-nav" class="nav-content collapse <?= $client_active ? 'show' : '' ?>" data-bs-parent="#sidebar-nav">
         <li>
-          <a href="accounts" class="<?= ($page == 'accounts.php') ? 'active' : '' ?>">
-            <i class="bi bi-circle-fill"></i><span>Accounts</span>
+          <a href="members" class="<?= ($page == 'members.php') ? 'active' : '' ?>">
+            <i class="bi bi-circle-fill"></i><span>Members</span>
+          </a>
+        </li>
+        <li>
+          <a href="messageHub" class="<?= ($page == 'messageHub.php') ? 'active' : '' ?>">
+            <i class="bi bi-circle-fill"></i><span>Message Hub</span>
           </a>
         </li>
       </ul>
@@ -68,7 +68,7 @@
       </ul>
     </li>
 
-    <?php $admin_active = in_array($page, ['aProfile.php', 'messageHub.php']); ?>
+    <?php $admin_active = in_array($page, ['aProfile.php']); ?>
     <li class="nav-item">
       <a class="nav-link <?= $admin_active ? '' : 'collapsed' ?>" data-bs-target="#admin-nav" data-bs-toggle="collapse" href="#">
         <i class="bi bi-person-vcard-fill"></i><span class="ms-3">Admin Hub</span><i class="bi bi-chevron-down"></i>
@@ -77,11 +77,6 @@
         <li>
           <a href="aProfile" class="<?= ($page == 'aProfile.php') ? 'active' : '' ?>">
             <i class="bi bi-circle-fill"></i><span>Profile</span>
-          </a>
-        </li>
-        <li>
-          <a href="messageHub" class="<?= ($page == 'messageHub.php') ? 'active' : '' ?>">
-            <i class="bi bi-circle-fill"></i><span>Message Hub</span>
           </a>
         </li>
       </ul>

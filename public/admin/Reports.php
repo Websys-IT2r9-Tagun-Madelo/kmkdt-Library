@@ -89,14 +89,14 @@ include('./includes/sidebar.php');
     <div class="col-xxl-3 col-md-6">
       <div class="card info-card sales-card rounded-0 shadow-sm border-start border-primary border-4">
         <div class="card-body">
-          <h5 class="card-title text-muted small text-uppercase">On Loan</h5>
+          <h5 class="card-title text-muted small text-uppercase">On Borrow</h5>
           <div class="d-flex align-items-center">
             <div class="card-icon rounded-circle bg-light-primary text-primary d-flex align-items-center justify-content-center p-3 fs-3 me-3" style="width:50px; height:50px;">
               <i class="bi bi-journal-arrow-up"></i>
             </div>
             <div>
               <h6 class="fs-3 fw-bold mb-0"><?= $borrowedCount ?></h6>
-              <span class="text-muted small">Active loans</span>
+              <span class="text-muted small">Active Borrow</span>
             </div>
           </div>
         </div>
@@ -164,7 +164,7 @@ include('./includes/sidebar.php');
           <ul class="nav nav-tabs nav-tabs-buffered d-flex mb-3" id="reportTabs" role="tablist">
             <li class="nav-item flex-fill" role="presentation">
               <button class="nav-link w-100 active rounded-0 text-center fw-bold" id="borrowed-tab" data-bs-toggle="tab" data-bs-target="#tab-borrowed" type="button" role="tab">
-                <i class="bi bi-journal-arrow-up me-2"></i>Active Loans (<?= $borrowedCount ?>)
+                <i class="bi bi-journal-arrow-up me-2"></i>Active Borrows (<?= $borrowedCount ?>)
               </button>
             </li>
             <li class="nav-item flex-fill" role="presentation">
@@ -182,7 +182,7 @@ include('./includes/sidebar.php');
           <div class="tab-content pt-2" id="reportTabsContent">
             
             <div class="tab-pane fade show active" id="tab-borrowed" role="tabpanel">
-              <h5 class="card-title px-1">Current Active Book Loans</h5>
+              <h5 class="card-title px-1">Current Active Book Borrows</h5>
               <div class="table-responsive">
                 <table class="table table-hover align-middle custom-report-table">
                   <thead class="table-light">

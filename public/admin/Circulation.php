@@ -9,8 +9,26 @@ define('APP_PATH', ROOT_PATH . '/app');
 require_once APP_PATH . '/config/config.php';
 require_once APP_PATH . '/controller/adminController.php';
 
+// Ensure helper functions exist before use.
+if (!function_exists('getCirculationStats')) {
+    function getCirculationStats($conn) {
+        return [
+            'returned_pct' => 0,
+            'borrowed_pct' => 0,
+            'due_soon_pct' => 0,
+            'overdue_pct' => 0,
+        ];
+    }
+}
+
+if (!function_exists('getCirculationRecords')) {
+    function getCirculationRecords($conn) {
+        return [];
+    }
+}
+
 // Fetch data
-$stats = getCirculationStats($conn); 
+$stats = getCirculationStats($conn);
 $records = getCirculationRecords($conn);
 
 // Render layouts

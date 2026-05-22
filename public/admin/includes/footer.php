@@ -33,9 +33,10 @@
 <!-- Template Main JS File -->
 <script src="assets/js/main.js"></script>
 <script src="assets/js/catalog.js"></script>
+<script src="assets/js/noti.js"></script>
 <script src="/kmkdt-Library/public/admin/assets/js/adminMessenge.js"></script>
 <script src="/kmkdt-Library/public/admin/assets/js/messenge.js"></script>
-<script src="assets/js/noti.js"></script>
+<script src="/kmkdt-Library/public/admin/assets/js/members.js"></script>
 
 
 <?php

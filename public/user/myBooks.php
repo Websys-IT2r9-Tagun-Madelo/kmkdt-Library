@@ -114,7 +114,7 @@ include_once 'includes/tsbar.php';
                                     <div class="row g-0">
 
                                         <div class="col-lg-4 col-md-5 bg-white d-flex align-items-center justify-content-center p-5 border-end">
-                                            <img src="assets/images/books/<?= htmlspecialchars($book['cover_image'] ?? 'default.jpg'); ?>"
+                                            <img src="/kmkdt-Library/app/uploads/covers/<?= htmlspecialchars($book['cover_image'] ?? 'default.jpg'); ?>"
                                                  alt="Book Cover"
                                                  class="img-fluid rounded-4 shadow-lg book-cover-img">
                                         </div>

@@ -14,9 +14,6 @@ if (file_exists($configPath)) {
 
 $uid = $_SESSION['user_id'] ?? $_SESSION['authUser']['id'] ?? $_SESSION['authUser']['user_id'] ?? null;
 
-// =========================================================================
-// ADMIN PROFILE & PASSWORD COUPLING CONTROLLER ENGINE 
-// =========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     if (!$uid) {

@@ -47,7 +47,7 @@ if ($revenueQuery) {
     $totalRevenue = (float)($revenueQuery->fetch_assoc()['total_fines'] ?? 0.00);
 }
 
-// GET TOTAL MEMBERS REGISTERED (FIXED TO SHOW ALL 7 ACCOUNTS)
+// GET TOTAL MEMBERS REGISTERED 
 $memberQuery = $conn->query("SELECT COUNT(*) as total FROM user");
 if ($memberQuery) {
     $totalMembers = (int)$memberQuery->fetch_assoc()['total'];
@@ -90,7 +90,7 @@ include('./includes/sidebar.php');
     <div class="col-xxl-3 col-md-6">
       <div class="card info-card sales-card rounded-0 shadow-sm border-start border-primary border-4">
         <div class="card-body">
-          <h5 class="card-title text-muted small text-uppercase">Books On Loan</h5>
+          <h5 class="card-title text-muted small text-uppercase">Books Borrowed</h5>
           <div class="d-flex align-items-center">
             <div class="card-icon rounded-circle bg-light-primary text-primary d-flex align-items-center justify-content-center p-3 fs-3 me-3" style="width:50px; height:50px;">
               <i class="bi bi-journal-arrow-up"></i>
@@ -171,7 +171,7 @@ include('./includes/sidebar.php');
                 <i class="bi bi-graph-up fs-3 me-3"></i>
                 <div>
                   <div class="fw-bold">View Reports</div>
-                  <small class="text-muted">Analyze loans and violations</small>
+                  <small class="text-muted">Analyze Borrows and violations</small>
                 </div>
               </a>
             </div>

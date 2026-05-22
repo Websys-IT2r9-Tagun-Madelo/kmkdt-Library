@@ -1637,4 +1637,14 @@ h6 {
 .custom-report-table td { font-size: 14px; }
 
 
+.bg-success-light { background-color: #e6f6ed; }
+.text-success-dark { color: #155724; }
+.bg-warning-light { background-color: #fff3cd; }
+.text-warning-dark { color: #856404; }
+.fs-7 { font-size: 0.85rem; }
 
+#createMemberModal .form-control,
+#createMemberModal .form-select,
+#createMemberModal .input-group-text {
+    height: 41px;
+}

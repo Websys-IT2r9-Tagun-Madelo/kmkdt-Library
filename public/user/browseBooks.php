@@ -117,14 +117,14 @@ include_once 'includes/tsbar.php';
                             data-category="<?= htmlspecialchars($category); ?>"
                             data-genre="<?= htmlspecialchars($row['genre']); ?>"
                             data-desc="<?= htmlspecialchars($row['description'] ?? 'No description available.'); ?>"
-                            data-img="assets/images/books/<?= htmlspecialchars($row['cover_image'] ?? 'default-cover.jpg'); ?>"
+                            data-img="/kmkdt-Library/app/uploads/covers/<?= htmlspecialchars($row['cover_image'] ?? 'default-cover.jpg'); ?>"
                             data-id="<?= $row['id']; ?>"
                             data-status="<?= $status; ?>"
                             data-online="<?= $isOnline ? 'true' : 'false'; ?>"
                             data-loan-period="<?= $loanPeriod; ?>">
 
                             <div class="img-container">
-                                <img src="assets/images/books/<?= htmlspecialchars($row['cover_image'] ?? 'default-cover.jpg'); ?>" alt="Cover">
+                                <img src="/kmkdt-Library/app/uploads/covers/<?= htmlspecialchars($row['cover_image'] ?? 'default-cover.jpg'); ?>" alt="Cover">
                             </div>
 
                             <div class="card-body-custom flex-grow-1 p-3">

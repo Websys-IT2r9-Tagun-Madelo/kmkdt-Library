@@ -346,7 +346,7 @@ include('./includes/tsbar.php');
               <div class="accordion-body text-muted pb-4 px-0">
                 Standard loan duration for physical books is 14 days. Fiction books may be borrowed for up to 30 days,
                 while nonfiction and educational materials are available for 14 days.
-                Renewals can be requested through your dashboard under the “Borrowed Books” section, up to 2 times.
+                Renewals can be requested through your dashboard under the “My Borrowed Books” section, up to 2 times.
               </div>
             </div>
           </div>
