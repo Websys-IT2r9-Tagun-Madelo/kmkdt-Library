@@ -30,10 +30,14 @@ document.addEventListener('DOMContentLoaded', function () {
         deleteMemberModal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
             
+            const email = button.getAttribute('data-email');
             const username = button.getAttribute('data-username');
             const fullName = button.getAttribute('data-fullname');
 
+            // Set the hidden input for email
+            document.getElementById('delete_email').value = email || '';
             document.getElementById('delete_username').value = username || '';
+            
             document.getElementById('delete_username_display').textContent = username ? '@' + username : '';
             document.getElementById('delete_fullname_display').textContent = fullName || '';
         });

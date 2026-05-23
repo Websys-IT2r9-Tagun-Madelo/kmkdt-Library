@@ -1,11 +1,9 @@
 <?php
 include('../../app/middleware/admin.php');
 
-// Set root path constants
 define('ROOT_PATH', dirname(__DIR__, 2));
 define('APP_PATH', ROOT_PATH . '/app');
 
-// Include core dependencies
 require_once APP_PATH . '/config/config.php';
 require_once APP_PATH . '/controller/adminController.php';
 
@@ -147,6 +145,7 @@ include('./includes/sidebar.php');
                     </button>
                     <button class="btn btn-sm btn-outline-danger border-0 rounded-2 py-1 px-2 btn-delete-trigger" title="Delete User"
                             data-bs-toggle="modal" data-bs-target="#deleteMemberModal"
+                            data-email="<?php echo htmlspecialchars($row['emailAddress']); ?>"
                             data-username="<?php echo htmlspecialchars($row['username']); ?>"
                             data-fullname="<?php echo htmlspecialchars($row['fullName']); ?>">
                       <i class="bi bi-trash3-fill fs-6"></i>
@@ -222,6 +221,7 @@ include('./includes/sidebar.php');
                     </button>
                     <button class="btn btn-sm btn-outline-danger border-0 rounded-2 py-1 px-2 btn-delete-trigger" title="Delete Admin"
                             data-bs-toggle="modal" data-bs-target="#deleteMemberModal"
+                            data-email="<?php echo htmlspecialchars($row['emailAddress']); ?>"
                             data-username="<?php echo htmlspecialchars($row['username']); ?>"
                             data-fullname="<?php echo htmlspecialchars($row['fullName']); ?>">
                       <i class="bi bi-trash3-fill fs-6"></i>
@@ -363,21 +363,21 @@ include('./includes/sidebar.php');
         
         <div class="d-flex align-items-center gap-2 mb-3">
           <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
-          <h6 class="fw-bold m-0 text-dark sub-profile-heading">Residential/Location Profile</h6>
+          <h6 class="fw-bold m-0 text-dark sub-profile-heading">Residential/Location Profile(Display only. Only account owners can update their address.)</address></h6>
         </div>
         
         <div class="row g-3">
           <div class="col-md-4">
             <label class="form-label small fw-bold text-secondary text-uppercase">Street / House No.</label>
-            <input type="text" name="street" id="edit_street" class="form-control rounded-2 border-secondary-subtle py-2">
+            <input type="text" name="street" id="edit_street" class="form-control rounded-2 border-secondary-subtle py-2" disabled>
           </div>
           <div class="col-md-4">
             <label class="form-label small fw-bold text-secondary text-uppercase">Barangay</label>
-            <input type="text" name="barangay" id="edit_barangay" class="form-control rounded-2 border-secondary-subtle py-2">
+            <input type="text" name="barangay" id="edit_barangay" class="form-control rounded-2 border-secondary-subtle py-2"disabled >
           </div>
           <div class="col-md-4">
             <label class="form-label small fw-bold text-secondary text-uppercase">City / Municipality</label>
-            <input type="text" name="city" id="edit_city" class="form-control rounded-2 border-secondary-subtle py-2">
+            <input type="text" name="city" id="edit_city" class="form-control rounded-2 border-secondary-subtle py-2" disabled>
           </div>
         </div>
       </div>
@@ -395,6 +395,7 @@ include('./includes/sidebar.php');
   <div class="modal-dialog modal-dialog-centered">
     <form action="/kmkdt-Library/app/controller/adminController.php" method="POST" class="modal-content border-0 shadow rounded-3">
       <input type="hidden" name="action" value="delete">
+      <input type="hidden" name="email" id="delete_email"> 
       <input type="hidden" name="username" id="delete_username">
       
       <div class="modal-header bg-danger text-white border-0 py-3">
@@ -419,5 +420,15 @@ include('./includes/sidebar.php');
     </form>
   </div>
 </div>
-
+<?php if (isset($_SESSION['message'])): ?>
+    <div class="alert alert-<?php echo $_SESSION['code']; ?>">
+        <i class="icon-<?php echo $_SESSION['code']; ?>"></i> <?php echo htmlspecialchars($_SESSION['message']); ?>
+        <button type="button" onclick="this.parentElement.style.display='none';">&times;</button>
+    </div>
+    <?php 
+        // Clear message so it doesn't show on refresh
+        unset($_SESSION['message']); 
+        unset($_SESSION['code']);
+    ?>
+<?php endif; ?>
 <?php include('./includes/footer.php'); ?>

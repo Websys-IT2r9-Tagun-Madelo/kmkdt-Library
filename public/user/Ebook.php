@@ -1,5 +1,4 @@
 <?php
-
 require_once dirname(__DIR__, 2) . '/app/controller/userController.php'; 
 
 if (isset($_GET['action']) && $_GET['action'] === 'close') {

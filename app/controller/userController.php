@@ -1,19 +1,23 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
     session_name('KMKDT_USER_SESSION'); 
-    session_start();
+    session_set_cookie_params(0, '/'); 
+    session_start();                     
 }
 
-// 1. DATABASE & CONFIGURATION
-$appPath = dirname(__DIR__);
-$configPath = $appPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
+if (!defined('USER_CONTROLLER_INITIALIZED')) {
+    define('USER_CONTROLLER_INITIALIZED', true);
 
-if (file_exists($configPath)) {
-    include_once($configPath);
-} else {
-    die("Config file not found at: " . $configPath);
+    // Use localized scope names to prevent breaking variables on main pages
+    $ctrlAppPath = dirname(__DIR__);
+    $ctrlConfigPath = $ctrlAppPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
+
+    if (file_exists($ctrlConfigPath)) {
+        include_once($ctrlConfigPath);
+    } else {
+        die("Config file not found at: " . $ctrlConfigPath);
+    }
 }
-
 // 2. REAL-TIME STUDENT NOTIFICATION POLLING INTERCEPTOR
 if (isset($_GET['action']) && $_GET['action'] === 'get_live_user_updates') {
     if (ob_get_length()) ob_clean();

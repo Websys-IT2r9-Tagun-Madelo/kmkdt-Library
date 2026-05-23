@@ -8,7 +8,7 @@
   --bs-warning: #ff8f07 !important; 
   --bs-online: #091268;
   --bs-reserve:#92ca31;
-  --borrowed: #38aee1;
+  --borrowed: #2dd0c5;
   --borrowed-light: #edf9ff; 
   --borrowed-subtle: #d6efff; 
 }
@@ -1894,4 +1894,24 @@ h6 {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+}
+
+.alert-success {
+    background-color: #d4edda !important;
+    color: #155724 !important;          
+    border: 1px solid #c3e6cb !important;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    opacity: 1 !important;
+}
+
+.alert-error {
+    background-color: #f8d7da !important; 
+    color: #721c24 !important;            
+    border: 1px solid #f5c6cb !important;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    opacity: 1 !important;
 }

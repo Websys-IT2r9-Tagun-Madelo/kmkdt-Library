@@ -19594,15 +19594,15 @@ textarea.form-control-lg {
   text-align: center;
   background-color: transparent;
 }
+
 .page-wrapper .hero-banner .lead {
   max-width: 600px;
 }
+
 .page-wrapper .search-wrapper .form-control {
   font-size: 1.25rem;
 }
-.page-wrapper .search-wrapper .filter-pill {
-  text-decoration: none;
-}
+
 .page-wrapper .modern-book-card {
   cursor: pointer;
   display: -webkit-box;
@@ -19614,58 +19614,81 @@ textarea.form-control-lg {
           flex-direction: column;
   height: 100%;
 }
-.page-wrapper .modern-book-card .card-body-custom {
-  -webkit-box-flex: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
+
+.btn-read-online {
+  background-color: #0b6ac3 !important;
+  color: #212529 !important;
+  border: none !important;
+  -webkit-transition: background-color 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out;
 }
-.page-wrapper .modern-book-card .card-body-custom .badge-category {
-  display: inline-block;
-  white-space: nowrap;
-}
-.page-wrapper .modern-book-card .card-body-custom .loan-tag {
-  display: -webkit-inline-box !important;
-  display: -ms-inline-flexbox !important;
-  display: inline-flex !important;
-  -webkit-box-align: center !important;
-      -ms-flex-align: center !important;
-          align-items: center !important;
-  gap: 4px !important;
-  line-height: 1 !important;
-  vertical-align: middle !important;
-  white-space: nowrap;
-}
-.page-wrapper .modern-book-card .card-footer-custom {
-  margin-top: auto;
-}
-.page-wrapper .modern-book-card .card-footer-custom .btn-read-online {
-  background-color: #07427a !important;
+
+.btn-read-online:hover {
+  background-color: #191717 !important;
   color: #ffffff !important;
-  border: none;
+  border-color: rgba(245, 245, 245, 0.9215686275) !important;
 }
-.page-wrapper .modern-book-card .card-footer-custom .btn-read-online:hover {
-  background-color: rgb(4.2325581395, 39.9069767442, 73.7674418605) !important;
+
+.btn-read-online:active {
+  background-color: #191717 !important;
+  color: #ffffff !important;
+  border-color: rgba(245, 245, 245, 0.9215686275) !important;
+  -webkit-transform: translateY(1px);
+          transform: translateY(1px);
+}
+
+.badge-active {
+  background-color: hsla(241, 100%, 50%, 0.1);
+  color: rgba(10, 18, 95, 0.8588235294);
+  border-color: rgba(0, 25, 212, 0.3) !important;
+}
+
+.badge-borrowed {
+  background-color: rgba(13, 220, 161, 0.1);
+  color: #0d6938;
+  border-color: rgba(0, 212, 187, 0.3) !important;
+}
+
+.tag-badge {
+  background-color: #22c55e;
+  font-size: 0.85rem;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.btn.btn-online-custom {
+  background-color: rgba(9, 19, 104, 0.4862745098);
+  border-color: rgba(9, 19, 104, 0.4156862745);
+}
+
+.btn.btn-online-custom:hover, .btn.btn-online-custom:active {
+  background-color: #470a8c;
+  border-color: #050a44;
+  color: #ffffff;
+}
+
+.btn.btn-borrowed-custom {
+  background-color: rgba(5, 95, 77, 0.3647058824);
+  border-color: rgba(10, 169, 158, 0.3647058824);
+}
+
+.btn.btn-borrowed-custom:hover, .btn.btn-borrowed-custom:active {
+  background-color: #128475;
+  border-color: rgba(17, 47, 56, 0.7058823529);
+  color: #212529;
 }
 
 #bookModal .modal-content {
   border-radius: 20px;
 }
-#bookModal .modal-header {
-  border-radius: 20px 20px 0 0;
-}
-#bookModal .modal-body #modalImg {
-  max-height: 400px;
-}
+
 #bookModal .modal-body #modalGenre {
   background-color: #22c55e;
   font-size: 0.85rem;
-}
-#bookModal .modal-body #modalDesc {
-  line-height: 1.6;
-  font-size: 0.95rem;
-}
-#bookModal .modal-footer {
-  border-radius: 0 0 20px 20px;
 }
 
 * {

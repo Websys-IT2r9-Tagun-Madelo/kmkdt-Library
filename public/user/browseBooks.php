@@ -128,20 +128,19 @@ include_once 'includes/tsbar.php';
                                 <?php if ($isOnline): ?>
                                     <?php if ($currentReadingId == $row['id']): ?>
                                         <div class="d-flex flex-column gap-2 mt-2">
-                                            <div class="text-center small fw-bold py-2 rounded-pill d-inline-flex align-items-center justify-content-center border" 
-                                                style="background-color: rgba(0, 240, 255, 0.1); color: #00bcd4; border-color: rgba(0, 188, 212, 0.3) !important;">
+                                            <div class="badge-active text-center small fw-bold py-2 rounded-pill d-inline-flex align-items-center justify-content-center border">
                                                 <iconify-icon icon="lucide:book-open" class="me-1 fs-5"></iconify-icon> 
                                                 <span>Currently Active</span>
                                             </div>
+
                                             <a href="/kmkdt-Library/public/user/eBook?id=<?= $row['id']; ?>" 
-                                            class="btn text-white rounded-pill w-100 fw-bold shadow-sm" 
-                                            style="background-color: #00bcd4;">
+                                            class="btn btn-online-custom text-white rounded-pill w-100 fw-bold shadow-sm">
                                                 Resume Reading
                                             </a>
                                         </div>
-                                    <?php else: ?>
+                                        <?php else: ?>
                                         <a href="/kmkdt-Library/public/user/eBook?id=<?= $row['id']; ?>" 
-                                        class="btn rounded-pill w-100 mt-2 btn-read-online" 
+                                        class="btn btn-read-online rounded-pill w-100 mt-2 fw-bold shadow-sm" 
                                         onclick="return confirm('Warning: Opening this may remove your previous e-book.');">
                                             Read Online
                                         </a>
@@ -153,8 +152,19 @@ include_once 'includes/tsbar.php';
                                     onclick="return confirm('Are you sure you want to borrow this book for <?= $loanPeriod; ?>?');">
                                         Borrow Book
                                     </a>
-                                <?php elseif ($status === 'owned'): ?>  
-                                    <button class="btn btn-secondary w-100 rounded-pill disabled">In Your Shelf</button>
+                                <?php elseif ($status === 'owned' || $status === 'borrowed'): ?>  
+                                    <div class="d-flex flex-column gap-2 mt-2">
+                                        <div class="badge-borrowed text-center small fw-bold py-2 rounded-pill d-inline-flex align-items-center justify-content-center border">
+                                            <iconify-icon icon="lucide:clock" class="me-1 fs-5"></iconify-icon> 
+                                            <span>Borrowed</span>
+                                        </div>
+                                        
+                                        <!-- Action Button -->
+                                        <a href="/kmkdt-Library/public/user/myBooks" 
+                                        class="btn btn-borrowed-custom text-white rounded-pill w-100 fw-bold shadow-sm">
+                                            In Your Borrowed Books
+                                        </a>
+                                    </div>
                                 <?php else: ?>
                                     <div class="p-2 bg-dark rounded border border-secondary text-center small w-100">
                                         <div class="text-white mb-1">

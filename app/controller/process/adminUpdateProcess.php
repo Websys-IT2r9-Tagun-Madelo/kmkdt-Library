@@ -5,7 +5,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();                     
 }
 
-
 $configPath = dirname(__DIR__, 2) . '/config/config.php';
 if (file_exists($configPath)) {
     require_once $configPath;
@@ -16,24 +15,29 @@ if (file_exists($configPath)) {
 $uid = $_SESSION['user_id'] ?? $_SESSION['authUser']['id'] ?? $_SESSION['authUser']['user_id'] ?? null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-
     if (!$uid) {
-        $_SESSION['message'] = "Unauthorized system attempt detected. Please sign in again.";
+        $_SESSION['message'] = "Unauthorized system attempt detected.";
         $_SESSION['code'] = "error";
         header("Location: " . ($_SERVER['HTTP_REFERER'] ?? '../../views/admin/profile.php'));
         exit();
     }
 
     if ($_POST['action'] === 'updateProfileEverything') {
-        $fullName     = isset($_POST['fullName']) ? trim($_POST['fullName']) : '';
-        $username     = isset($_POST['username']) ? trim($_POST['username']) : '';
-        $emailAddress = isset($_POST['emailAddress']) ? trim($_POST['emailAddress']) : ''; 
-        $street       = isset($_POST['street']) ? trim($_POST['street']) : '';
-        $barangay     = isset($_POST['barangay']) ? trim($_POST['barangay']) : '';
-        $city         = isset($_POST['city']) ? trim($_POST['city']) : '';
-        $password     = isset($_POST['password']) ? $_POST['password'] : '';
-        $confirmPass  = isset($_POST['confirmPassword']) ? $_POST['confirmPassword'] : '';
+        $_SESSION['old_input'] = $_POST;
 
+        // Get the ID of the user being edited (if it's a hidden input, use it; otherwise fallback to $uid)
+        $targetId = isset($_POST['id']) ? (int)$_POST['id'] : $uid;
+
+        $fullName     = trim($_POST['fullName']);
+        $username     = trim($_POST['username']);
+        $emailAddress = trim($_POST['emailAddress']);
+        $password     = $_POST['password'];
+        $confirmPass  = $_POST['confirmPassword'];
+
+        // --- LOGIC: Is this the owner? ---
+        $isOwner = ($uid == $targetId);
+
+        // 1. Mandatory Fields & Email Validation
         if (empty($fullName) || empty($username) || empty($emailAddress)) {
             $_SESSION['message'] = "Full Name, Username, and Email fields are mandatory.";
             $_SESSION['code'] = "error";
@@ -41,75 +45,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             exit();
         }
 
-        if (!isset($conn) || !$conn) {
-            $_SESSION['message'] = "Database connectivity failure: Connection instance missing.";
+        if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['message'] = "Invalid email format.";
             $_SESSION['code'] = "error";
             header("Location: " . $_SERVER['HTTP_REFERER']);
             exit();
         }
 
-        if (!empty($password)) {
-            if ($password !== $confirmPass) {
-                $_SESSION['message'] = "Validation mismatch: Password verification fields do not match.";
-                $_SESSION['code']    = "error";
-                header("Location: " . $_SERVER['HTTP_REFERER']);
-                exit();
-            }
-            
-            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-            
-            $query = "UPDATE user SET fullName = ?, username = ?, emailAddress = ?, street = ?, barangay = ?, city = ?, password = ? WHERE id = ?";
-            $stmt  = mysqli_prepare($conn, $query);
-            if ($stmt) {
-                mysqli_stmt_bind_param($stmt, "sssssssi", $fullName, $username, $emailAddress, $street, $barangay, $city, $hashedPassword, $uid);
-            }
-        } else {
-            $query = "UPDATE user SET fullName = ?, username = ?, emailAddress = ?, street = ?, barangay = ?, city = ? WHERE id = ?";
-            $stmt  = mysqli_prepare($conn, $query);
-            if ($stmt) {
-                mysqli_stmt_bind_param($stmt, "ssssssi", $fullName, $username, $emailAddress, $street, $barangay, $city, $uid);
-            }
+        // 2. Duplicate Prevention
+        $checkQuery = "SELECT username FROM user WHERE (username = ? OR emailAddress = ?) AND id != ? LIMIT 1";
+        $checkStmt = mysqli_prepare($conn, $checkQuery);
+        mysqli_stmt_bind_param($checkStmt, "ssi", $username, $emailAddress, $targetId);
+        mysqli_stmt_execute($checkStmt);
+        if (mysqli_fetch_assoc(mysqli_stmt_get_result($checkStmt))) {
+            $_SESSION['message'] = "Username or Email already taken.";
+            $_SESSION['code'] = "error";
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit();
         }
 
-        if ($stmt) {
-            if (mysqli_stmt_execute($stmt)) {
-                
-                if (isset($_SESSION['fullName'])) $_SESSION['fullName'] = $fullName;
-                if (isset($_SESSION['emailAddress'])) $_SESSION['emailAddress'] = $emailAddress;
-                if (isset($_SESSION['username'])) $_SESSION['username'] = $username;
+        // 3. Dynamic Query Builder
+        if ($isOwner) {
+            // --- OWNER CAN UPDATE EVERYTHING ---
+            $street = trim($_POST['street']);
+            $barangay = trim($_POST['barangay']);
+            $city = trim($_POST['city']);
 
-    
-                if (isset($_SESSION['authUser']) && is_array($_SESSION['authUser'])) {
-                    $_SESSION['authUser']['fullName']     = $fullName;
-                    $_SESSION['authUser']['username']     = $username;
-                    $_SESSION['authUser']['emailAddress'] = $emailAddress;
-                    $_SESSION['authUser']['street']       = $street;
-                    $_SESSION['authUser']['barangay']     = $barangay;
-                    $_SESSION['authUser']['city']         = $city;
-                }
-                
-                if (isset($_SESSION['auth_user']) && is_array($_SESSION['auth_user'])) {
-                    $_SESSION['auth_user']['fullName']     = $fullName;
-                    $_SESSION['auth_user']['username']     = $username;
-                    $_SESSION['auth_user']['emailAddress'] = $emailAddress;
-                    $_SESSION['auth_user']['street']       = $street;
-                    $_SESSION['auth_user']['barangay']     = $barangay;
-                    $_SESSION['auth_user']['city']         = $city;
-                }
-
-                $_SESSION['message'] = "Profile details successfully synchronized!";
-                $_SESSION['code']    = "success";
+            if (!empty($password)) {
+                $hashed = password_hash($password, PASSWORD_BCRYPT);
+                $query = "UPDATE user SET fullName=?, username=?, emailAddress=?, street=?, barangay=?, city=?, password=? WHERE id=?";
+                $stmt = mysqli_prepare($conn, $query);
+                mysqli_stmt_bind_param($stmt, "sssssssi", $fullName, $username, $emailAddress, $street, $barangay, $city, $hashed, $targetId);
             } else {
-                $_SESSION['message'] = "Database error: " . mysqli_stmt_error($stmt);
-                $_SESSION['code']    = "error";
+                $query = "UPDATE user SET fullName=?, username=?, emailAddress=?, street=?, barangay=?, city=? WHERE id=?";
+                $stmt = mysqli_prepare($conn, $query);
+                mysqli_stmt_bind_param($stmt, "ssssssi", $fullName, $username, $emailAddress, $street, $barangay, $city, $targetId);
             }
-            mysqli_stmt_close($stmt);
         } else {
-            $_SESSION['message'] = "Internal statement architectural error: " . mysqli_error($conn);
-            $_SESSION['code']    = "error";
+            // --- ADMIN CAN ONLY UPDATE PROFILE ---
+            if (!empty($password)) {
+                $hashed = password_hash($password, PASSWORD_BCRYPT);
+                $query = "UPDATE user SET fullName=?, username=?, emailAddress=?, password=? WHERE id=?";
+                $stmt = mysqli_prepare($conn, $query);
+                mysqli_stmt_bind_param($stmt, "ssssi", $fullName, $username, $emailAddress, $hashed, $targetId);
+            } else {
+                $query = "UPDATE user SET fullName=?, username=?, emailAddress=? WHERE id=?";
+                $stmt = mysqli_prepare($conn, $query);
+                mysqli_stmt_bind_param($stmt, "sssi", $fullName, $username, $emailAddress, $targetId);
+            }
         }
 
+        // 4. Execution
+        if (mysqli_stmt_execute($stmt)) {
+            $_SESSION['message'] = "Profile updated successfully!";
+            $_SESSION['code'] = "success";
+        } else {
+            $_SESSION['message'] = "Update failed: " . mysqli_stmt_error($stmt);
+            $_SESSION['code'] = "error";
+        }
+        
         header("Location: " . $_SERVER['HTTP_REFERER']);
         exit();
     }
 }
+?>

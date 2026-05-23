@@ -1,4 +1,6 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/middleware/userAuth.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_name('KMKDT_USER_SESSION');
     session_set_cookie_params(0, '/'); 

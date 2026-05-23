@@ -123,38 +123,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CRUD Handlers
     if (isset($_POST['action'])) {
         
-        // CREATE
+        // --- CREATE ---
         if ($_POST['action'] === 'create') {
             $username = trim($_POST['username']);
-            $email = filter_var($_POST['emailAddress'], FILTER_VALIDATE_EMAIL);
+            $email = trim($_POST['emailAddress']);
+
+            // Validate Email
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                redirect("Please enter a valid email address (e.g., name@domain.com).", "error");
+            }
+
+            // Check for existing user
+            $check = $conn->prepare("SELECT id FROM user WHERE username = ? OR emailAddress = ?");
+            $check->bind_param("ss", $username, $email);
+            $check->execute();
+            if ($check->get_result()->num_rows > 0) {
+                redirect("Username or Email is already in use.", "error");
+            }
 
             $stmt = $conn->prepare("INSERT INTO user (fullName, username, emailAddress, role, street, barangay, city, password, dateCreated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
             $hash = password_hash(!empty($_POST['password']) ? $_POST['password'] : 'Library123!', PASSWORD_DEFAULT);
             $stmt->bind_param("ssssssss", $_POST['fullName'], $username, $email, $_POST['role'], $_POST['street'], $_POST['barangay'], $_POST['city'], $hash);
             
             if ($stmt->execute()) redirect("Member created successfully!", "success");
-            else redirect("Error: " . $stmt->error, "error");
+            else redirect("Database error: " . $stmt->error, "error");
         }
 
-        // UPDATE
+        // --- UPDATE ---
         elseif ($_POST['action'] === 'update') {
-            $stmt = $conn->prepare("UPDATE user SET fullName = ?, emailAddress = ?, role = ?, street = ?, barangay = ?, city = ? WHERE username = ?");
-            $stmt->bind_param("sssssss", $_POST['fullName'], $_POST['emailAddress'], $_POST['role'], $_POST['street'], $_POST['barangay'], $_POST['city'], $_POST['username']);
-            
-            if ($stmt->execute()) redirect("Account updated successfully.", "success");
-            else redirect("Update failed: " . $stmt->error, "error");
-        }
+            $username = trim($_POST['username']);
+            $email = trim($_POST['emailAddress']);
+            $fullName = trim($_POST['fullName']);
+            $role = $_POST['role'];
+            $id = $_POST['id'] ?? null; 
 
-        // DELETE
-        elseif ($_POST['action'] === 'delete') {
-            $stmt = $conn->prepare("DELETE FROM user WHERE username = ?");
-            $stmt->bind_param("s", $_POST['username']);
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                redirect("Please enter a valid email address.", "error");
+            }
+
+            // 1. Duplicate Check
+            $check = $conn->prepare("SELECT id FROM user WHERE (LOWER(username) = LOWER(?) OR LOWER(emailAddress) = LOWER(?)) AND id != ? LIMIT 1");
+            $check->bind_param("ssi", $username, $email, $id);
+            $check->execute();
             
-            if ($stmt->execute()) redirect("User deleted successfully.", "warning");
-            else redirect("Delete failed: " . $stmt->error, "error");
+            if ($check->get_result()->num_rows > 0) {
+                redirect("That username or email is already taken by another user.", "error");
+            }
+
+            $stmt = $conn->prepare("UPDATE user SET fullName = ?, emailAddress = ?, role = ?, username = ? WHERE id = ?");
+            $stmt->bind_param("ssssi", $fullName, $email, $role, $username, $id);
+            
+            if ($stmt->execute()) {
+                if ($stmt->affected_rows > 0) {
+                    redirect("Profile updated successfully (Location profile preserved).", "success");
+                } else {
+                    redirect("No changes were made to the profile.", "info");
+                }
+            } else {
+                redirect("Database error: " . $stmt->error, "error");
+            }
+        }
+        // --- DELETE ---
+        elseif ($_POST['action'] === 'delete') {
+            $email = $_POST['email'] ?? null;
+
+            if (!$email) {
+                redirect("Error: No email provided for deletion.", "error");
+            }
+
+            $stmt = $conn->prepare("DELETE FROM user WHERE emailAddress = ?");
+            $stmt->bind_param("s", $email);
+            
+            if ($stmt->execute()) {
+                if ($stmt->affected_rows > 0) {
+                    redirect("User deleted successfully.", "warning");
+                } else {
+                    redirect("User not found.", "error");
+                }
+            } else {
+                redirect("Delete failed: " . $stmt->error, "error");
+            }
         }
     }
 }
+    
 // 2. Data Queries
 function getAllMembers($conn) {
     $sql = "SELECT id, fullName, role, dateCreated FROM user ORDER BY dateCreated ASC";

@@ -74,9 +74,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (elements.img) elements.img.src = data.img;
 
         if (elements.categoryContainer) {
-          let tagsHTML = `<span class="badge rounded-pill px-3 py-2 text-white fw-semibold" style="background-color: #22c55e; font-size: 0.85rem; display: inline-flex; align-items: center;">${data.category}</span>`;
+          let tagsHTML = `<span class="badge rounded-pill px-3 py-2 text-white fw-semibold tag-badge">${data.category}</span>`;
           if (data.genre && data.genre.toLowerCase() !== data.category.toLowerCase()) {
-            tagsHTML += `<span class="badge rounded-pill px-3 py-2 text-white fw-semibold" style="background-color: #22c55e; font-size: 0.85rem; display: inline-flex; align-items: center;">${data.genre}</span>`;
+              tagsHTML += `<span class="badge rounded-pill px-3 py-2 text-white fw-semibold tag-badge">${data.genre}</span>`;
           }
           elements.categoryContainer.innerHTML = tagsHTML;
           elements.categoryContainer.className = "d-flex align-items-center gap-2 mb-3"; 
@@ -103,23 +103,21 @@ document.addEventListener("DOMContentLoaded", function () {
             if (hasActiveSession) {
               actionContainer.innerHTML = `
                 <div class="d-flex flex-column gap-2 w-100">
-                    <div class="text-center small fw-bold py-2 rounded-pill d-inline-flex align-items-center justify-content-center border" 
-                         style="background-color: rgba(0, 240, 255, 0.1); color: #00bcd4; border-color: rgba(0, 188, 212, 0.3) !important;">
-                        <iconify-icon icon="lucide:book-open" class="me-1 fs-5"></iconify-icon> 
+                    <div class="badge-active text-white small fw-bold py-2 rounded-pill d-inline-flex align-items-center justify-content-center border">
+                        <iconify-icon icon="lucide:book-open" class="me-1 fs-5"></iconify-icon>
                         <span>Currently Active</span>
                     </div>
-                    <a href="${projectRoot}/public/user/eBook?id=${data.id}" 
-                       class="btn text-white rounded-pill w-100 fw-bold shadow-sm" 
-                       style="background-color: #00bcd4;">
+                    <a href="${projectRoot}/public/user/eBook?id=${data.id}"
+                    class="btn btn-online-custom text-white rounded-pill w-100 fw-bold shadow-sm">
                        Resume Reading
                     </a>
                 </div>`;
             } else {
               actionContainer.innerHTML = `
                 <a href="${projectRoot}/public/user/eBook?id=${data.id}" 
-                   class="btn rounded-pill w-100 text-white" 
-                   style="background-color: #07427a;"
-                   onclick="return confirm('Warning: Opening this may remove your previous e-book.');">Read Online</a>`;
+                class="btn rounded-pill w-100 mt-2 btn-read-online fw-bold shadow-sm" 
+                onclick="return confirm('Warning: Opening this may remove your previous e-book.');">
+                Read Online</a>`;
             }
           } else if (data.status === "available") {
             actionContainer.innerHTML = `
@@ -127,7 +125,16 @@ document.addEventListener("DOMContentLoaded", function () {
                    class="btn btn-success w-100 rounded-pill fw-bold"
                    onclick="return confirm('Borrow for ${data.loanPeriod}?');">Borrow Book</a>`;
           } else if (data.status === "owned") {
-            actionContainer.innerHTML = `<button class="btn btn-secondary w-100 rounded-pill disabled">In Shelf</button>`;
+            actionContainer.innerHTML = `
+                <div class="d-flex flex-column gap-2 mt-2">
+                <div class="badge-borrowed text-center small fw-bold py-2 rounded-pill d-inline-flex align-items-center justify-content-center border">
+                  <iconify-icon icon="lucide:clock" class="me-1 fs-5"></iconify-icon>
+                  <span>Borrowed</span>
+                </div>
+                <a href="/kmkdt-Library/public/user/myBooks"
+                  class="btn btn-borrowed-custom text-white rounded-pill w-100 fw-bold shadow-sm">
+                  In Your Borrowed Books
+                </a></div>`;
           } else {
             if (data.dueDate) {
               actionContainer.innerHTML = `

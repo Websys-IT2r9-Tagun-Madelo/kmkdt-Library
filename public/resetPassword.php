@@ -60,30 +60,36 @@ if ($token && isset($conn)) {
             <?php if ($isValid): ?>
                 <p class="text-muted text-center mb-4">Please enter a strong password to secure your account.</p>
                 
-                <form action="/kmkdt-Library/app/controller/loginController.php" method="POST">
+                <form id="passwordResetForm" action="/kmkdt-Library/app/controller/loginController.php" method="POST">
                     <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
                     
-                    <div class="mb-3">
-                        <input type="password" name="newPassword" class="form-control border-bottom" 
+                    <div class="mb-3 position-relative">
+                        <input type="password" id="resetPassword" name="newPassword" class="form-control border-bottom" 
                                placeholder="New Password" required minlength="6">
                     </div>
                     
-                    <div class="mb-4">
-                        <input type="password" name="confirmPassword" class="form-control border-bottom" 
+                    <div class="mb-4 position-relative">
+                        <input type="password" id="resetConfirmPassword" name="confirmPassword" class="form-control border-bottom" 
                                placeholder="Confirm New Password" required minlength="6">
+                        <div id="pwMismatch" class="invalid-feedback text-start">
+                            Passwords do not match.
+                        </div>
                     </div>
                     
-                    <button type="submit" name="updatePasswordButton" class="btn btn-dark w-100 py-3 shadow-sm">
+                    <button type="submit" name="updatePasswordButton" class="btn btn-dark w-100 py-3 shadow-sm mb-2">
                         Update Password
                     </button>
+
+                    <a href="/kmkdt-Library/public/login" class="btn btn-outline-secondary w-100 py-3">
+                        Back to Login
+                    </a>
                 </form>
 
             <?php else: ?>
-                <!-- If the token is fake or expired -->
                 <div class="alert alert-danger text-center">
                     This reset link is invalid or has expired.
                 </div>
-                <a href="login" class="btn btn-lime w-100 py-3 mt-3">Back to Login</a>
+                <a href="/kmkdt-Library/public/login" class="btn btn-lime w-100 py-3 mt-3">Back to Login</a>
             <?php endif; ?>
 
         </div>
@@ -105,7 +111,6 @@ if ($token && isset($conn)) {
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,
-
         didOpen: (toast) => {
           toast.onmouseenter = Swal.stopTimer;
           toast.onmouseleave = Swal.resumeTimer;
@@ -124,5 +129,4 @@ if ($token && isset($conn)) {
   ?>
 
 </body>
-
 </html>

@@ -125,17 +125,17 @@ include('./includes/sidebar.php');
                     <div class="col-md-6">
                         <label class="form-label small fw-bold">Full Name</label>
                         <input type="text" name="fullName" class="form-control fst-italic"
-                            value="<?php echo $fullName; ?>" required>
+                            value="<?php echo htmlspecialchars($_SESSION['old_input']['fullName'] ?? $fullName); ?>" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-bold">Username</label>
                         <input type="text" name="username" class="form-control fst-italic"
-                            value="<?php echo htmlspecialchars($adminData['username'] ?? ''); ?>" required>
+                            value="<?php echo htmlspecialchars($_SESSION['old_input']['username'] ?? $adminData['username'] ?? ''); ?>" required>
                     </div>
                     <div class="col-12">
                         <label class="form-label small fw-bold">Email Address</label>
                         <input type="email" name="emailAddress" class="form-control fst-italic"
-                            value="<?php echo $email; ?>" required>
+                            value="<?php echo htmlspecialchars($_SESSION['old_input']['emailAddress'] ?? $email); ?>" required>
                     </div>
                     
                     <div class="col-12 mt-4">
@@ -143,21 +143,21 @@ include('./includes/sidebar.php');
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label small fw-bold">Street</label>
+                        <label class="form-label small fw-bold">Street / House No.</label>
                         <input type="text" name="street" class="form-control fst-italic" 
-                            value="<?php echo htmlspecialchars($adminData['street'] ?? ''); ?>">
+                            value="<?php echo htmlspecialchars($_SESSION['old_input']['street'] ?? $adminData['street'] ?? ''); ?>">
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label small fw-bold">Barangay</label>
                         <input type="text" name="barangay" class="form-control fst-italic" 
-                            value="<?php echo htmlspecialchars($adminData['barangay'] ?? ''); ?>">
+                            value="<?php echo htmlspecialchars($_SESSION['old_input']['barangay'] ?? $adminData['barangay'] ?? ''); ?>">
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label small fw-bold">City</label>
+                        <label class="form-label small fw-bold">City / Municipality</label>
                         <input type="text" name="city" class="form-control fst-italic" 
-                            value="<?php echo htmlspecialchars($adminData['city'] ?? ''); ?>">
+                            value="<?php echo htmlspecialchars($_SESSION['old_input']['city'] ?? $adminData['city'] ?? ''); ?>">
                     </div>
 
                     <div class="col-12 mt-4">
@@ -186,6 +186,7 @@ include('./includes/sidebar.php');
 <?php if (isset($_SESSION['message']) && isset($_SESSION['code'])): ?>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // Display alert window
             Swal.fire({
                 icon: '<?php echo $_SESSION['code']; ?>', 
                 title: '<?php echo $_SESSION['code'] === 'success' ? 'Completed!' : 'Error Encountered'; ?>',
@@ -194,11 +195,19 @@ include('./includes/sidebar.php');
                 timer: 3200,
                 timerProgressBar: true
             });
+
+            // If an error occurred, automatically pop open the modal back up for easy correction
+            <?php if ($_SESSION['code'] === 'error'): ?>
+                var updateModal = new bootstrap.Modal(document.getElementById('fullUpdateModal'));
+                updateModal.show();
+            <?php endif; ?>
         });
     </script>
     <?php 
     unset($_SESSION['message']); 
     unset($_SESSION['code']); 
+    // Clear old inputs out after sweet alert finishes loading its context
+    unset($_SESSION['old_input']);
     ?>
 <?php endif; ?>
 

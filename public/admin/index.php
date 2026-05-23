@@ -1,5 +1,4 @@
 <?php
-// ACCESS CONTROL MIDDLEWARE
 include('../../app/middleware/admin.php');
 
 // ESTABLISH CORE APP PATH CONSTANTS

@@ -1,5 +1,4 @@
 <?php
-// Moves up from public/user/ to kmkdt-Library root, then into the app folder
 require_once dirname(__DIR__, 2) . '/app/middleware/userAuth.php'; 
 require_once dirname(__DIR__, 2) . '/app/config/config.php'; 
 
@@ -177,7 +176,7 @@ include('./includes/tsbar.php');
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold">Street</label>
+                            <label class="form-label small fw-bold">Street / House No.</label>
                             <input type="text" name="street" 
                                 class="form-control fst-italic" 
                                 value="<?php echo htmlspecialchars($user['street'] ?? ''); ?>">
@@ -190,8 +189,8 @@ include('./includes/tsbar.php');
                                 value="<?php echo htmlspecialchars($user['barangay'] ?? ''); ?>">
                         </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label small fw-bold">City</label>
+                        <div class="col-md-4">  
+                            <label class="form-label small fw-bold">City / Municipality</label>
                             <input type="text" name="city" 
                                 class="form-control fst-italic" 
                                 value="<?php echo htmlspecialchars($user['city'] ?? ''); ?>">
