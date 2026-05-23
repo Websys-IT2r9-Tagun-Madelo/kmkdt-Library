@@ -1,10 +1,7 @@
-// --- 2. BOOK DETAILS MODAL HANDLER & ENGINE ---
+// --- BOOK DETAILS MODAL HANDLER & ENGINE ---
 
 document.addEventListener("DOMContentLoaded", function () {
-    
-    // ==========================================
-    // A. ENGINE FOR MAIN GRID CARDS ON PAGE LOAD
-    // ==========================================
+  
     const mainGridTimers = document.querySelectorAll(".due-countdown");
     
     mainGridTimers.forEach(timerElement => {
@@ -39,9 +36,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (bookModal) {
       bookModal.addEventListener("show.bs.modal", function (event) {
         const card = event.relatedTarget;
-        if (!card) return; // Safety bailout if card trigger breaks
+        if (!card) return; 
 
-        // Extract structural dataset information from our component card element properties
+        const rawOnlineVal = String(card.getAttribute("data-online") || '').toLowerCase();
+        const rawStatusVal = String(card.getAttribute("data-status") || '').toLowerCase();
+
         const data = {
           id: card.getAttribute("data-id"),
           title: card.getAttribute("data-title"),
@@ -50,55 +49,78 @@ document.addEventListener("DOMContentLoaded", function () {
           genre: card.getAttribute("data-genre"),
           desc: card.getAttribute("data-desc"),
           img: card.getAttribute("data-img"),
-          status: card.getAttribute("data-status"),
-          isOnline: card.getAttribute("data-online") === "true",
+          status: rawStatusVal,
+          isOnline: rawOnlineVal === "true" || rawOnlineVal.includes("online") || rawStatusVal === "online",
           loanPeriod: card.getAttribute("data-loan-period") || '7 Days', 
           borrower: card.getAttribute("data-borrower") || 'Another User',
-          dueDate: card.getAttribute("data-due") || ''
+          dueDate: card.getAttribute("data-due") || '',
+          activeReadingId: card.getAttribute("data-active-reading") // Accurately reading the injected code attribute
         };
 
-        // DOM Target layout container targets
+        // Output diagnostics directly to console window
+        console.warn("🚀 Modal Loaded. Book ID:", data.id, " | Active ID:", data.activeReadingId);
+
         const elements = {
           title: document.getElementById("modalBookTitle"),
           author: document.getElementById("modalAuthor"),
-          categoryContainer: document.getElementById("modalCategory"), // Serves as our tag wrapper
+          categoryContainer: document.getElementById("modalCategory"), 
           desc: document.getElementById("modalDesc"),
           img: document.getElementById("modalImg"),
         };
 
-        // Update text content metrics cleanly inside the DOM structures
         if (elements.title) elements.title.textContent = data.title;
         if (elements.author) elements.author.textContent = "by " + data.author;
         if (elements.desc) elements.desc.textContent = data.desc;
         if (elements.img) elements.img.src = data.img;
 
-        // Dynamically generate Category AND Genre pill tags side-by-side
         if (elements.categoryContainer) {
-          // Pill 1: Main Category
           let tagsHTML = `<span class="badge rounded-pill px-3 py-2 text-white fw-semibold" style="background-color: #22c55e; font-size: 0.85rem; display: inline-flex; align-items: center;">${data.category}</span>`;
-          
-          // Pill 2: Genre (Only appends as a completely separate pill if it exists and isn't a duplicate)
           if (data.genre && data.genre.toLowerCase() !== data.category.toLowerCase()) {
             tagsHTML += `<span class="badge rounded-pill px-3 py-2 text-white fw-semibold" style="background-color: #22c55e; font-size: 0.85rem; display: inline-flex; align-items: center;">${data.genre}</span>`;
           }
-      
-          // Inject the individual pills into the clean wrapper row
           elements.categoryContainer.innerHTML = tagsHTML;
           elements.categoryContainer.className = "d-flex align-items-center gap-2 mb-3"; 
         }
 
-        // Generate context-appropriate dynamic action links inside the modal container
         const actionContainer = document.getElementById("modalActionContainer");
         if (actionContainer) {
           const projectRoot = "/kmkdt-Library";
           const borrowPath = `${projectRoot}/app/controller/process/borrowProcess.php?id=${data.id}`;
 
           if (data.isOnline) {
-            actionContainer.innerHTML = `
+            const cleanBookId = String(data.id || '').trim();
+            const cleanSessionId = String(data.activeReadingId || '').trim();
+
+            // Safe protection layout matching step validation rules
+            const isValidSessionId = cleanSessionId !== "" && 
+                                     cleanSessionId.toLowerCase() !== "null" && 
+                                     cleanSessionId.toLowerCase() !== "undefined";
+
+            const hasActiveSession = (isValidSessionId && cleanBookId !== "" && cleanSessionId === cleanBookId) || 
+                                     data.status.includes("active") || 
+                                     data.status.includes("reading");
+
+            if (hasActiveSession) {
+              actionContainer.innerHTML = `
+                <div class="d-flex flex-column gap-2 w-100">
+                    <div class="text-center small fw-bold py-2 rounded-pill d-inline-flex align-items-center justify-content-center border" 
+                         style="background-color: rgba(0, 240, 255, 0.1); color: #00bcd4; border-color: rgba(0, 188, 212, 0.3) !important;">
+                        <iconify-icon icon="lucide:book-open" class="me-1 fs-5"></iconify-icon> 
+                        <span>Currently Active</span>
+                    </div>
+                    <a href="${projectRoot}/public/user/eBook?id=${data.id}" 
+                       class="btn text-white rounded-pill w-100 fw-bold shadow-sm" 
+                       style="background-color: #00bcd4;">
+                       Resume Reading
+                    </a>
+                </div>`;
+            } else {
+              actionContainer.innerHTML = `
                 <a href="${projectRoot}/public/user/eBook?id=${data.id}" 
-                   class="btn rounded-pill w-100" 
-                   style="background-color: #07427a; color: white;"
+                   class="btn rounded-pill w-100 text-white" 
+                   style="background-color: #07427a;"
                    onclick="return confirm('Warning: Opening this may remove your previous e-book.');">Read Online</a>`;
+            }
           } else if (data.status === "available") {
             actionContainer.innerHTML = `
                 <a href="${borrowPath}" 
@@ -107,7 +129,6 @@ document.addEventListener("DOMContentLoaded", function () {
           } else if (data.status === "owned") {
             actionContainer.innerHTML = `<button class="btn btn-secondary w-100 rounded-pill disabled">In Shelf</button>`;
           } else {
-            // Dynamic box layout replacing the generic disabled button when 'Unavailable'
             if (data.dueDate) {
               actionContainer.innerHTML = `
                 <div class="p-3 bg-dark rounded text-center w-100">
@@ -119,8 +140,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     Calculating time...
                   </div>
                 </div>`;
-              
-              // Instantly fire the counter loop initialization logic on the newly injected modal container element
               initModalTimer(actionContainer.querySelector(".modal-due-countdown"));
             } else {
               actionContainer.innerHTML = `<button class="btn btn-light w-100 rounded-pill disabled">Unavailable</button>`;
@@ -130,9 +149,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
-    // ==========================================
-    // C. AUXILIARY TIMER INITIALIZATION FUNCTION
-    // ==========================================
     function initModalTimer(timerElement) {
       if (!timerElement) return;
       const dueDateStr = timerElement.getAttribute("data-due");
@@ -156,7 +172,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }, 1000);
 
-      // Clear timers if the user decides to close down the modal midway through countdown initialization loops
       bookModal.addEventListener('hide.bs.modal', () => clearInterval(x), { once: true });
     }
 });

@@ -1,7 +1,8 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params(0, '/'); 
-    session_start();
+    session_name('KMKDT_ADMIN_SESSION'); 
+    session_set_cookie_params(0, '/');  
+    session_start();                     
 }
 
 

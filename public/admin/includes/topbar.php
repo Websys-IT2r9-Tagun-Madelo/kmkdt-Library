@@ -1,4 +1,10 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('KMKDT_ADMIN_SESSION'); 
+    session_set_cookie_params(0, '/'); 
+    session_start();
+}
+
 $sessionUser = $_SESSION['authUser'] ?? $_SESSION ?? [];
 $loggedInUserName = htmlspecialchars($sessionUser['fullName'] ?? $sessionUser['username'] ?? 'System User');
 $loggedInRole = htmlspecialchars($sessionUser['role'] ?? 'Staff/Admin');

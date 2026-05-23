@@ -1,5 +1,6 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
+    session_name('KMKDT_ADMIN_SESSION');
     session_start();
 }
 
@@ -77,13 +78,14 @@ switch ($action) {
             exit();
         }
 
-        // Normalize text string directly to standard lowercase SQL format
-        $normalizedCheck = strtolower($categoryName);
-        $normalizedCheck = preg_replace("/[^a-z0-9\s\-]/", "", $normalizedCheck);
-        $normalizedCheck = str_replace(' ', '-', $normalizedCheck); // transform "non fiction" to "non-fiction"
-        
-        if ($normalizedCheck === 'non-ficion') {
-            $normalizedCheck = 'non-fiction';
+        // Keep the natural casing but normalize typos or formatting structures
+        $normalizedCheck = trim($categoryName);
+        if (strtolower($normalizedCheck) === 'non fiction' || strtolower($normalizedCheck) === 'non-ficion' || strtolower($normalizedCheck) === 'non-fiction') {
+            $normalizedCheck = 'Non-Fiction';
+        } else if (strtolower($normalizedCheck) === 'case studies') {
+            $normalizedCheck = 'Case Studies';
+        } else {
+            $normalizedCheck = ucwords(strtolower($normalizedCheck));
         }
 
         echo json_encode([
@@ -100,14 +102,20 @@ switch ($action) {
         $description = trim($_POST['description'] ?? '');
         $userId = $_SESSION['user_id'] ?? null;
 
-        // MULTI-CATEGORY FIXED SQL ORDER PROCESSING
+        // MULTI-CATEGORY FIXED SQL ORDER PROCESSING (CAPITALIZED FORMAT)
         if (isset($_POST['category']) && is_array($_POST['category'])) {
-            $masterOrder = ['fiction', 'non-fiction', 'research', 'case studies', 'reserve', 'online'];
+            $masterOrder = ['Fiction', 'Non-Fiction', 'Research', 'Case Studies', 'Reserve', 'Online'];
 
             $cleanCategories = array_map(function($cat) {
-                $c = strtolower(trim($cat));
-                if ($c === 'non fiction' || $c === 'non-ficion') return 'non-fiction';
-                return $c;
+                $c = trim($cat);
+                $lower = strtolower($c);
+                if ($lower === 'non fiction' || $lower === 'non-ficion' || $lower === 'non-fiction') return 'Non-Fiction';
+                if ($lower === 'case studies') return 'Case Studies';
+                if ($lower === 'fiction') return 'Fiction';
+                if ($lower === 'research') return 'Research';
+                if ($lower === 'reserve') return 'Reserve';
+                if ($lower === 'online') return 'Online';
+                return ucwords($lower);
             }, $_POST['category']);
 
             usort($cleanCategories, function($a, $b) use ($masterOrder) {
@@ -120,7 +128,15 @@ switch ($action) {
             
             $category = implode(', ', $cleanCategories);
         } else {
-            $category = strtolower(trim($_POST['category'] ?? ''));
+            $rawCat = trim($_POST['category'] ?? '');
+            $lowerCat = strtolower($rawCat);
+            if ($lowerCat === 'non fiction' || $lowerCat === 'non-ficion' || $lowerCat === 'non-fiction') {
+                $category = 'Non-Fiction';
+            } else if ($lowerCat === 'case studies') {
+                $category = 'Case Studies';
+            } else {
+                $category = ucwords($lowerCat);
+            }
         }
 
         if (empty($_FILES['cover_image']['name'])) {
@@ -167,14 +183,20 @@ switch ($action) {
         $status = trim($_POST['status'] ?? 'available');
         $description = trim($_POST['description'] ?? '');
 
-        // MULTI-CATEGORY FIXED SQL ORDER PROCESSING
+        // MULTI-CATEGORY FIXED SQL ORDER PROCESSING (CAPITALIZED FORMAT)
         if (isset($_POST['category']) && is_array($_POST['category'])) {
-            $masterOrder = ['fiction', 'non-fiction', 'research', 'case studies', 'reserve', 'online'];
+            $masterOrder = ['Fiction', 'Non-Fiction', 'Research', 'Case Studies', 'Reserve', 'Online'];
 
             $cleanCategories = array_map(function($cat) {
-                $c = strtolower(trim($cat));
-                if ($c === 'non fiction' || $c === 'non-ficion') return 'non-fiction';
-                return $c;
+                $c = trim($cat);
+                $lower = strtolower($c);
+                if ($lower === 'non fiction' || $lower === 'non-ficion' || $lower === 'non-fiction') return 'Non-Fiction';
+                if ($lower === 'case studies') return 'Case Studies';
+                if ($lower === 'fiction') return 'Fiction';
+                if ($lower === 'research') return 'Research';
+                if ($lower === 'reserve') return 'Reserve';
+                if ($lower === 'online') return 'Online';
+                return ucwords($lower);
             }, $_POST['category']);
 
             usort($cleanCategories, function($a, $b) use ($masterOrder) {
@@ -187,7 +209,15 @@ switch ($action) {
             
             $category = implode(', ', $cleanCategories);
         } else {
-            $category = strtolower(trim($_POST['category'] ?? ''));
+            $rawCat = trim($_POST['category'] ?? '');
+            $lowerCat = strtolower($rawCat);
+            if ($lowerCat === 'non fiction' || $lowerCat === 'non-ficion' || $lowerCat === 'non-fiction') {
+                $category = 'Non-Fiction';
+            } else if ($lowerCat === 'case studies') {
+                $category = 'Case Studies';
+            } else {
+                $category = ucwords($lowerCat);
+            }
         }
 
         if ($bookId <= 0 || empty($title) || empty($author) || empty($category)) {

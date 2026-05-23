@@ -1,5 +1,14 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
+    $referrer = $_SERVER['HTTP_REFERER'] ?? '';
+    
+    if (strpos($referrer, '/public/admin/') !== false) {
+        session_name('KMKDT_ADMIN_SESSION');
+    } else {
+        session_name('KMKDT_USER_SESSION');
+    }
+    
+    session_set_cookie_params(0, '/');
     session_start();
 }
 

@@ -1,8 +1,4 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 // ACCESS CONTROL MIDDLEWARE
 include('../../app/middleware/admin.php');
 

@@ -1,7 +1,10 @@
-<?php 
+<?php
 if (session_status() === PHP_SESSION_NONE) {
+    session_name('KMKDT_USER_SESSION');
+    session_set_cookie_params(0, '/'); 
     session_start();
 }
+
 $current_page = basename($_SERVER['PHP_SELF']); 
 
 
@@ -73,13 +76,13 @@ if (isset($_SESSION['current_reading_id'])) {
 
 
                   <li class="header-item">
-                    <a href="Index" class="header-link  hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="index" class="header-link  hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
                         class="img-fluid animate-spin"> Home</a>
                   </li>
 
                   <li class="header-item">
-                    <a href="Profile" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
+                    <a href="profile" class="header-link hstack gap-2 fs-7 fw-bold text-dark"><img
                         src="../assets/images/svgs/secondary-leaf.svg" alt="" width="20" height="20"
                         class="img-fluid animate-spin"> My Profile </a>
                   </li>

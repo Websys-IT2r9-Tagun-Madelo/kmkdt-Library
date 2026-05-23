@@ -1,8 +1,4 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 if (!defined('APP_PATH')) {
     define('APP_PATH', dirname(__DIR__, 2) . '/app');
 }
@@ -300,8 +296,8 @@ include('./includes/sidebar.php');
                     <label class="form-check-label small" for="add_cat_research">Research</label>
                   </div>
                   <div class="form-check me-3">
-                    <input class="form-check-input add-cat-check" type="checkbox" name="category[]" value="" id="add_cat_poetry">
-                    <label class="form-check-label small" for="add_cat_poetry">Case studies</label>
+                    <input class="form-check-input add-cat-check" type="checkbox" name="category[]" value="Case Studies" id="add_cat_casestudies">
+                    <label class="form-check-label small" for="add_cat_casestudies">Case Studies</label>
                   </div>
                 </div>
 

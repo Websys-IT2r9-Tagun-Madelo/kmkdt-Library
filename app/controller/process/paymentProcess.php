@@ -1,4 +1,9 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('KMKDT_USER_SESSION');
+    session_start();
+}
+
 require_once dirname(__DIR__, 3) . '/app/middleware/userAuth.php'; 
 require_once dirname(__DIR__, 3) . '/app/config/config.php';
 

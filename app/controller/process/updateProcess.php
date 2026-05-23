@@ -1,8 +1,10 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
+    session_name('KMKDT_USER_SESSION'); 
     session_set_cookie_params(0, '/'); 
-    session_start();
+    session_start();                     
 }
+
 require_once dirname(__DIR__, 1) . '/userController.php'; 
 
 

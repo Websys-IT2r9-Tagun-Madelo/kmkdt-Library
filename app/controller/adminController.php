@@ -1,5 +1,6 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
+    session_name('KMKDT_ADMIN_SESSION'); 
     session_start();
 }
 

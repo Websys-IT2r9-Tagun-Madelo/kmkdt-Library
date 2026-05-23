@@ -1,5 +1,15 @@
-<?php 
-session_start(); 
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    if (isset($_COOKIE['KMKDT_ADMIN_SESSION'])) {
+        session_name('KMKDT_ADMIN_SESSION');
+    } elseif (isset($_COOKIE['KMKDT_USER_SESSION'])) {
+        session_name('KMKDT_USER_SESSION');
+    }
+    
+    session_set_cookie_params(0, '/');
+    session_start();
+}
+
 function old($key) { return $_SESSION['old_input'][$key] ?? ''; } 
 ?>
 <!doctype html>

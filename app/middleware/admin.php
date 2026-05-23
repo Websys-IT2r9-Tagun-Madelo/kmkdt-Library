@@ -2,12 +2,23 @@
 if (ob_get_level() == 0) ob_start();
 
 if (session_status() === PHP_SESSION_NONE) {
+    session_name('KMKDT_ADMIN_SESSION');
+    session_set_cookie_params(0, '/');
     session_start();
 }
 
 $basePath = dirname(__DIR__); 
 $configPath = $basePath . '/config/config.php'; 
 $controllerPath = $basePath . '/controller/adminController.php';
+
+// ==================== LOOP BREAKER ====================
+// Check if the user is currently looking at the login or signup page
+$currentUrl = $_SERVER['REQUEST_URI'];
+if (strpos($currentUrl, '/public/login') !== false || strpos($currentUrl, '/public/signUp') !== false) {
+    // If they are on a public auth page, stop executing this file immediately!
+    return; 
+}
+// ======================================================
 
 // 1. Strict Authorization Guard Check
 if (!isset($_SESSION['authUser']) || !is_array($_SESSION['authUser'])) {
@@ -23,5 +34,4 @@ if (!isset($_SESSION['authUser']['userRole']) || $_SESSION['authUser']['userRole
     header("Location: /kmkdt-Library/public/login");
     exit();
 }
-
 ?>

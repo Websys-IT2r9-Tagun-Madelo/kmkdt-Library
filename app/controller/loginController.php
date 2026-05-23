@@ -1,5 +1,8 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params(0, '/');
+    session_start();
+}
 
 // 1. Path Logic: Locating the config file
 $appPath = dirname(__DIR__);
@@ -23,11 +26,9 @@ if (isset($_POST['loginbutton'])) {
         die("Database connection variable (\$conn) is missing. Check your config.php file.");
     }
 
-    // Sanitize input: Using 'username' to match your updated login form
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = $_POST['password'];
 
-    // Query: Search strictly for matching Username
     $loginQuery = "SELECT * FROM user WHERE username = ? LIMIT 1";
     $stmt = $conn->prepare($loginQuery);
 
@@ -39,8 +40,26 @@ if (isset($_POST['loginbutton'])) {
         if ($result->num_rows > 0) {
             $data = $result->fetch_assoc();
 
-            // Verify hashed password
             if (password_verify($password, $data['password'])) {
+                
+                // ==================== THE SESSION FIX ====================
+                // 1. Close the generic/previous session container safely
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    session_write_close();
+                }
+
+                // 2. Assign the explicit, isolated session cookie name depending on role
+                if ($data['role'] === 'admin') {
+                    session_name('KMKDT_ADMIN_SESSION');
+                } else {
+                    session_name('KMKDT_USER_SESSION');
+                }
+
+                // 3. Restart the session with the new, clean identity container
+                session_set_cookie_params(0, '/');
+                session_start();
+                // =========================================================
+
                 // Regenerate session ID for security during login
                 session_regenerate_id(true);
 
@@ -70,7 +89,6 @@ if (isset($_POST['loginbutton'])) {
     header("Location: /kmkdt-Library/public/login");
     exit();
 }
-
 
 // --- SIGN UP/Registration---
 if (isset($_POST['registerbutton'])) {

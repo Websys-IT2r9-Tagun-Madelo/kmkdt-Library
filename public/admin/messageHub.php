@@ -1,8 +1,4 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 include('../../app/middleware/admin.php');
 include('./includes/header.php');
 include('./includes/topbar.php');

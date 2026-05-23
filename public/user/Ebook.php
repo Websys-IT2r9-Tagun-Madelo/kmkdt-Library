@@ -1,11 +1,7 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 require_once dirname(__DIR__, 2) . '/app/controller/userController.php'; 
 
-// Handle the "Close" action to clear the sticky session
 if (isset($_GET['action']) && $_GET['action'] === 'close') {
     unset($_SESSION['current_reading_id']); 
     header("Location: browseBooks"); 
