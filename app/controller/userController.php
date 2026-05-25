@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 if (!defined('USER_CONTROLLER_INITIALIZED')) {
     define('USER_CONTROLLER_INITIALIZED', true);
 
-    // Use localized scope names to prevent breaking variables on main pages
+    
     $ctrlAppPath = dirname(__DIR__);
     $ctrlConfigPath = $ctrlAppPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
 
@@ -18,7 +18,7 @@ if (!defined('USER_CONTROLLER_INITIALIZED')) {
         die("Config file not found at: " . $ctrlConfigPath);
     }
 }
-// 2. REAL-TIME STUDENT NOTIFICATION POLLING INTERCEPTOR
+
 if (isset($_GET['action']) && $_GET['action'] === 'get_live_user_updates') {
     if (ob_get_length()) ob_clean();
     header('Content-Type: application/json; charset=UTF-8');
@@ -35,7 +35,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_live_user_updates') {
     $notifications = [];
     
     try {
-        // FIXED QUERY: Uses your actual 'messages' and 'conversations' tables
         $sql = "
             (
                 SELECT 
@@ -83,7 +82,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_live_user_updates') {
             }
         }
     } catch (Exception $e) {
-        // Graceful catch block avoids rendering broken HTML elements on query failure
+        
     }
     
     echo json_encode(['notifications' => $notifications]);
@@ -99,18 +98,9 @@ if (isset($_POST['logoutButton'])) {
     header("Location: /kmkdt-Library/public/login");
     exit();
 }
-/**
- * Fetch books for the Browse catalog 
- */
-/**
- * Fetch books for the Browse catalog 
- * UPDATED: Performs a LEFT JOIN to gather real-time active borrower info and due dates
- */
 function getAllBooks($conn, $search = '') {
     $search = trim($search);
     
-    // Base SQL string to perform the LEFT JOIN on active checkouts
-    // It pulls the borrower's username from the 'user' table and the due_date from 'borrowing_history'
     $baseSelect = "SELECT b.*, u.username AS borrower_name, bh.due_date 
                    FROM books b
                    LEFT JOIN borrowing_history bh ON b.id = bh.book_id AND bh.status IN ('borrowed', 'overdue')
@@ -145,17 +135,12 @@ function getAllBooks($conn, $search = '') {
     $stmt->execute();
     return $stmt->get_result();
 }
-/**
- * Processes the borrowing transaction
- * Updated to sync with UI loan period logic
- */
 function processBookBorrow($conn, $userId, $bookId) {
     $userId = intval($userId);
     $bookId = intval($bookId);
 
     $conn->begin_transaction();
     try {
-        // Fetch category to apply your specific Feature Rules
         $catQuery = "SELECT category FROM books WHERE id = ? FOR UPDATE"; 
         $catStmt = $conn->prepare($catQuery);
         $catStmt->bind_param("i", $bookId);
@@ -168,9 +153,9 @@ function processBookBorrow($conn, $userId, $bookId) {
         
         $category = $bookData['category'] ?? 'General';
 
-        // SYNCED LOGIC HIERARCHY
+        
         if (stripos($category, 'Online') !== false) {
-            $days = 365; // Logical "Unlimited" for history records
+            $days = 365; 
         } elseif (stripos($category, 'Reserve') !== false) {
             $days = 3;
         } elseif (stripos($category, 'Non-Fiction') !== false) {
@@ -178,12 +163,12 @@ function processBookBorrow($conn, $userId, $bookId) {
         } elseif (stripos($category, 'Research') !== false) {
             $days = 7;
         } else {
-            $days = 18; // Standard default
+            $days = 18; 
         }
 
         $dueDate = date('Y-m-d', strtotime("+$days days"));
 
-        // Update book: Set user_id AND status to 'Unavailable'
+        
         $query1 = "UPDATE books SET user_id = ?, status = 'Unavailable' WHERE id = ? AND user_id IS NULL";
         $stmt1 = $conn->prepare($query1);
         $stmt1->bind_param("ii", $userId, $bookId);
@@ -208,13 +193,10 @@ function processBookBorrow($conn, $userId, $bookId) {
     }
 }
 
-/**
- * Fetches user books for myBooks.php
- */
 function getMyBooks($conn, $userId) {
     $userId = intval($userId);
 
-    // Added b.category directly to the selection statement array fields
+    
     $query = "SELECT bh.id AS loan_id, b.id AS book_id, b.title, b.category, b.genre, b.cover_image, 
                     bh.due_date, bh.status, bh.renewal_count, bh.penalty
             FROM books b 
@@ -229,14 +211,12 @@ function getMyBooks($conn, $userId) {
     }
     return null;
 }
-/**
- *
- */
+
 function processBookRenewal($conn, $userId, $bookId) {
     $userId = intval($userId);
     $bookId = intval($bookId);
 
-    // 1. Check if the renewal limit (2) has been reached
+    
     $checkQuery = "SELECT renewal_count FROM borrowing_history WHERE user_id = ? AND book_id = ? AND status = 'borrowed'";
     $stmtCheck = $conn->prepare($checkQuery);
     $stmtCheck->bind_param("ii", $userId, $bookId);
@@ -256,20 +236,14 @@ function processBookRenewal($conn, $userId, $bookId) {
     $stmt->bind_param("ii", $userId, $bookId);
     return $stmt->execute();
 }
-/**
- * Processes the return of a book
- */
-/**
- * Processes the return of a book
- * UPDATED: Prevents return if the book is overdue/has a fee
- */
+
 function processBookReturn($conn, $userId, $bookId) {
     $userId = intval($userId);
     $bookId = intval($bookId);
 
     $conn->begin_transaction();
     try {
-        // 1. Check if the book is currently overdue
+        
         $checkSql = "SELECT status FROM borrowing_history 
                      WHERE user_id = ? AND book_id = ? AND status IN ('borrowed', 'overdue')
                      ORDER BY borrowed_at DESC LIMIT 1";
@@ -278,14 +252,14 @@ function processBookReturn($conn, $userId, $bookId) {
         $stmtCheck->execute();
         $loan = $stmtCheck->get_result()->fetch_assoc();
 
-        // 2. Block return if status is 'overdue'
+        
         if ($loan && $loan['status'] === 'overdue') {
-            // Rollback and return false so the UI can show the warning seen in Screenshot 2026-05-14 224651.jpg
+            
             $conn->rollback();
             return false; 
         }
 
-        // 3. Normal return logic if not overdue
+        
         $query1 = "UPDATE books SET user_id = NULL, status = 'Available' WHERE id = ? AND user_id = ?";
         $stmt1 = $conn->prepare($query1);
         $stmt1->bind_param("ii", $bookId, $userId);
@@ -305,9 +279,6 @@ function processBookReturn($conn, $userId, $bookId) {
     }
 }
 
-/**
- * Fetch user stats for the Dashboard
- */
 function getUserStats($conn, $userId) {
     $userId = intval($userId);
     $stats = ['total_borrowed' => 0, 'current_holdings' => 0, 'total_returned' => 0];
@@ -329,9 +300,6 @@ function getUserStats($conn, $userId) {
     return $stats;
 }
 
-/**
- * Fetches full user details for profile
- */
 function getUserById($conn, $userId) {
     $userId = intval($userId);
     $sql = "SELECT username, emailAddress, street, barangay, city, fullName FROM user WHERE id = ?";
@@ -373,8 +341,6 @@ function getBooksByCategory($conn, $categoryName, $limit = 3) {
 function getPaymentHistory($conn, $userId) {
     $userId = intval($userId);
     
-    // ADJUSTED: Joining directly on bh.id or fallback match fields 
-    // to catch processing mismatches cleanly!
     $query = "SELECT pp.amount_paid, pp.paid_at, 
                      IFNULL(b.title, 'Fine Settlement Record') as title 
               FROM penalty_payments pp

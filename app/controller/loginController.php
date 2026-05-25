@@ -1,5 +1,11 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
+    if (isset($_COOKIE['KMKDT_ADMIN_SESSION'])) {
+        session_name('KMKDT_ADMIN_SESSION');
+    } elseif (isset($_COOKIE['KMKDT_USER_SESSION'])) {
+        session_name('KMKDT_USER_SESSION');
+    }
+    
     session_set_cookie_params(0, '/');
     session_start();
 }
@@ -214,35 +220,36 @@ if (isset($_POST['forgotPasswordButton'])) {
     }
 }
 
-// --- 2. FINALIZE PASSWORD RESET (From Reset Page) ---
+// --- 2. FINALIZE PASSWORD RESET  ---
 if (isset($_POST['updatePasswordButton'])) {
     global $conn;
     $token = $_POST['token'];
     $newPass = $_POST['newPassword'];
     $confirmPass = $_POST['confirmPassword'];
 
-    // Validate that passwords match
     if ($newPass !== $confirmPass) {
-        $_SESSION['message'] = "Passwords do not match!";
-        $_SESSION['code'] = "error";
-        header("Location: /kmkdt-Library/public/resetPassword?token=" . $token);
-        exit();
+        // ... (error handling)
     }
 
-    // Hash the password (using PASSWORD_DEFAULT for your technical assessment)
+    // Hash the password
     $hashed = password_hash($newPass, PASSWORD_DEFAULT);
 
-    // Update password and CLEAR the token so it cannot be used again
-    $sql = "UPDATE user SET password = ?, reset_token = NULL, token_expire = NULL WHERE reset_token = ?";
+    // FIX: Added 'token_expire > NOW()' to the check
+    $sql = "UPDATE user SET password = ?, reset_token = NULL, token_expire = NULL 
+            WHERE reset_token = ? AND token_expire > NOW()";
+    
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss", $hashed, $token);
+    $stmt->execute();
 
-    if ($stmt->execute()) {
+    // Check if any row was actually updated
+    if ($stmt->affected_rows > 0) {
         $_SESSION['message'] = "Password updated! You can now login.";
         $_SESSION['code'] = "success";
         header("Location: /kmkdt-Library/public/login");
     } else {
-        $_SESSION['message'] = "Database error. Reset failed.";
+        // This will trigger if the token is invalid or expired
+        $_SESSION['message'] = "Invalid or expired token.";
         $_SESSION['code'] = "error";
         header("Location: /kmkdt-Library/public/login");
     }

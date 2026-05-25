@@ -236,18 +236,19 @@ function getRecentActivity($conn) {
 }
 
 function getCirculationRecords($conn) {
+    $currentDate = date('Y-m-d');
     $sql = "SELECT 
-                h.id, 
-                u.fullName, 
-                b.title, 
-                h.borrowed_at, 
-                h.due_date, 
-                h.status,
-                h.renewal_count
+                h.id, u.fullName, b.title, h.borrowed_at, h.due_date, h.renewal_count,
+                CASE 
+                    WHEN h.status = 'returned' THEN 'Returned'
+                    WHEN h.status = 'overdue' OR h.due_date < '$currentDate' THEN 'Overdue'
+                    WHEN h.status = 'borrowed' AND h.due_date <= DATE_ADD('$currentDate', INTERVAL 2 DAY) THEN 'Due Soon'
+                    ELSE 'Borrowed'
+                END AS status
             FROM borrowing_history h
             LEFT JOIN user u ON h.user_id = u.id 
             LEFT JOIN books b ON h.book_id = b.id
-            ORDER BY h.id ASC";
+            ORDER BY h.id DESC";
 
     $result = mysqli_query($conn, $sql);
     return ($result) ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
@@ -257,13 +258,14 @@ function getCirculationRecords($conn) {
  * Fetches aggregate circulation metrics for the Admin Dashboard Overview
  */
 function getCirculationStats($conn) {
+    $currentDate = date('Y-m-d');
     $query = "SELECT 
-                SUM(CASE WHEN status = 'borrowed' THEN 1 ELSE 0 END) AS total_borrowed,
+                SUM(CASE WHEN status = 'borrowed' AND due_date > '$currentDate' AND due_date <= DATE_ADD('$currentDate', INTERVAL 3 DAY) THEN 1 ELSE 0 END) AS total_due_soon,
+                SUM(CASE WHEN status = 'borrowed' AND (due_date > DATE_ADD('$currentDate', INTERVAL 3 DAY) OR due_date = '$currentDate') THEN 1 ELSE 0 END) AS total_borrowed,
                 SUM(CASE WHEN status = 'returned' THEN 1 ELSE 0 END) AS total_returned,
-                SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END) AS total_overdue,
-                SUM(CASE WHEN status = 'due soon' THEN 1 ELSE 0 END) AS total_due_soon,
+                SUM(CASE WHEN status = 'overdue' OR (status = 'borrowed' AND due_date < '$currentDate') THEN 1 ELSE 0 END) AS total_overdue,
                 COUNT(*) AS total_transactions
-              FROM borrowing_history";
+            FROM borrowing_history";
               
     $result = mysqli_query($conn, $query);
     if (!$result) {
@@ -272,11 +274,12 @@ function getCirculationStats($conn) {
     
     $stats = mysqli_fetch_assoc($result);
     
-    $total    = isset($stats['total_transactions']) ? (int)$stats['total_transactions'] : 0;
-    $borrowed = isset($stats['total_borrowed'])     ? (int)$stats['total_borrowed'] : 0;
-    $returned = isset($stats['total_returned'])     ? (int)$stats['total_returned'] : 0;
-    $overdue  = isset($stats['total_overdue'])      ? (int)$stats['total_overdue'] : 0;
-    $dueSoon  = isset($stats['total_due_soon'])     ? (int)$stats['total_due_soon'] : 0;
+    // Ensure we default to 0 if the query returns NULL for any count
+    $total    = (int)($stats['total_transactions'] ?? 0);
+    $borrowed = (int)($stats['total_borrowed'] ?? 0);
+    $returned = (int)($stats['total_returned'] ?? 0);
+    $overdue  = (int)($stats['total_overdue'] ?? 0);
+    $dueSoon  = (int)($stats['total_due_soon'] ?? 0);
     
     if ($total > 0) {
         $stats['borrowed_pct'] = round(($borrowed / $total) * 100, 1);

@@ -10,10 +10,11 @@
 
 // Pages style (Required file)
 @import "./pages/index";
+@import "./pages/resetPass";
 
 // Component style (Required file)
 @import "./component/reboot";
 
 // Utilities style (Required file)
-@import "./utilities/icon-size";
+@import "./utilities/iconSize";
 @import "./utilities/override"; 

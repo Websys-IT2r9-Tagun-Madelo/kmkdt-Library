@@ -5,8 +5,9 @@ define('ROOT_PATH', dirname(__DIR__, 2));
 define('APP_PATH', ROOT_PATH . '/app');
 
 require_once APP_PATH . '/config/config.php';
-require_once APP_PATH . '/controller/adminController.php';
+require_once APP_PATH . '/controller/adminController.php'; 
 
+// Now you can safely call these functions
 $stats = getCirculationStats($conn);
 $records = getCirculationRecords($conn);
 
@@ -14,7 +15,6 @@ include('./includes/header.php');
 include('./includes/topbar.php');
 include('./includes/sidebar.php');
 ?>
-
 <div class="pagetitle">
   <h1>Circulation</h1>
   <nav>
@@ -142,8 +142,8 @@ include('./includes/sidebar.php');
                         <?php echo !empty($row['due_date']) ? date('M d, Y', strtotime($row['due_date'])) : '-'; ?>
                       </td>
                       <td>
-                        <span class="badge <?php echo $badgeClass; ?> px-3 py-2 text-uppercase font-tracking-wide">
-                          <?php echo ucfirst($status); ?>
+                        <span class="badge <?php echo $badgeClass; ?> px-3 py-2 font-tracking-wide">
+                          <?php echo htmlspecialchars($row['status']); ?>
                         </span>
                       </td>
                       <td class="text-center">

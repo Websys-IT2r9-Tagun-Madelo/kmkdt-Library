@@ -4,26 +4,17 @@ if (session_status() === PHP_SESSION_NONE) {
         session_name('KMKDT_ADMIN_SESSION');
     } elseif (isset($_COOKIE['KMKDT_USER_SESSION'])) {
         session_name('KMKDT_USER_SESSION');
-    } else {
-        // Fall back explicitly to matching container name
-        session_name('KMKDT_GUEST_SESSION');
     }
     
     session_set_cookie_params(0, '/');
     session_start();
 }
 
-// 2. If an authenticated user lands back here, automatically send them to their dashboard
-if (isset($_SESSION['authUser']) && is_array($_SESSION['authUser'])) {
-    if (isset($_SESSION['authUser']['userRole']) && $_SESSION['authUser']['userRole'] === 'admin') {
-        if (ob_get_length()) ob_clean();
-        header("Location: /kmkdt-Library/public/admin/index");
-        exit();
-    } else {
-        if (ob_get_length()) ob_clean();
-        header("Location: /kmkdt-Library/public/user/index");
-        exit();
-    }
+// Redirect logic
+if (isset($_SESSION['authUser'])) {
+    $dashboard = ($_SESSION['authUser']['userRole'] === 'admin') ? 'admin/index' : 'user/index';
+    header("Location: /kmkdt-Library/public/" . $dashboard);
+    exit();
 }
 ?>
 

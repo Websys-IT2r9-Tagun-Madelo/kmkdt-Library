@@ -1,0 +1,140 @@
+// ==========================================
+// Variables (Theme Colors & Settings)
+// ==========================================
+$color-bg: #f8f9fa;
+$color-text-dark: #2A3547;
+$color-text-muted: #5A6A85;
+$color-lime-primary: #97ee5b;
+$color-lime-hover: #86d451;
+$border-color-default: #e5eaef;
+$transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+// ==========================================
+// Base Styles
+// ==========================================
+body { 
+    background-color: $color-bg; 
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+// ==========================================
+// Card Layout (Positioned Higher Up)
+// ==========================================
+.reset-card { 
+    width: 100%;
+    max-width: 400px; 
+    margin-top: 40px; // <-- Shifted up significantly to hit your target height line
+    border: none; 
+    border-radius: 16px; 
+    background: #ffffff;
+    box-shadow: 0 20px 27px rgba(0, 0, 0, 0.05) !important; 
+
+    .card-body {
+        padding: 2rem !important; 
+
+        h3 {
+            color: $color-text-dark;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+        }
+    }
+}
+
+// Subtext description
+.description-text {
+    font-size: 0.875rem;
+    color: $color-text-muted;
+    line-height: 1.45;
+    margin-bottom: 1.75rem;
+}
+
+// ==========================================
+// Premium Form Fields
+// ==========================================
+#passwordResetForm {
+    .form-control {
+        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+        color: $color-text-dark;
+        background-color: #fff;
+        border: 1px solid $border-color-default;
+        border-radius: 8px;
+        transition: $transition-base;
+
+        &::placeholder {
+            color: #a1aab2;
+            font-size: 0.85rem;
+        }
+
+        &:focus {
+            color: $color-text-dark;
+            border-color: $color-text-dark;
+            box-shadow: 0 0 0 4px rgba(42, 53, 71, 0.06); 
+            outline: 0;
+            background-color: #fff;
+        }
+    }
+}
+
+// ==========================================
+// Elevated Button Dynamics
+// ==========================================
+.action-btn {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    font-weight: 600;
+    font-size: 0.925rem;
+    border-radius: 8px;
+    transition: $transition-base;
+    cursor: pointer;
+
+    &.btn-dark {
+        background-color: $color-text-dark;
+        border: none;
+
+        &:hover {
+            background-color: lighten($color-text-dark, 5%);
+            transform: translateY(-1px); 
+            box-shadow: 0 4px 12px rgba(42, 53, 71, 0.15);
+        }
+
+        &:active {
+            transform: translateY(1px); 
+            box-shadow: none;
+        }
+    }
+
+    &.secondary-btn {
+        font-size: 0.875rem;
+        color: $color-text-muted;
+        border: 1px solid $border-color-default;
+        background-color: transparent;
+
+        &:hover {
+            color: $color-text-dark;
+            background-color: #f8f9fa;
+            border-color: darken($border-color-default, 5%);
+        }
+    }
+}
+
+.btn-lime { 
+    background-color: $color-lime-primary; 
+    color: $color-text-dark; 
+    font-weight: 600; 
+    border: none; 
+    transition: $transition-base;
+
+    &:hover, 
+    &:focus { 
+        background-color: $color-lime-hover; 
+        color: $color-text-dark;
+        transform: translateY(-1px);
+    }
+    
+    &:active {
+        transform: translateY(1px);
+    }
+}

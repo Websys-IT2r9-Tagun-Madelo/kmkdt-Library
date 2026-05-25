@@ -10,10 +10,10 @@ require_once dirname(__DIR__, 1) . '/userController.php';
 $userId = $_SESSION['user_id'] ?? $_SESSION['authUser']['user_id'] ?? null;
 $bookId = $_GET['id'] ?? null;
 
-// Ensure user and book parameters exist before moving forward
+
 if ($userId && $bookId) {
     try {
-        // Optional: Activate exception mode for MySQLi if it isn't enabled globally
+        
         if (isset($conn) && $conn instanceof mysqli) {
             mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         }

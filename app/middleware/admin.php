@@ -15,10 +15,8 @@ $controllerPath = $basePath . '/controller/adminController.php';
 // Check if the user is currently looking at the login or signup page
 $currentUrl = $_SERVER['REQUEST_URI'];
 if (strpos($currentUrl, '/public/login') !== false || strpos($currentUrl, '/public/signUp') !== false) {
-    // If they are on a public auth page, stop executing this file immediately!
     return; 
 }
-// ======================================================
 
 // 1. Strict Authorization Guard Check
 if (!isset($_SESSION['authUser']) || !is_array($_SESSION['authUser'])) {

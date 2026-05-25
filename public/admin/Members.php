@@ -325,19 +325,28 @@ include('./includes/sidebar.php');
       
       <div class="modal-header bg-dark text-white border-0 py-3">
         <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2">
-          <i class="bi bi-pencil-square fs-5"></i> Update Registry Entry
+          <i class="bi bi-shield-check fs-5"></i> Manage Account Privileges
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      
+
       <div class="modal-body p-4">
+        <div class="alert alert-light border-start border-4 border-warning mb-4" role="alert">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-circle-fill text-warning fs-4 me-3"></i>
+            <div class="small text-muted">
+              <strong>Note:</strong> Personal information is read-only. Only the System Access Level can be modified by administrators.
+            </div>
+          </div>
+        </div>
+      
         <div class="row g-3 mb-3">
           <div class="col-md-6">
             <label class="form-label small fw-bold text-secondary text-uppercase">Full Legal Name</label>
-            <input type="text" name="fullName" id="edit_fullName" class="form-control rounded-2 border-secondary-subtle py-2" required>
+            <input type="text" name="fullName" id="edit_fullName" class="form-control rounded-2 border-secondary-subtle py-2" disabled>
           </div>
           <div class="col-md-6">
-            <label class="form-label small fw-bold text-secondary text-uppercase">Unique System Username (Locked)</label>
+            <label class="form-label small fw-bold text-secondary text-uppercase">Unique System Username</label>
             <div class="input-group">
               <span class="input-group-text bg-light text-muted border-secondary-subtle">@</span>
               <input type="text" id="edit_username_display" class="form-control rounded-2 bg-light text-muted py-2" disabled>
@@ -348,7 +357,7 @@ include('./includes/sidebar.php');
         <div class="row g-3 mb-4">
           <div class="col-md-8">
             <label class="form-label small fw-bold text-secondary text-uppercase">Active Email Address</label>
-            <input type="email" name="emailAddress" id="edit_emailAddress" class="form-control rounded-2 border-secondary-subtle py-2" required>
+            <input type="email" name="emailAddress" id="edit_emailAddress" class="form-control rounded-2 border-secondary-subtle py-2" disabled>
           </div>
           <div class="col-md-4">
             <label class="form-label small fw-bold text-secondary text-uppercase">System Access Level</label>
@@ -363,7 +372,7 @@ include('./includes/sidebar.php');
         
         <div class="d-flex align-items-center gap-2 mb-3">
           <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
-          <h6 class="fw-bold m-0 text-dark sub-profile-heading">Residential/Location Profile(Display only. Only account owners can update their address.)</address></h6>
+          <h6 class="fw-bold m-0 text-dark">Residential/Location Profile</h6>
         </div>
         
         <div class="row g-3">
@@ -373,7 +382,7 @@ include('./includes/sidebar.php');
           </div>
           <div class="col-md-4">
             <label class="form-label small fw-bold text-secondary text-uppercase">Barangay</label>
-            <input type="text" name="barangay" id="edit_barangay" class="form-control rounded-2 border-secondary-subtle py-2"disabled >
+            <input type="text" name="barangay" id="edit_barangay" class="form-control rounded-2 border-secondary-subtle py-2" disabled>
           </div>
           <div class="col-md-4">
             <label class="form-label small fw-bold text-secondary text-uppercase">City / Municipality</label>
@@ -388,7 +397,7 @@ include('./includes/sidebar.php');
       </div>
     </form>
   </div>
-</div> 
+</div>
 
 <!-- MODAL: Confirm Deletion -->
 <div class="modal fade" id="deleteMemberModal" tabindex="-1" aria-hidden="true">

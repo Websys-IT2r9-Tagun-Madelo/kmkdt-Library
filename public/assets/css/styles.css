@@ -18685,6 +18685,136 @@ textarea.form-control-lg {
   color: #2A3547;
 }
 
+body {
+  background-color: #f8f9fa;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.reset-card {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 40px;
+  border: none;
+  border-radius: 16px;
+  background: #ffffff;
+  -webkit-box-shadow: 0 20px 27px rgba(0, 0, 0, 0.05) !important;
+          box-shadow: 0 20px 27px rgba(0, 0, 0, 0.05) !important;
+}
+.reset-card .card-body {
+  padding: 2rem !important;
+}
+.reset-card .card-body h3, .reset-card .card-body .h3 {
+  color: #2A3547;
+  font-size: 1.5rem;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.description-text {
+  font-size: 0.875rem;
+  color: #5A6A85;
+  line-height: 1.45;
+  margin-bottom: 1.75rem;
+}
+
+#passwordResetForm .form-control {
+  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+  color: #2A3547;
+  background-color: #fff;
+  border: 1px solid #e5eaef;
+  border-radius: 8px;
+  -webkit-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#passwordResetForm .form-control::-webkit-input-placeholder {
+  color: #a1aab2;
+  font-size: 0.85rem;
+}
+#passwordResetForm .form-control::-moz-placeholder {
+  color: #a1aab2;
+  font-size: 0.85rem;
+}
+#passwordResetForm .form-control:-ms-input-placeholder {
+  color: #a1aab2;
+  font-size: 0.85rem;
+}
+#passwordResetForm .form-control::-ms-input-placeholder {
+  color: #a1aab2;
+  font-size: 0.85rem;
+}
+#passwordResetForm .form-control::placeholder {
+  color: #a1aab2;
+  font-size: 0.85rem;
+}
+#passwordResetForm .form-control:focus {
+  color: #2A3547;
+  border-color: #2A3547;
+  -webkit-box-shadow: 0 0 0 4px rgba(42, 53, 71, 0.06);
+          box-shadow: 0 0 0 4px rgba(42, 53, 71, 0.06);
+  outline: 0;
+  background-color: #fff;
+}
+
+.action-btn {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-weight: 600;
+  font-size: 0.925rem;
+  border-radius: 8px;
+  -webkit-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.action-btn.btn-dark {
+  background-color: #2A3547;
+  border: none;
+}
+.action-btn.btn-dark:hover {
+  background-color: rgb(51.4778761062, 64.9601769912, 87.0221238938);
+  -webkit-transform: translateY(-1px);
+          transform: translateY(-1px);
+  -webkit-box-shadow: 0 4px 12px rgba(42, 53, 71, 0.15);
+          box-shadow: 0 4px 12px rgba(42, 53, 71, 0.15);
+}
+.action-btn.btn-dark:active {
+  -webkit-transform: translateY(1px);
+          transform: translateY(1px);
+  -webkit-box-shadow: none;
+          box-shadow: none;
+}
+.action-btn.secondary-btn {
+  font-size: 0.875rem;
+  color: #5A6A85;
+  border: 1px solid #e5eaef;
+  background-color: transparent;
+}
+.action-btn.secondary-btn:hover {
+  color: #2A3547;
+  background-color: #f8f9fa;
+  border-color: rgb(213.2142857143, 221.25, 229.2857142857);
+}
+
+.btn-lime {
+  background-color: #97ee5b;
+  color: #2A3547;
+  font-weight: 600;
+  border: none;
+  -webkit-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-lime:hover, .btn-lime:focus {
+  background-color: #86d451;
+  color: #2A3547;
+  -webkit-transform: translateY(-1px);
+          transform: translateY(-1px);
+}
+.btn-lime:active {
+  -webkit-transform: translateY(1px);
+          transform: translateY(1px);
+}
+
 * {
   margin: 0;
   padding: 0;
