@@ -216,8 +216,14 @@ include('./includes/sidebar.php');
               $rawStatus = strtolower($act['status'] ?? '');
               $timestamp = !empty($act['borrowed_at']) ? $act['borrowed_at'] : 'now';
               $bookTitle = !empty($act['title']) ? '"' . $act['title'] . '"' : 'Unknown Book';
+              $isOverdue = (!empty($act['is_overdue']) && $act['is_overdue'] == 1);
 
-              if ($rawStatus === 'payment') {
+              // Condition Matrix Routing
+              if ($isOverdue) {
+                  $iconClass = 'bg-danger text-white';
+                  $icon = 'bi-exclamation-triangle-fill';
+                  $actionLabel = 'overdue on returning';
+              } elseif ($rawStatus === 'payment') {
                   $iconClass = 'bg-success text-white';
                   $icon = 'bi-cash-coin';
                   $actionLabel = 'settled fine';
@@ -235,10 +241,13 @@ include('./includes/sidebar.php');
               <div>
                 <div class="small text-muted mb-0.5">
                   <?= date('g:i A', strtotime($timestamp)) ?>
+                  <?php if ($isOverdue): ?>
+                    <span class="badge bg-danger-subtle text-danger ms-1 border border-danger-subtle rounded-pill px-2 py-0.5" style="font-size: 0.65rem;">LATE</span>
+                  <?php endif; ?>
                 </div>
                 <div class="text-dark">
                   <strong><?= htmlspecialchars($act['fullName'] ?? 'System User') ?></strong> 
-                  <?= htmlspecialchars($actionLabel) ?> 
+                  <span class="<?= $isOverdue ? 'text-danger fw-semibold' : '' ?>"><?= htmlspecialchars($actionLabel) ?></span> 
                   <strong class="text-secondary"><?= htmlspecialchars($bookTitle) ?></strong>
                 </div>
               </div>
@@ -416,7 +425,7 @@ include('./includes/sidebar.php');
               </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">Change Cover Image <span class="text-muted small fw-normal">(Optional)</span></label>
+              <label class="form-label text-secondary small fw-bold">Change Cover Image <span class="text-muted small fw-normal">(Required)</span></label>
               <input type="file" name="cover_image" class="form-control rounded-0" accept="image/*">
             </div>
             <div class="col-12">

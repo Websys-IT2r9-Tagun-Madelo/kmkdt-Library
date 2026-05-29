@@ -222,7 +222,12 @@ function getAllMembers($conn) {
 }
 
 function getRecentActivity($conn) {
-    $sql = "SELECT h.*, u.fullName, b.title 
+    // Computes status logic directly inside SQL via conditional CASE loops
+    $sql = "SELECT h.*, u.fullName, b.title,
+                   CASE 
+                       WHEN h.status != 'returned' AND h.due_date < NOW() THEN 1 
+                       ELSE 0 
+                   END AS is_overdue
             FROM borrowing_history h
             JOIN user u ON h.user_id = u.id
             JOIN books b ON h.book_id = b.id
