@@ -7,6 +7,7 @@
 
   --bs-warning: #ff8f07 !important; 
   --bs-online: #091268;
+  --bs-pending: #c015b7;
   --bs-reserve:#92ca31;
   --borrowed: #2dd0c5;
   --borrowed-light: #edf9ff; 
@@ -23,6 +24,11 @@
 
 .border-borrowed-subtle {
     border-color: var(--borrowed-subtle) !important;
+}
+
+.bg-pending {
+    background-color: var(--bs-pending) !important;
+    color: #ffffff !important;
 }
 
 .bg-warning {

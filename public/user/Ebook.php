@@ -39,13 +39,24 @@ include('./includes/tsbar.php');
                     <p class="text-muted small">Author: <?= htmlspecialchars($book['author']); ?></p>
                     <hr class="my-4">
                     
-                    <!-- Secure Viewer Placeholder -->
-                    <div class="alert alert-light border">
-                        <div class="mt-2 p-4 d-flex align-items-center justify-content-center secure-viewer-viewport">
-                             <div class="text-center">
-                                <iconify-icon icon="line-md:loading-twotone-loop" class="loading-spinner"></iconify-icon>
-                                <p class="mt-2 text-dark-50">Loading Secure Digital Reader...</p>
-                             </div>
+                    <!-- Secure Viewer Embed Section -->
+                    <div class="alert alert-light border p-0 overflow-hidden">
+                        <div class="d-flex align-items-center justify-content-center secure-viewer-viewport" style="min-height: 600px; background: #525659;">
+                            <?php if (!empty($book['ebook_file'])): ?>
+                                <?php 
+                                    // Set up the dynamic relative path pointing to your uploads folder
+                                    $filePath = '/kmkdt-Library/app/uploads/ebooks/' . $book['ebook_file']; 
+                                ?>
+                                <!-- Embedded Secure PDF Viewer (Disables toolbars and sidebars to mitigate easy copies) -->
+                                <iframe src="<?= htmlspecialchars($filePath); ?>#toolbar=0&navpanes=0" width="100%" height="650px" style="border: none;"></iframe>
+                            <?php else: ?>
+                                <!-- Fallback display state if an admin has not uploaded a digital copy yet -->
+                                <div class="text-white p-5 text-center">
+                                    <iconify-icon icon="lucide:alert-triangle" class="display-4 text-warning mb-3"></iconify-icon>
+                                    <h4 class="fw-bold">No Digital File Available</h4>
+                                    <p class="small text-light opacity-75">This item is currently only available as a physical copy in the library catalog.</p>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -71,7 +82,6 @@ include('./includes/tsbar.php');
             </div>
         </div>
     </div>
-</div>
 </div>
 
 <?php include_once 'includes/footer.php'; ?>

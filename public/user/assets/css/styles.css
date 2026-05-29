@@ -19415,6 +19415,91 @@ textarea.form-control-lg {
           transform: translateY(0);
 }
 
+/* Premium Dashboard Aesthetic Overrides */
+.loan-card-wrapper {
+  background-color: #e9ecef !important;
+  border-radius: 24px !important;
+}
+
+.metadata-pill-box {
+  background-color: #1e293b !important; /* Deep modern charcoal indigo */
+  border-radius: 16px !important;
+  -webkit-box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05);
+          box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05);
+}
+
+.loan-actions-container .btn {
+  -webkit-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: -0.1px;
+}
+
+.loan-actions-container .btn:hover:not([disabled]) {
+  -webkit-transform: translateY(-2px);
+          transform: translateY(-2px);
+  -webkit-box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Clean Tag Badges Layout Fix */
+.badge-genre {
+  background-color: rgba(33, 37, 41, 0.06);
+  color: #495057;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.badge-status-awaiting {
+  background: linear-gradient(135deg, #ffc107, #ff9800);
+  color: #212529;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  -webkit-box-shadow: 0 2px 8px rgba(255, 152, 0, 0.15);
+          box-shadow: 0 2px 8px rgba(255, 152, 0, 0.15);
+}
+
+.loan-actions-container .pulse-alert {
+  -webkit-animation: subtlePulse 3s infinite ease-in-out;
+          animation: subtlePulse 3s infinite ease-in-out;
+  border-radius: 16px !important;
+}
+
+@-webkit-keyframes subtlePulse {
+  0% {
+    -webkit-box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.15);
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.15);
+  }
+  50% {
+    -webkit-box-shadow: 0 0 0 6px rgba(255, 193, 7, 0.04);
+            box-shadow: 0 0 0 6px rgba(255, 193, 7, 0.04);
+  }
+  100% {
+    -webkit-box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.15);
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.15);
+  }
+}
+
+@keyframes subtlePulse {
+  0% {
+    -webkit-box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.15);
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.15);
+  }
+  50% {
+    -webkit-box-shadow: 0 0 0 6px rgba(255, 193, 7, 0.04);
+            box-shadow: 0 0 0 6px rgba(255, 193, 7, 0.04);
+  }
+  100% {
+    -webkit-box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.15);
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.15);
+  }
+}
 /* Integrated Banner Design Control */
 .page-wrapper .alert-success-custom {
   background-color: #22c55e;

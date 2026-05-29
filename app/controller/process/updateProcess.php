@@ -21,7 +21,7 @@ if (!$uid) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // 1. CSRF Validation
+    // CSRF Validation
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $_SESSION['message'] = "Security token mismatch.";
         $_SESSION['code'] = "error";
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password     = $_POST['password'] ?? '';
     $confirmPass  = $_POST['confirmPassword'] ?? '';
 
-    // 2. Mandatory Fields
+    // Mandatory Fields
     if (empty($fullName) || empty($username) || empty($emailAddress)) {
         $_SESSION['message'] = "Full Name, Username, and Email are required.";
         $_SESSION['code'] = "error";
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // --- NEW: Email Validation ---
+    // NEW: Email Validation
     if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['message'] = "Invalid email format. Must be a complete address (e.g., name@domain.com).";
         $_SESSION['code'] = "error";
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // 3. Duplicate Prevention
+    //  Duplicate Prevention
     $checkQuery = "SELECT username, emailAddress FROM user WHERE (username = ? OR emailAddress = ?) AND id != ? LIMIT 1";
     $checkStmt = $conn->prepare($checkQuery);
     $checkStmt->bind_param("ssi", $username, $emailAddress, $uid);
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // 4. Update Execution
+    //  Update Execution
     if (!empty($password)) {
         if ($password !== $confirmPass) {
             $_SESSION['message'] = "Passwords do not match!";
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("ssssssi", $fullName, $username, $emailAddress, $street, $barangay, $city, $uid);
     }
 
-    // 5. Final Execution Check
+    //  Final Execution Check
     if ($stmt && $stmt->execute()) {
         if ($stmt->affected_rows > 0) {
             // Update session state

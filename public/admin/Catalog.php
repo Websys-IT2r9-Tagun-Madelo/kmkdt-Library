@@ -12,8 +12,9 @@ $successMessage = $_SESSION['success'] ?? null;
 $errorMessage   = $_SESSION['error'] ?? null;
 unset($_SESSION['success'], $_SESSION['error']);
 
-$books      = getCatalog($conn);
-$activities = getRecentActivity($conn);
+// Fetch data using clean controller functions
+$books           = getCatalog($conn);
+$pendingRequests = getPendingReturnRequests($conn);
 
 include('./includes/header.php');
 include('./includes/topbar.php');
@@ -80,7 +81,7 @@ include('./includes/sidebar.php');
         </div>
       </div>
 
-        <div class="table-responsive">
+       <div class="table-responsive">
          <table class="table table-hover align-middle" id="catalogTable">
           <thead class="table-light text-secondary text-uppercase fs-7 small">
             <tr>
@@ -96,14 +97,9 @@ include('./includes/sidebar.php');
   
           <tbody>
             <?php if (!empty($books)): ?>
-              <?php 
-                $totalBooks = count($books); // Get the total number of books in the array
-                foreach ($books as $index => $book): 
-                  // Calculate reverse sequence number (e.g., total down to 1)
-                  $displayNumber = $totalBooks - $index; 
-              ?>
+              <?php foreach ($books as $index => $book): ?>
                 <tr class="book-row border-bottom align-middle">
-                  <td class="ps-3 text-muted fw-semibold"><?= $displayNumber ?></td>
+                  <td class="ps-3 text-muted fw-semibold"><?= $index + 1 ?></td>
                   <td>
                     <?php if (!empty($book['cover_image'])): ?>
                       <img src="/kmkdt-Library/app/uploads/covers/<?= htmlspecialchars($book['cover_image']) ?>" alt="Cover" class="img-thumbnail rounded-0 cover-img-thumbnail">
@@ -112,7 +108,14 @@ include('./includes/sidebar.php');
                     <?php endif; ?>
                   </td>
                   <td>
-                    <div class="fw-bold text-dark book-title"><?= htmlspecialchars($book['title'] ?? '') ?></div>
+                    <div class="fw-bold text-dark book-title">
+                      <?= htmlspecialchars($book['title'] ?? '') ?>
+                      <?php if (!empty($book['ebook_file'])): ?>
+                        <span class="badge bg-info text-white ms-1 rounded-pill" style="font-size: 0.65rem;" title="E-Book File Attached">
+                          <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+                        </span>
+                      <?php endif; ?>
+                    </div>
                     <small class="text-muted d-block text-truncate book-title-description"><?= htmlspecialchars($book['description'] ?? 'No description provided.') ?></small>
                   </td>
                   <td class="text-secondary">
@@ -129,7 +132,6 @@ include('./includes/sidebar.php');
                               $trimmedTag = strtolower(trim($tag));
                               if (empty($trimmedTag)) continue;
 
-                              // Normalize legacy spelling layout on badge output render stage
                               if ($trimmedTag === 'non-ficion' || $trimmedTag === 'non fiction') {
                                   $trimmedTag = 'non-fiction';
                               }
@@ -177,7 +179,8 @@ include('./includes/sidebar.php');
                               data-category="<?= htmlspecialchars($book['category'] ?? '') ?>"
                               data-genre="<?= htmlspecialchars($book['genre'] ?? '') ?>"
                               data-description="<?= htmlspecialchars($book['description'] ?? '') ?>"
-                              data-status="<?= htmlspecialchars($book['status'] ?? '') ?>">
+                              data-status="<?= htmlspecialchars($book['status'] ?? '') ?>"
+                              data-has-ebook="<?= !empty($book['ebook_file']) ? 'true' : 'false' ?>">
                         <i class="bi bi-pencil"></i>
                       </button>
                       <button type="button" 
@@ -213,53 +216,60 @@ include('./includes/sidebar.php');
 <div class="col-lg-12 mb-4">
   <div class="card rounded-0 border-0 shadow-sm">
     <div class="card-body pt-4">
-      <h5 class="card-title p-0 mb-4 fw-bold">Recent Library Activity</h5>
-      <div class="activity">
-        <?php if (!empty($activities)): ?>
-          <?php foreach ($activities as $act): ?>
-            <?php
-              $rawStatus = strtolower($act['status'] ?? '');
-              $timestamp = !empty($act['borrowed_at']) ? $act['borrowed_at'] : 'now';
+      <h5 class="card-title p-0 mb-4 fw-bold">Pending Return Requests</h5>
+      <div class="requests-list">
+        <?php if (!empty($pendingRequests)): ?>
+          <?php foreach ($pendingRequests as $act): 
+              $timestamp = !empty($act['borrowed_at']) ? $act['borrowed_at'] : 'now'; 
               $bookTitle = !empty($act['title']) ? '"' . $act['title'] . '"' : 'Unknown Book';
-              $isOverdue = (!empty($act['is_overdue']) && $act['is_overdue'] == 1);
-
-              // Condition Matrix Routing
-              if ($isOverdue) {
-                  $iconClass = 'bg-danger text-white';
-                  $icon = 'bi-exclamation-triangle-fill';
-                  $actionLabel = 'overdue on returning';
-              } elseif ($rawStatus === 'payment') {
-                  $iconClass = 'bg-success text-white';
-                  $icon = 'bi-cash-coin';
-                  $actionLabel = 'settled fine';
-              } else {
-                  $isReturn = ($rawStatus === 'returned');
-                  $iconClass = $isReturn ? 'bg-primary text-white' : 'bg-warning text-dark';
-                  $icon = $isReturn ? 'bi-arrow-return-left' : 'bi-book';
-                  $actionLabel = $rawStatus ?: 'processed';
-              }
+              $requestId = $act['request_id'] ?? 0;
             ?>
-            <div class="activity-item d-flex align-items-start mb-3 border-start ps-3 position-relative">
-              <div class="activity-icon <?= $iconClass ?> rounded-circle me-3 activity-icon-wrapper">
-                <i class="bi <?= $icon ?> fs-6"></i>
+            <div class="request-item d-flex align-items-start justify-content-between p-3 mb-3 border rounded">
+              <div class="d-flex align-items-start">
+                <div class="icon-box me-3 p-2 bg-light rounded border">
+                  <i class="bi bi-box-arrow-in-left fs-5 text-primary"></i>
+                </div>
+                
+                <div>
+                  <div class="mb-1">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-0.5" style="font-size: 0.7rem; font-weight: 600;">
+                      RETURN REQUEST
+                    </span>
+                    <small class="text-muted ms-2"><?= date('M d, g:i A', strtotime($timestamp)) ?></small>
+                  </div>
+                  
+                  <div class="text-dark">
+                    <strong><?= htmlspecialchars($act['borrower_name'] ?? 'System User') ?></strong> 
+                    <span class="text-muted">requested to return</span> 
+                    <strong class="text-dark"><?= htmlspecialchars($bookTitle) ?></strong>
+                  </div>
+                </div>
               </div>
-              <div>
-                <div class="small text-muted mb-0.5">
-                  <?= date('g:i A', strtotime($timestamp)) ?>
-                  <?php if ($isOverdue): ?>
-                    <span class="badge bg-danger-subtle text-danger ms-1 border border-danger-subtle rounded-pill px-2 py-0.5" style="font-size: 0.65rem;">LATE</span>
-                  <?php endif; ?>
-                </div>
-                <div class="text-dark">
-                  <strong><?= htmlspecialchars($act['fullName'] ?? 'System User') ?></strong> 
-                  <span class="<?= $isOverdue ? 'text-danger fw-semibold' : '' ?>"><?= htmlspecialchars($actionLabel) ?></span> 
-                  <strong class="text-secondary"><?= htmlspecialchars($bookTitle) ?></strong>
-                </div>
+
+              <div class="request-actions d-flex gap-2 align-self-center">
+                <form action="/kmkdt-Library/app/controller/process/adminApprovalsProcess.php" method="POST" class="d-inline" onsubmit="return confirm('Approve this return request? The book will be marked as Available.');">
+                  <input type="hidden" name="request_id" value="<?= intval($requestId) ?>">
+                  <input type="hidden" name="action" value="approve">
+                  <button type="submit" class="btn btn-sm btn-success rounded-1 px-3 d-flex align-items-center gap-1">
+                    <i class="bi bi-check-lg"></i> Approve
+                  </button>
+                </form>
+                
+                <form action="/kmkdt-Library/app/controller/process/adminApprovalsProcess.php" method="POST" class="d-inline" onsubmit="return confirm('Reject this return request? The book will remain in the user\'s borrowed list.');">
+                  <input type="hidden" name="request_id" value="<?= intval($requestId) ?>">
+                  <input type="hidden" name="action" value="reject">
+                  <button type="submit" class="btn btn-sm btn-outline-danger rounded-1 px-3 d-flex align-items-center gap-1">
+                    <i class="bi bi-x-lg"></i> Reject
+                  </button>
+                </form>
               </div>
             </div>
           <?php endforeach; ?>
         <?php else: ?>
-          <p class="text-muted ps-2">No recent library activities recorded.</p>
+          <div class="text-center py-4">
+            <i class="bi bi-check2-circle text-success fs-1"></i>
+            <p class="text-muted mt-2 mb-0">No pending return requests found.</p>
+          </div>
         <?php endif; ?>
       </div>
     </div>
@@ -341,9 +351,18 @@ include('./includes/sidebar.php');
               <label class="form-label text-secondary small fw-bold">Cover Image File <span class="text-danger">*</span></label>
               <input type="file" name="cover_image" class="form-control rounded-0" accept="image/*" required>
             </div>
+
+            <div class="col-md-12">
+              <label class="form-label text-secondary small fw-bold">
+                <i class="bi bi-file-earmark-pdf text-danger me-1"></i> Upload Digital E-Book File <span class="text-muted fw-normal">(Optional)</span>
+              </label>
+              <input type="file" name="ebook_file" class="form-control rounded-0" accept=".pdf">
+              <div class="form-text mt-1 text-muted small" style="font-size: 11px;">Supported format: <strong>PDF only</strong>. Leave empty if this is exclusively a physical catalog record.</div>
+            </div>
+
             <div class="col-12">
               <label class="form-label text-secondary small fw-bold">Description / Summary</label>
-              <textarea name="description" class="form-control rounded-0" rows="3" placeholder="Enter book synopsis..." required></textarea>
+              <textarea name="description" class="form-control rounded-0" rows="3" placeholder="Enter book synopsis..."></textarea>
             </div>
           </div>
         </div>
@@ -355,7 +374,6 @@ include('./includes/sidebar.php');
     </div>
   </div>
 </div>
-
 
 <div class="modal fade" id="editBookModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -430,9 +448,20 @@ include('./includes/sidebar.php');
               </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">Change Cover Image <span class="text-muted small fw-normal">(Required)</span></label>
+              <label class="form-label text-secondary small fw-bold">Change Cover Image <span class="text-muted small fw-normal">(Optional)</span></label>
               <input type="file" name="cover_image" class="form-control rounded-0" accept="image/*">
             </div>
+
+            <div class="col-md-12">
+              <label class="form-label text-secondary small fw-bold">
+                <i class="bi bi-file-earmark-pdf text-danger me-1"></i> Replace/Update Digital E-Book File <span class="text-muted fw-normal">(Optional)</span>
+              </label>
+              <input type="file" name="ebook_file" class="form-control rounded-0" accept=".pdf">
+              <div class="form-text mt-1 text-muted small" style="font-size: 11px;" id="edit_ebook_hint">
+                Supported format: <strong>PDF only</strong>. Leave empty to preserve the current digital asset file configuration.
+              </div>
+            </div>
+
             <div class="col-12">
               <label class="form-label text-secondary small fw-bold">Description / Summary</label>
               <textarea name="description" id="edit_description" class="form-control rounded-0" rows="3" required></textarea>
@@ -447,7 +476,6 @@ include('./includes/sidebar.php');
     </div>
   </div>
 </div>
-
 
 <div class="modal fade" id="deleteBookModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">

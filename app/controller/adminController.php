@@ -34,16 +34,19 @@ function getLiveOverdueNotifications($conn, $isUnlimited = false) {
                 CASE 
                     WHEN h.status = 'returned' THEN 'success'
                     WHEN h.status = 'overdue' OR (h.status = 'borrowed' AND h.due_date < '$currentDate') THEN 'danger'
+                    WHEN h.status = 'pending' THEN 'info' 
                     ELSE 'warning'
                 END AS type,
                 CASE 
                     WHEN h.status = 'returned' THEN 'Book Returned Safely'
                     WHEN h.status = 'overdue' OR (h.status = 'borrowed' AND h.due_date < '$currentDate') THEN 'Overdue Book Warning'
+                    WHEN h.status = 'pending' THEN 'Return Pending Approval'
                     ELSE 'New Book Loan Checked Out'
                 END AS title,
                 CASE 
                     WHEN h.status = 'returned' THEN CONCAT(u.fullName, ' successfully checked back in \"', b.title, '\"')
                     WHEN h.status = 'overdue' OR (h.status = 'borrowed' AND h.due_date < '$currentDate') THEN CONCAT(u.fullName, ' is past the deadline for \"', b.title, '\"')
+                    WHEN h.status = 'pending' THEN CONCAT(u.fullName, ' requested to return \"', b.title, '\" - Awaiting your approval.')
                     ELSE CONCAT(u.fullName, ' borrowed \"', b.title, '\" (Due: ', DATE_FORMAT(h.due_date, '%b %d, %Y'), ')')
                 END AS message,
                 h.id
@@ -556,6 +559,7 @@ function getDashboardAnalytics($conn) {
     $analytics = [
         'borrowedCount'    => 0,
         'overdueCount'     => 0,
+        'pendingCount'     => 0, // Added initialization state for pending metrics
         'catalogCount'     => 0,
         'totalRevenue'     => 0.00,
         'totalMembers'     => 0,
@@ -571,17 +575,19 @@ function getDashboardAnalytics($conn) {
         $currentDate = date('Y-m-d');
         $currentDateTime = date('Y-m-d H:i:s');
 
-        // 1. Fetch live transaction data statuses
+        // 1. Fetch live transaction data statuses (Including Pending updates)
         $countsQuery = $conn->query("
             SELECT 
                 SUM(CASE WHEN status = 'borrowed' AND due_date >= '$currentDate' THEN 1 ELSE 0 END) as borrowed,
-                SUM(CASE WHEN status = 'overdue' OR (status = 'borrowed' AND due_date < '$currentDate') THEN 1 ELSE 0 END) as overdue
+                SUM(CASE WHEN status = 'overdue' OR (status = 'borrowed' AND due_date < '$currentDate') THEN 1 ELSE 0 END) as overdue,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending
             FROM borrowing_history
         ");
         if ($countsQuery) {
             $row = $countsQuery->fetch_assoc();
             $analytics['borrowedCount'] = (int)($row['borrowed'] ?? 0);
             $analytics['overdueCount']  = (int)($row['overdue'] ?? 0);
+            $analytics['pendingCount']  = (int)($row['pending'] ?? 0); // Extracted pending payload count
             $countsQuery->free();
         }
 
@@ -606,10 +612,10 @@ function getDashboardAnalytics($conn) {
             $memberQuery->free();
         }
 
-        
+        // 5. Fetch Recent Activities with explicit live system state check overrides
         $sql = "SELECT h.*, u.fullName, b.title,
                        CASE 
-                           WHEN h.status != 'returned' AND h.due_date < '$currentDateTime' THEN 1 
+                           WHEN h.status NOT IN ('returned', 'pending') AND h.due_date < '$currentDateTime' THEN 1 
                            ELSE 0 
                        END AS is_overdue
                 FROM borrowing_history h
@@ -628,4 +634,26 @@ function getDashboardAnalytics($conn) {
     }
 
     return $analytics;
+}
+function getPendingReturnRequests($conn) {
+    $pendingRequests = [];
+    
+    // Using TRIM and a safer state string matching syntax condition
+    $pendingSql = "SELECT bh.id AS request_id, bh.borrowed_at, b.title, u.username AS borrower_name
+                   FROM borrowing_history bh
+                   LEFT JOIN books b ON bh.book_id = b.id
+                   LEFT JOIN user u ON bh.user_id = u.id
+                   WHERE TRIM(LOWER(bh.status)) = 'pending_return'
+                      OR TRIM(LOWER(bh.status)) = 'pending return'
+                   ORDER BY bh.borrowed_at DESC";
+
+    if ($result = $conn->query($pendingSql)) {
+        while ($row = $result->fetch_assoc()) {
+            if (empty($row['title'])) $row['title'] = 'Unknown Book Title';
+            if (empty($row['borrower_name'])) $row['borrower_name'] = 'System User';
+            $pendingRequests[] = $row;
+        }
+    }
+    
+    return $pendingRequests;
 }

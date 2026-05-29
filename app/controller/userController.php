@@ -8,7 +8,6 @@ if (session_status() === PHP_SESSION_NONE) {
 if (!defined('USER_CONTROLLER_INITIALIZED')) {
     define('USER_CONTROLLER_INITIALIZED', true);
 
-    
     $ctrlAppPath = dirname(__DIR__);
     $ctrlConfigPath = $ctrlAppPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
 
@@ -22,7 +21,6 @@ if (!defined('USER_CONTROLLER_INITIALIZED')) {
 if (isset($_GET['action']) && $_GET['action'] === 'get_live_user_updates') {
     if (ob_get_length()) ob_clean();
     header('Content-Type: application/json; charset=UTF-8');
-    
     
     $userId = $_SESSION['user_id'] ?? $_SESSION['authUser']['id'] ?? $_SESSION['authUser']['user_id'] ?? null;
     
@@ -82,13 +80,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_live_user_updates') {
             }
         }
     } catch (Exception $e) {
-        
+        // Handle exception safely
     }
     
     echo json_encode(['notifications' => $notifications]);
     exit();
 }
 
+// LOGOUT LOGIC
 if (isset($_POST['logoutButton'])) {
     unset($_SESSION['authUser']);
     unset($_SESSION['user_id']);
@@ -97,12 +96,13 @@ if (isset($_POST['logoutButton'])) {
     header("Location: /kmkdt-Library/public/login");
     exit();
 }
+
 function getAllBooks($conn, $search = '') {
     $search = trim($search);
     
     $baseSelect = "SELECT b.*, u.username AS borrower_name, bh.due_date 
                    FROM books b
-                   LEFT JOIN borrowing_history bh ON b.id = bh.book_id AND bh.status IN ('borrowed', 'overdue')
+                   LEFT JOIN borrowing_history bh ON b.id = bh.book_id AND bh.status IN ('borrowed', 'overdue', 'pending_return')
                    LEFT JOIN user u ON bh.user_id = u.id";
 
     if (empty($search) || strtolower($search) === 'all') {
@@ -134,6 +134,7 @@ function getAllBooks($conn, $search = '') {
     $stmt->execute();
     return $stmt->get_result();
 }
+
 function processBookBorrow($conn, $userId, $bookId) {
     $userId = intval($userId);
     $bookId = intval($bookId);
@@ -152,7 +153,6 @@ function processBookBorrow($conn, $userId, $bookId) {
         
         $category = $bookData['category'] ?? 'General';
 
-        
         if (stripos($category, 'Online') !== false) {
             $days = 365; 
         } elseif (stripos($category, 'Reserve') !== false) {
@@ -167,8 +167,8 @@ function processBookBorrow($conn, $userId, $bookId) {
 
         $dueDate = date('Y-m-d', strtotime("+$days days"));
 
-        
-        $query1 = "UPDATE books SET user_id = ?, status = 'Unavailable' WHERE id = ? AND user_id IS NULL";
+        // FIXED: Lowercase 'borrowed' to comply with strict ENUM definitions
+        $query1 = "UPDATE books SET user_id = ?, status = 'borrowed' WHERE id = ? AND user_id IS NULL";
         $stmt1 = $conn->prepare($query1);
         $stmt1->bind_param("ii", $userId, $bookId);
         $stmt1->execute();
@@ -195,12 +195,11 @@ function processBookBorrow($conn, $userId, $bookId) {
 function getMyBooks($conn, $userId) {
     $userId = intval($userId);
 
-    
     $query = "SELECT bh.id AS loan_id, b.id AS book_id, b.title, b.category, b.genre, b.cover_image, 
                     bh.due_date, bh.status, bh.renewal_count, bh.penalty
             FROM books b 
             JOIN borrowing_history bh ON b.id = bh.book_id 
-            WHERE bh.user_id = ? AND bh.status IN ('borrowed', 'overdue')
+            WHERE bh.user_id = ? AND bh.status IN ('borrowed', 'overdue', 'pending_return')
             ORDER BY bh.borrowed_at DESC";
         
     if ($stmt = $conn->prepare($query)) {
@@ -211,67 +210,69 @@ function getMyBooks($conn, $userId) {
     return null;
 }
 
-function processBookRenewal($conn, $userId, $bookId) {
-    $userId = intval($userId);
-    $bookId = intval($bookId);
-
-    
-    $checkQuery = "SELECT renewal_count FROM borrowing_history WHERE user_id = ? AND book_id = ? AND status = 'borrowed'";
-    $stmtCheck = $conn->prepare($checkQuery);
-    $stmtCheck->bind_param("ii", $userId, $bookId);
-    $stmtCheck->execute();
-    $result = $stmtCheck->get_result()->fetch_assoc();
-    
-    if ($result && $result['renewal_count'] >= 1) {
-        return false; 
-    }
-    $query = "UPDATE borrowing_history 
-              SET borrowed_at = NOW(), 
-                  renewal_count = renewal_count + 1,
-                  status = 'borrowed' 
-              WHERE user_id = ? AND book_id = ? AND status IN ('borrowed', 'overdue')";
-    
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("ii", $userId, $bookId);
-    return $stmt->execute();
-}
-
-function processBookReturn($conn, $userId, $bookId) {
+function processBookReturn($conn, $userId, $bookId, $isAdminApproval = false) {
     $userId = intval($userId);
     $bookId = intval($bookId);
 
     $conn->begin_transaction();
     try {
-        
-        $checkSql = "SELECT status FROM borrowing_history 
-                     WHERE user_id = ? AND book_id = ? AND status IN ('borrowed', 'overdue')
+        // 1. Gather current borrowing details
+        $checkSql = "SELECT id, status FROM borrowing_history 
+                     WHERE user_id = ? AND book_id = ? AND status IN ('borrowed', 'overdue', 'pending_return')
                      ORDER BY borrowed_at DESC LIMIT 1";
+        
         $stmtCheck = $conn->prepare($checkSql);
         $stmtCheck->bind_param("ii", $userId, $bookId);
         $stmtCheck->execute();
         $loan = $stmtCheck->get_result()->fetch_assoc();
+        $stmtCheck->close();
 
-        
-        if ($loan && $loan['status'] === 'overdue') {
-            
+        if (!$loan) {
             $conn->rollback();
-            return false; 
+            return false;
         }
 
+        // FIXED: Removed the restriction that completely blocked overdue returns from changing status!
+        $historyId = intval($loan['id']);
+
+        // --- SCENARIO A: ADMIN MODE (Finalize standard book check-in) ---
+        if ($isAdminApproval) {
+            // FIXED: Lowercase 'available' matches structural database standards
+            $query1 = "UPDATE books SET user_id = NULL, status = 'available' WHERE id = ? AND user_id = ?";
+            $stmt1 = $conn->prepare($query1);
+            $stmt1->bind_param("ii", $bookId, $userId);
+            $stmt1->execute();
+            $stmt1->close();
+
+            // Set final completed archive flags
+            $query2 = "UPDATE borrowing_history SET status = 'returned', returned_at = NOW() 
+                       WHERE id = ?";
+            $stmt2 = $conn->prepare($query2);
+            $stmt2->bind_param("i", $historyId);
+            $stmt2->execute();
+            $stmt2->close();
+
+            $conn->commit();
+            return true;
+        } 
         
-        $query1 = "UPDATE books SET user_id = NULL, status = 'Available' WHERE id = ? AND user_id = ?";
-        $stmt1 = $conn->prepare($query1);
-        $stmt1->bind_param("ii", $bookId, $userId);
-        $stmt1->execute();
+        // --- SCENARIO B: USER MODE (Submit initial return request) ---
+        else {
+            if ($loan['status'] === 'pending_return') {
+                $conn->rollback();
+                return true; // Already processed
+            }
 
-        $query2 = "UPDATE borrowing_history SET status = 'returned', returned_at = NOW() 
-                    WHERE user_id = ? AND book_id = ? AND status = 'borrowed'";
-        $stmt2 = $conn->prepare($query2);
-        $stmt2->bind_param("ii", $userId, $bookId);
-        $stmt2->execute();
+            $queryUserReq = "UPDATE borrowing_history SET status = 'pending_return' WHERE id = ?";
+            $stmtUser = $conn->prepare($queryUserReq);
+            $stmtUser->bind_param("i", $historyId);
+            $stmtUser->execute();
+            $stmtUser->close();
 
-        $conn->commit();
-        return true;
+            $conn->commit();
+            return true;
+        }
+
     } catch (Exception $e) {
         $conn->rollback();
         return false;
@@ -313,16 +314,29 @@ function getUserById($conn, $userId) {
 
 function getBookForReader($conn, $id) {
     $id = intval($id); 
+    
     $stmt = $conn->prepare("SELECT * FROM books WHERE id = ?");
+    if (!$stmt) {
+        error_log("Failed to prepare statement in getBookForReader: " . $conn->error);
+        return null;
+    }
+    
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
-    return $result->fetch_assoc();
-}
-
+    
+    // Ensure data exists before returning, otherwise return null safely
+    if ($result && $result->num_rows > 0) {
+        $book = $result->fetch_assoc();
+        $stmt->close();
+        return $book;
+    }
+    
+    $stmt->close();
+    return null;
+}   
 
 function getBooksByCategory($conn, $categoryName, $limit = 3) {
-
     $query = "SELECT * FROM books WHERE genre LIKE ? LIMIT ?";
     $stmt = $conn->prepare($query);
     $searchTerm = "%" . $categoryName . "%";

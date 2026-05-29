@@ -136,7 +136,7 @@ include('./includes/sidebar.php');
               </a>
             </div>
             <div class="col-sm-6">
-              <a href="payHistory" class="btn btn-outline-success d-flex align-items-center p-3 rounded-0 text-start w-100 h-100">
+              <a href="payHistory" class="btn btn-outline-dangerz d-flex align-items-center p-3 rounded-0 text-start w-100 h-100">
                 <i class="bi bi-receipt fs-3 me-3 text-black"></i>
                 <div>
                   <div class="fw-bold text-dark">Penalty Logs</div>
@@ -145,7 +145,7 @@ include('./includes/sidebar.php');
               </a>
             </div>
             <div class="col-sm-6">
-              <a href="members" class="btn btn-outline-secondary d-flex align-items-center p-3 rounded-0 text-start w-100 h-100">
+              <a href="members" class="btn btn-outline-success d-flex align-items-center p-3 rounded-0 text-start w-100 h-100">
                 <i class="bi bi-person-lines-fill fs-3 me-3"></i>
                 <div>
                   <div class="fw-bold">Manage Members</div>
@@ -163,75 +163,100 @@ include('./includes/sidebar.php');
       </div>
     </div>
 
-<div class="col-lg-5">
-      <div class="card rounded-0 shadow-sm border-0 h-100">
-        <div class="card-body pt-3">
-          <h5 class="card-title">Live Transactions</h5>
-          <p class="text-muted small">Latest user activities updated in real-time from system logs.</p>
-          
-          <div class="activity mt-3">
-            <?php if (!empty($recentActivities)): ?>
-              <?php foreach ($recentActivities as $act): 
-                  $status = strtolower($act['status'] ?? '');
-                  $isOverdue = (!empty($act['is_overdue']) && $act['is_overdue'] == 1);
-                  
-                  
-                  if ($status === 'borrowed' && !$isOverdue && !empty($act['due_date'])) {
-                      $dueDate = strtotime($act['due_date']);
-                      $today = strtotime(date('Y-m-d'));
-                      $daysRemaining = ($dueDate - $today) / 86400; 
+<div class="col-lg-5 col-md-12 mb-4">
+  <div class="card rounded-3 shadow-sm border-0 h-100">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h5 class="card-title mb-1 fw-bold text-dark">Live Transactions</h5>
+          <p class="text-muted small mb-0">Latest user activities updated in real-time from system logs.</p>
+        </div>
+        <!-- Pulse effect for live feed feel -->
+        <span class="spinner-grow spinner-grow-sm text-success" role="status" aria-hidden="true"></span>
+      </div>
+      
+      <div class="activity mt-4" style="max-height: 450px; overflow-y: auto;">
+        <?php if (!empty($recentActivities)): ?>
+          <?php foreach ($recentActivities as $act): 
+              $status = strtolower($act['status'] ?? '');
+              $isOverdue = (!empty($act['is_overdue']) && $act['is_overdue'] == 1);
+              
+              // Safe date calculation using absolute day bounds
+              if ($status === 'borrowed' && !$isOverdue && !empty($act['due_date'])) {
+                  $dueDate = strtotime(date('Y-m-d', strtotime($act['due_date'])));
+                  $today = strtotime(date('Y-m-d'));
+                  $daysRemaining = round(($dueDate - $today) / 86400); 
 
-                      if ($daysRemaining >= 0 && $daysRemaining <= 3) {
-                          $status = 'due soon';
-                      }
+                  if ($daysRemaining >= 0 && $daysRemaining <= 3) {
+                      $status = 'due soon';
                   }
+              }
 
-                  // Determine live visual status badge indicators
-                  if ($isOverdue || $status === 'overdue') {
+              // Dynamic badge mapping
+              switch(true) {
+                  case ($isOverdue || $status === 'overdue'):
                       $badgeColor = 'bg-danger text-white';
                       $statusLabel = 'overdue';
-                  } elseif ($status === 'due soon' || $status === 'due_soon') {
+                      break;
+                  case ($status === 'due soon' || $status === 'due_soon'):
                       $badgeColor = 'bg-warning text-dark';
                       $statusLabel = 'due soon';
-                  } elseif ($status === 'returned') {
+                      break;
+                  case ($status === 'returned'):
                       $badgeColor = 'bg-success text-white';
                       $statusLabel = 'returned';
-                  } else {
-                      // Fallback for standard active "borrowed" statuses
-                      $badgeColor = 'bg-borrowed text-white'; // Switch to 'bg-primary' if custom CSS fails
-                      $statusLabel = $status;
-                  }
-              ?>
-                <div class="activity-item d-flex align-items-start mb-3 border-bottom pb-2">
-                  <span class="badge <?php echo $badgeColor; ?> me-3 px-2 py-1 rounded-0 text-uppercase" style="font-size:0.65rem; width: 75px; text-align: center;">
-                    <?php echo htmlspecialchars($statusLabel); ?>
-                  </span>
-                  <div class="w-100">
-                    <div class="small fw-semibold text-dark"><?php echo htmlspecialchars($act['fullName'] ?? 'System User'); ?></div>
-                    <div class="text-muted small text-truncate" style="max-width: 200px;">
-                      Book: "<?php echo htmlspecialchars($act['title'] ?? 'Unknown Title'); ?>"
-                    </div>
-                    <small class="text-muted d-block" style="font-size:0.75rem;">
-                      <i class="bi bi-clock me-1"></i><?php echo !empty($act['borrowed_at']) ? date('M d | g:i A', strtotime($act['borrowed_at'])) : 'N/A'; ?>
-                    </small>
-                  </div>
-                </div>
-              <?php endforeach; ?>
-            <?php else: ?>
-              <div class="text-center py-5 text-muted">
-                <i class="bi bi-cloud-slash d-block fs-2 opacity-50 mb-2"></i>
-                No historical checkout transactions processed yet.
+                      break;
+                  case ($status === 'pending_return'):
+                      $badgeColor = 'bg-pending text-white'; 
+                      $statusLabel = 'pending';
+                      break;
+                  default:
+                      // Ensure this class matches your CSS file
+                      $badgeColor = 'bg-borrowed text-white'; 
+                      $statusLabel = $status ?: 'borrowed';
+                      break;
+              }
+          ?>
+            <div class="activity-item d-flex align-items-start py-3 border-bottom">
+              <!-- Uniform width & centered text alignment badge -->
+              <div class="me-3">
+                <span class="badge <?php echo $badgeColor; ?> rounded-1 text-uppercase text-center d-inline-block" 
+                      style="font-size: 0.65rem; width: 78px; letter-spacing: 0.5px; padding: 5px 0;">
+                  <?php echo htmlspecialchars($statusLabel); ?>
+                </span>
               </div>
-            <?php endif; ?>
+              
+              <div class="flex-grow-1 min-w-0">
+                <div class="d-flex justify-content-between align-items-baseline">
+                  <h6 class="small fw-bold text-dark mb-0 text-truncate me-2">
+                    <?php echo htmlspecialchars($act['fullName'] ?? 'System User'); ?>
+                  </h6>
+                  <small class="text-muted text-nowrap" style="font-size:0.7rem;">
+                    <i class="bi bi-clock me-1"></i><?php echo !empty($act['borrowed_at']) ? date('M d, g:i A', strtotime($act['borrowed_at'])) : 'N/A'; ?>
+                  </small>
+                </div>
+                
+                <div class="text-muted small text-truncate mt-1">
+                  Book: <span class="text-secondary fw-medium">"<?php echo htmlspecialchars($act['title'] ?? 'Unknown Title'); ?>"</span>
+                </div>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <!-- Polished Empty State Display -->
+          <div class="text-center py-5 my-3 text-muted">
+            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+              <i class="bi bi-folder2-open fs-3 text-secondary opacity-75"></i>
+            </div>
+            <p class="mb-1 fw-semibold text-dark">No transactions found</p>
+            <p class="small text-muted mb-0">Historical activities will propagate here automatically.</p>
           </div>
-
-        </div>
+        <?php endif; ?>
       </div>
+
     </div>
-
   </div>
-
-</section>
+</div>
 
 <?php
 include('./includes/footer.php');
