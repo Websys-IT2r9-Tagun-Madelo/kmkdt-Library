@@ -172,20 +172,29 @@ include('./includes/sidebar.php');
           <div class="activity mt-3">
             <?php if (!empty($recentActivities)): ?>
               <?php foreach ($recentActivities as $act): 
-                  $status = strtolower($act['status']);
-                  $badgeColor = ($status === 'returned') ? 'bg-success' : (($status === 'overdue') ? 'bg-danger' : 'bg-warning text-dark');
+                  $status = strtolower($act['status'] ?? '');
+                  $isOverdue = (!empty($act['is_overdue']) && $act['is_overdue'] == 1);
+                  
+                  // Determine live visual status badge indicators
+                  if ($isOverdue) {
+                      $badgeColor = 'bg-danger';
+                      $statusLabel = 'overdue';
+                  } else {
+                      $badgeColor = ($status === 'returned') ? 'bg-success' : (($status === 'overdue') ? 'bg-danger' : 'bg-warning text-dark');
+                      $statusLabel = $status;
+                  }
               ?>
                 <div class="activity-item d-flex align-items-start mb-3 border-bottom pb-2">
                   <span class="badge <?php echo $badgeColor; ?> me-3 px-2 py-1 rounded-0 text-uppercase" style="font-size:0.65rem; width: 75px; text-align: center;">
-                    <?php echo $status; ?>
+                    <?php echo htmlspecialchars($statusLabel); ?>
                   </span>
                   <div class="w-100">
-                    <div class="small fw-semibold text-dark"><?php echo htmlspecialchars($act['fullName']); ?></div>
+                    <div class="small fw-semibold text-dark"><?php echo htmlspecialchars($act['fullName'] ?? 'System User'); ?></div>
                     <div class="text-muted small text-truncate" style="max-width: 200px;">
-                      Book: "<?php echo htmlspecialchars($act['title']); ?>"
+                      Book: "<?php echo htmlspecialchars($act['title'] ?? 'Unknown Title'); ?>"
                     </div>
                     <small class="text-muted d-block" style="font-size:0.75rem;">
-                      <i class="bi bi-clock me-1"></i><?php echo date('M d | g:i A', strtotime($act['borrowed_at'])); ?>
+                      <i class="bi bi-clock me-1"></i><?php echo !empty($act['borrowed_at']) ? date('M d | g:i A', strtotime($act['borrowed_at'])) : 'N/A'; ?>
                     </small>
                   </div>
                 </div>

@@ -93,7 +93,7 @@ if (isset($_POST['loginbutton'])) {
     exit();
 }
 
-
+//  Register/Sign up
 if (isset($_POST['registerbutton'])) {
     global $conn;
     if (!isset($conn) && isset($GLOBALS['conn'])) {

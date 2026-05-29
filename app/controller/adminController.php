@@ -569,8 +569,9 @@ function getDashboardAnalytics($conn) {
 
     try {
         $currentDate = date('Y-m-d');
+        $currentDateTime = date('Y-m-d H:i:s');
 
-        
+        // 1. Fetch live transaction data statuses
         $countsQuery = $conn->query("
             SELECT 
                 SUM(CASE WHEN status = 'borrowed' AND due_date >= '$currentDate' THEN 1 ELSE 0 END) as borrowed,
@@ -584,29 +585,33 @@ function getDashboardAnalytics($conn) {
             $countsQuery->free();
         }
 
-        
+        // 2. Fetch Catalog Inventory Total
         $catalogQuery = $conn->query("SELECT COUNT(*) as total FROM books");
         if ($catalogQuery) {
             $analytics['catalogCount'] = (int)($catalogQuery->fetch_assoc()['total'] ?? 0);
             $catalogQuery->free();
         }
 
-        
+        // 3. Fetch Total Revenue from Fines
         $revenueQuery = $conn->query("SELECT SUM(amount_paid) as total_fines FROM penalty_payments");
         if ($revenueQuery) {
             $analytics['totalRevenue'] = (float)($revenueQuery->fetch_assoc()['total_fines'] ?? 0.00);
             $revenueQuery->free();
         }
 
-        
+        // 4. Fetch Total Member Profiles Registry Count
         $memberQuery = $conn->query("SELECT COUNT(*) as total FROM user");
         if ($memberQuery) {
             $analytics['totalMembers'] = (int)($memberQuery->fetch_assoc()['total'] ?? 0);
             $memberQuery->free();
         }
 
-        
-        $sql = "SELECT h.*, u.fullName, b.title 
+        // 5. Fetch Recent Activities with Live Overdue Calculus Evaluator Flag
+        $sql = "SELECT h.*, u.fullName, b.title,
+                       CASE 
+                           WHEN h.status != 'returned' AND h.due_date < '$currentDateTime' THEN 1 
+                           ELSE 0 
+                       END AS is_overdue
                 FROM borrowing_history h
                 JOIN user u ON h.user_id = u.id
                 JOIN books b ON h.book_id = b.id
