@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
           } else if (data.status === "owned") {
             actionContainer.innerHTML = `
                 <div class="d-flex flex-column gap-2 mt-2">
-                <div class="badge-borrowed text-center small fw-bold py-2 rounded-pill d-inline-flex align-items-center justify-content-center border">
+                <div class="badge-borrowed text-white small fw-bold py-2 rounded-pill d-inline-flex align-items-center justify-content-center border">
                   <iconify-icon icon="lucide:clock" class="me-1 fs-5"></iconify-icon>
                   <span>Borrowed</span>
                 </div>

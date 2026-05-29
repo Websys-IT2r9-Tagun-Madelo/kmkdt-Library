@@ -175,11 +175,11 @@ include('./includes/sidebar.php');
                   $status = strtolower($act['status'] ?? '');
                   $isOverdue = (!empty($act['is_overdue']) && $act['is_overdue'] == 1);
                   
-                  // DYNAMIC CALCULATION: Sync "due soon" validation based on the due date window
+                  
                   if ($status === 'borrowed' && !$isOverdue && !empty($act['due_date'])) {
                       $dueDate = strtotime($act['due_date']);
                       $today = strtotime(date('Y-m-d'));
-                      $daysRemaining = ($dueDate - $today) / 86400; // Convert seconds to days
+                      $daysRemaining = ($dueDate - $today) / 86400; 
 
                       if ($daysRemaining >= 0 && $daysRemaining <= 3) {
                           $status = 'due soon';

@@ -57,10 +57,10 @@ include_once 'includes/tsbar.php';
                         </p>
                     </div>
 
-                        <a href="/kmkdt-Library/public/user/browseBooks" class="btn-borrow-more">
+                        <a href="/kmkdt-Library/public/user/browseBooks" class="btn btn-lg btn-outline-secondary rounded-pill px-3 fw-bold">
                             <iconify-icon icon="lucide:plus-circle"></iconify-icon>
                             Borrow More Books
-                        </a>    
+                        </a>  
                 </div>
 
                 <div class="row g-5">
