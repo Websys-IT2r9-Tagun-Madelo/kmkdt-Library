@@ -274,7 +274,7 @@ include('./includes/sidebar.php');
           </div>
           <div class="col-md-4">
             <label class="form-label small fw-bold text-secondary text-uppercase">Account Password</label>
-            <input type="password" name="password" class="form-control rounded-2 border-secondary-subtle py-2" placeholder="••••••••" autocomplete="new-password">
+            <input type="password" name="password" class="form-control rounded-2 border-secondary-subtle py-2" placeholder="••••••••" autocomplete="new-password" required>
           </div>
           <div class="col-md-3">
             <label class="form-label small fw-bold text-secondary text-uppercase">System Access Level</label>

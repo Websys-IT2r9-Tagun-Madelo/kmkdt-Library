@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 1. GLOBAL DATABASE CONNECTION
+
 $configPath = $_SERVER['DOCUMENT_ROOT'] . '/kmkdt-Library/app/config/config.php';
 if (file_exists($configPath)) {
     require_once($configPath);
@@ -12,14 +12,11 @@ if (file_exists($configPath)) {
     die("Configuration file not found at: " . $configPath);
 }
 
-// Ensure $conn is available
+
 if (!isset($conn) || !$conn) {
     die("Database connection failed.");
 }
 
-// ==========================================
-// 2. HELPER FUNCTIONS
-// ==========================================
 
 function redirect($message, $code) {
     $_SESSION['message'] = $message;
@@ -75,9 +72,8 @@ function getLiveOverdueNotifications($conn, $isUnlimited = false) {
     }
 }
 
-// ==========================================
-// 3. AJAX REQUESTS (GET)
-// ==========================================
+
+// AJAX REQUESTS (GET)
 if (isset($_GET['action'])) {
     header('Content-Type: application/json');
     $action = $_GET['action'];
@@ -107,9 +103,9 @@ if (isset($_GET['action'])) {
     }
 }
 
-// ==========================================
+
 // FORM ACTIONS (POST)
-// ==========================================
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Logout Handler
@@ -207,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
     
-// 2. Data Queries
+// Data Queries
 function getAllMembers($conn) {
     $sql = "SELECT id, fullName, role, dateCreated FROM user ORDER BY dateCreated ASC";
     try {
@@ -259,9 +255,7 @@ function getCirculationRecords($conn) {
     return ($result) ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
 }
 
-/**
- * Fetches aggregate circulation metrics for the Admin Dashboard Overview
- */
+
 function getCirculationStats($conn) {
     $currentDate = date('Y-m-d');
     $query = "SELECT 
@@ -432,7 +426,7 @@ function getCatalog($conn) {
 function getProcessedAdminProfile($conn, $adminId) {
     $adminData = [];
     
-    // 1. Guard Clauses & Database Connectivity Check
+    
     if (!$conn instanceof mysqli) {
         error_log("[Profile Error] Invalid or missing database connection object.");
         return getAdminFallbackStructure([]);
@@ -443,7 +437,7 @@ function getProcessedAdminProfile($conn, $adminId) {
         return getAdminFallbackStructure([]);
     }
 
-    // 2. Database Fetching with Try-Catch Block
+    
     try {
         $stmt = mysqli_prepare($conn, "SELECT * FROM user WHERE id = ? LIMIT 1");
         
@@ -466,19 +460,19 @@ function getProcessedAdminProfile($conn, $adminId) {
         mysqli_stmt_close($stmt);
 
     } catch (Exception $e) {
-        // Log the real error code details to your server's private log file
+        
         error_log("[Profile Database Exception] " . $e->getMessage());
         
-        // Ensure statement closes if it was initialized before the error occurred
+        
         if (isset($stmt) && $stmt instanceof mysqli_stmt) {
             mysqli_stmt_close($stmt);
         }
         
-        // Zero out data so the fallback engine handles the display gracefully
+        
         $adminData = []; 
     }
 
-    // 3. Process and return the final safe structure
+    
     return getAdminFallbackStructure($adminData);
 }
 
@@ -486,13 +480,13 @@ function getAdminFallbackStructure($adminData) {
     $adminData = is_array($adminData) ? $adminData : [];
 
     $processed = [
-        'raw'          => $adminData, // Fallback forms can still safely read empty arrays
+        'raw'          => $adminData, 
         'fullName'     => !empty($adminData['fullName']) ? htmlspecialchars($adminData['fullName']) : 'Admin User',
         'emailAddress' => !empty($adminData['emailAddress']) ? htmlspecialchars($adminData['emailAddress']) : 'admin@example.com',
         'role'         => !empty($adminData['role']) ? htmlspecialchars($adminData['role']) : 'Administrator'
     ];
 
-    // Reconstruct structured address segments safely
+    
     $street   = !empty($adminData['street']) ? htmlspecialchars($adminData['street']) : '';
     $barangay = !empty($adminData['barangay']) ? htmlspecialchars($adminData['barangay']) : '';
     $city     = !empty($adminData['city']) ? htmlspecialchars($adminData['city']) : '';

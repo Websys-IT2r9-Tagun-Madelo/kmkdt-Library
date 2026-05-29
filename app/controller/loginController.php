@@ -10,7 +10,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 1. Path Logic: Locating the config file
 $appPath = dirname(__DIR__);
 $configPath = $appPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
 
@@ -20,7 +19,7 @@ if (file_exists($configPath)) {
     die("Config file not found at: " . $configPath);
 }
 
-// --- LOGIN/SIGN IN ---
+//  Login/Sign in
 if (isset($_POST['loginbutton'])) {
 
     global $conn;
@@ -47,26 +46,24 @@ if (isset($_POST['loginbutton'])) {
             $data = $result->fetch_assoc();
 
             if (password_verify($password, $data['password'])) {
-                
-                // ==================== THE SESSION FIX ====================
-                // 1. Close the generic/previous session container safely
+
                 if (session_status() === PHP_SESSION_ACTIVE) {
                     session_write_close();
                 }
 
-                // 2. Assign the explicit, isolated session cookie name depending on role
+
                 if ($data['role'] === 'admin') {
                     session_name('KMKDT_ADMIN_SESSION');
                 } else {
                     session_name('KMKDT_USER_SESSION');
                 }
 
-                // 3. Restart the session with the new, clean identity container
+                
                 session_set_cookie_params(0, '/');
                 session_start();
-                // =========================================================
+                
 
-                // Regenerate session ID for security during login
+                
                 session_regenerate_id(true);
 
                 $_SESSION['authUser'] = [
@@ -79,7 +76,7 @@ if (isset($_POST['loginbutton'])) {
                 $_SESSION['message'] = "Welcome, " . $data['fullName'];
                 $_SESSION['code'] = "success";
 
-                // Role-based redirection
+                
                 if ($data['role'] === 'admin') {
                     header("Location: /kmkdt-Library/public/admin/index");
                 } else {
@@ -96,7 +93,7 @@ if (isset($_POST['loginbutton'])) {
     exit();
 }
 
-// --- SIGN UP/Registration---
+
 if (isset($_POST['registerbutton'])) {
     global $conn;
     if (!isset($conn) && isset($GLOBALS['conn'])) {
@@ -169,7 +166,7 @@ if (isset($_POST['registerbutton'])) {
     $insStmt->bind_param("sssssssss", $uuid, $fullName, $username, $email, $hashed, $street, $barangay, $city, $role);
 
     if ($insStmt->execute()) {
-        unset($_SESSION['old_input']); // Clear the "remembered" data on success
+        unset($_SESSION['old_input']); 
         $_SESSION['message'] = "Registration successful! Please login.";
         $_SESSION['code'] = "success";
         header("Location: ../../public/login");
@@ -180,14 +177,14 @@ if (isset($_POST['registerbutton'])) {
     }
     exit();
 }
-// --- 1. REQUEST RESET LINK (From Login Modal) ---
+// Forgot Password
 if (isset($_POST['forgotPasswordButton'])) {
     global $conn;
     
-    // Sanitize the input to match your Midterm security requirements
+    
     $email = mysqli_real_escape_string($conn, trim($_POST['emailAddress']));
 
-    // Check if the user exists in your MySQL 'user' table
+    
     $query = "SELECT id FROM user WHERE emailAddress = ? LIMIT 1";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("s", $email);
@@ -220,7 +217,7 @@ if (isset($_POST['forgotPasswordButton'])) {
     }
 }
 
-// --- 2. FINALIZE PASSWORD RESET  ---
+
 if (isset($_POST['updatePasswordButton'])) {
     global $conn;
     $token = $_POST['token'];
@@ -228,13 +225,13 @@ if (isset($_POST['updatePasswordButton'])) {
     $confirmPass = $_POST['confirmPassword'];
 
     if ($newPass !== $confirmPass) {
-        // ... (error handling)
+        
     }
 
     // Hash the password
     $hashed = password_hash($newPass, PASSWORD_DEFAULT);
 
-    // FIX: Added 'token_expire > NOW()' to the check
+    
     $sql = "UPDATE user SET password = ?, reset_token = NULL, token_expire = NULL 
             WHERE reset_token = ? AND token_expire > NOW()";
     

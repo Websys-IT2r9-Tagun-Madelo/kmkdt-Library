@@ -102,6 +102,36 @@ switch ($action) {
         $description = trim($_POST['description'] ?? '');
         $userId = $_SESSION['user_id'] ?? null;
 
+        if (empty($title) || empty($author)) {
+            $_SESSION['error'] = "Required entry form attributes cannot be left empty.";
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit();
+        }
+
+        // --- DUPLICATE CHECK ENGINE (Supports both PDO & MySQLi) ---
+        $isDuplicate = false;
+        if ($conn instanceof PDO) {
+            $dupStmt = $conn->prepare("SELECT id FROM books WHERE LOWER(title) = LOWER(?) AND LOWER(author) = LOWER(?) LIMIT 1");
+            $dupStmt->execute([$title, $author]);
+            if ($dupStmt->fetch()) {
+                $isDuplicate = true;
+            }
+        } else {
+            $dupStmt = $conn->prepare("SELECT id FROM books WHERE LOWER(title) = LOWER(?) AND LOWER(author) = LOWER(?) LIMIT 1");
+            $dupStmt->bind_param("ss", $title, $author);
+            $dupStmt->execute();
+            $dupResult = $dupStmt->get_result();
+            if ($dupResult->num_rows > 0) {
+                $isDuplicate = true;
+            }
+        }
+
+        if ($isDuplicate) {
+            $_SESSION['error'] = "The book titled '$title' by '$author' already exists in the library catalog.";
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit();
+        }
+
         // MULTI-CATEGORY FIXED SQL ORDER PROCESSING (CAPITALIZED FORMAT)
         if (isset($_POST['category']) && is_array($_POST['category'])) {
             $masterOrder = ['Fiction', 'Non-Fiction', 'Research', 'Case Studies', 'Reserve', 'Online'];
@@ -153,7 +183,7 @@ switch ($action) {
         }
         $coverImageFile = $uploaded;
 
-        if (empty($title) || empty($author) || empty($category)) {
+        if (empty($category)) {
             $_SESSION['error'] = "Required entry form attributes cannot be left empty.";
             header("Location: " . $_SERVER['HTTP_REFERER']);
             exit();

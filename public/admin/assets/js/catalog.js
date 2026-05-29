@@ -51,8 +51,9 @@ function appendCustomCategoryCheckbox(prefix) {
     // Verify cross-platform item definitions to stop duplicating checkboxes locally
     let targetExists = false;
     document.querySelectorAll(`.${prefix}-cat-check`).forEach(box => {
+        // FIXED: Renamed broken variable reference 'normalizadingBoxVal' to 'normalizedBoxVal'
         const normalizedBoxVal = box.value.toLowerCase().replace(/[^a-zA-Z0-9\s\-]/g, '').replace(/\s+/g, '_').replace(/-/g, '_');
-        if (normalizadingBoxVal === standardizedSearchVal) {
+        if (normalizedBoxVal === standardizedSearchVal) {
             targetExists = true;
         }
     });
@@ -241,4 +242,17 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    // --- D. PREVENT DUPLICATE SUBMISSIONS VIA CLICK SPAM ---
+    const modalForms = document.querySelectorAll('.modal form');
+    modalForms.forEach(form => {
+        form.addEventListener('submit', function () {
+            const submitButton = this.querySelector('button[type="submit"]');
+            if (submitButton) {
+                // Disable button and add standard visual feedback context
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
+            }
+        });
+    });
 });

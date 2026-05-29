@@ -11,7 +11,7 @@ $basePath = dirname(__DIR__);
 $configPath = $basePath . '/config/config.php'; 
 $controllerPath = $basePath . '/controller/adminController.php';
 
-// ==================== LOOP BREAKER ====================
+
 // Check if the user is currently looking at the login or signup page
 $currentUrl = $_SERVER['REQUEST_URI'];
 if (strpos($currentUrl, '/public/login') !== false || strpos($currentUrl, '/public/signUp') !== false) {

@@ -89,7 +89,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_live_user_updates') {
     exit();
 }
 
-// 3. LOGOUT LOGIC
 if (isset($_POST['logoutButton'])) {
     unset($_SESSION['authUser']);
     unset($_SESSION['user_id']);

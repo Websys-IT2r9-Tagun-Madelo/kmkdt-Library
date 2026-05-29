@@ -338,7 +338,7 @@ include('./includes/sidebar.php');
             </div>
             <div class="col-12">
               <label class="form-label text-secondary small fw-bold">Description / Summary</label>
-              <textarea name="description" class="form-control rounded-0" rows="3" placeholder="Enter book synopsis..."></textarea>
+              <textarea name="description" class="form-control rounded-0" rows="3" placeholder="Enter book synopsis..." required></textarea>
             </div>
           </div>
         </div>
@@ -430,7 +430,7 @@ include('./includes/sidebar.php');
             </div>
             <div class="col-12">
               <label class="form-label text-secondary small fw-bold">Description / Summary</label>
-              <textarea name="description" id="edit_description" class="form-control rounded-0" rows="3"></textarea>
+              <textarea name="description" id="edit_description" class="form-control rounded-0" rows="3" required></textarea>
             </div>
           </div>
         </div>

@@ -15,7 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
 if (ob_get_length()) ob_clean();
 header('Content-Type: application/json; charset=UTF-8');
 
-// ===== CONFIGURATION RESOLVER =====
+// Configuration resolver 
 $configPath = null;
 $possiblePaths = [
     dirname(__DIR__) . '/app/config/config.php',                                
@@ -59,7 +59,7 @@ if (!$conn) {
     die(json_encode(['success' => false, 'message' => 'Database connector context unavailable.']));
 }
 
-// ===== GET USER INFO =====
+//  Get user info 
 if ($action === 'getUser') {
     $user_id = (int)($_GET['user_id'] ?? 0);
     
@@ -77,7 +77,7 @@ if ($action === 'getUser') {
     exit;
 }
 
-// ===== GET OR CREATE CONVERSATION WITH ADMIN (LIBRARY SUPPORT CARD) =====
+//   Get or create conversation with admin (library support card)
 if ($action === 'getAdminConversation' || $action === 'support') {
     $admin_id = 4;
     
@@ -111,7 +111,7 @@ if ($action === 'getAdminConversation' || $action === 'support') {
     exit;
 }
 
-// ===== GET USER CONVERSATIONS (SIDEBAR LIST) =====
+// Get user conversations (sidebar list) 
 if ($action === 'getConversations' || $action === 'get_conversations') {
     $query = "
         SELECT 
@@ -156,7 +156,7 @@ if ($action === 'getConversations' || $action === 'get_conversations') {
     exit;
 }
 
-// ===== GET MESSAGES FOR CONVERSATION =====
+// Get messages for conversation 
 if ($action === 'getMessages' || $action === 'get_messages') {
     $conversation_id = (int)($_GET['conversation_id'] ?? 0);
     
@@ -181,7 +181,7 @@ if ($action === 'getMessages' || $action === 'get_messages') {
     exit;
 }
 
-// ===== SEND MESSAGE =====
+// Send message 
 if ($action === 'sendMessage' || $action === 'send_message') {
     $conversation_id = $_POST['conversation_id'] ?? 0;
     $message = trim($_POST['message'] ?? '');
@@ -233,7 +233,7 @@ if ($action === 'sendMessage' || $action === 'send_message') {
     exit;
 }
 
-// ===== START NEW CONVERSATION WITH USER =====
+// Start new conversation with user
 if ($action === 'startConversation' || $action === 'create_by_email') {
     $recipient_email = trim($_POST['recipient_email'] ?? $_POST['email'] ?? '');
     
@@ -292,7 +292,7 @@ if ($action === 'startConversation' || $action === 'create_by_email') {
     exit;
 }
 
-// ===== ADMIN: GET ALL USER CONVERSATIONS + LIVE OVERDUE REPORT ALERTS =====
+// Admin: get all user conversations + live overdue report alerts 
 if ($action === 'adminGetConversations') {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
