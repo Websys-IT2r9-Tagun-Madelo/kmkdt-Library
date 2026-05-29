@@ -7,7 +7,6 @@ define('APP_PATH', ROOT_PATH . '/app');
 require_once APP_PATH . '/config/config.php';
 require_once APP_PATH . '/controller/adminController.php'; 
 
-// Now you can safely call these functions
 $stats = getCirculationStats($conn);
 $records = getCirculationRecords($conn);
 
@@ -120,12 +119,30 @@ include('./includes/sidebar.php');
                   <?php foreach ($records as $row): ?>
                     <?php
                       $status = strtolower($row['status'] ?? 'unknown');
-                      $badgeClass = 'bg-secondary text-white';
+                      
+                      
+                      if ($status === 'borrowed' && !empty($row['due_date'])) {
+                          $dueDate = strtotime($row['due_date']);
+                          $today = strtotime(date('Y-m-d'));
+                          $daysRemaining = ($dueDate - $today) / 86400; 
 
-                      if ($status === 'borrowed') $badgeClass = 'bg-borrowed text-white';
-                      elseif ($status === 'due soon') $badgeClass = 'bg-warning text-dark';
-                      elseif ($status === 'overdue') $badgeClass = 'bg-danger text-white';
-                      elseif ($status === 'returned') $badgeClass = 'bg-success text-white';
+                          
+                          if ($daysRemaining >= 0 && $daysRemaining <= 3) {
+                              $status = 'due soon';
+                          }
+                      }
+
+                      
+                      $badgeClass = 'bg-secondary text-white';
+                      if ($status === 'borrowed') {
+                          $badgeClass = 'bg-borrowed text-white'; 
+                      } elseif ($status === 'due soon' || $status === 'due_soon') {
+                          $badgeClass = 'bg-warning text-dark';
+                      } elseif ($status === 'overdue') {
+                          $badgeClass = 'bg-danger text-white';
+                      } elseif ($status === 'returned') {
+                          $badgeClass = 'bg-success text-white';
+                      }
                     ?>
                     <tr>
                       <td class="fw-medium text-secondary">#<?php echo $row['id']; ?></td>
@@ -143,7 +160,7 @@ include('./includes/sidebar.php');
                       </td>
                       <td>
                         <span class="badge <?php echo $badgeClass; ?> px-3 py-2 font-tracking-wide">
-                          <?php echo htmlspecialchars($row['status']); ?>
+                          <?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $status))); ?>
                         </span>
                       </td>
                       <td class="text-center">
