@@ -57,7 +57,7 @@ $sessionUserId = $_SESSION['user_id'] ?? $_SESSION['authUser']['user_id'] ?? 0;
                             </div>
                             <span class="text-muted fw-bold small tracking-wider">ANOTHER GMAIL SUPPORT</span>
                         </div>
-                        <p class="mb-0 text-secondary fw-semibold text-break">admin2@gmail.com<br>support@kmkdtlibrary.edu.ph</p>
+                        <p class="mb-0 text-secondary fw-semibold text-break">admin2@kmkdtlibrary.edu.ph<br>admin@kmkdtlibrary.edu.ph</p>
                     </div>
                 </div>
 

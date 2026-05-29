@@ -116,8 +116,9 @@ include_once 'includes/tsbar.php';
                                             <span class="badge-category"><?= htmlspecialchars($genre); ?></span>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="loan-tag text-nowrap">
-                                        <iconify-icon icon="lucide:clock"></iconify-icon> <?= $loanPeriod; ?>
+                                    <div class="loan-tag text-nowrap d-inline-flex align-items-center gap-1">
+                                        <iconify-icon icon="lucide:clock"></iconify-icon> 
+                                        <?= $loanPeriod; ?>
                                     </div>
                                 </div>
                                 <h3 class="book-title h5 mb-1"><?= htmlspecialchars($row['title']); ?></h3>
