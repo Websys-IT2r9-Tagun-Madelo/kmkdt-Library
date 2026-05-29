@@ -95,7 +95,6 @@ include('./includes/tsbar.php');
                                         <small class="text-muted d-block" style="font-size: 0.7rem;">
                                             <?= date('M d, Y | g:i A', strtotime($pay['paid_at'])); ?>
                                         </small>
-                                        <!-- New context text line added below the date -->
                                         <span class="text-success d-inline-flex align-items-center gap-1 fw-medium" style="font-size: 0.68rem; letter-spacing: 0.3px;">
                                             <iconify-icon icon="lucide:check-circle-2" class="text-success" style="font-size: 0.75rem;"></iconify-icon> Penalty Cleared
                                         </span>
