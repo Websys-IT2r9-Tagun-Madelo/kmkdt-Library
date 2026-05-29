@@ -49,19 +49,19 @@
       </ul>
     </li>
 
-    <?php $analytics_active = in_array($page, ['payHistory.php', 'reports.php']); ?>
+<?php $analytics_active = in_array($page, ['payHistory.php', 'reports.php']); ?>
     <li class="nav-item">
       <a class="nav-link <?= $analytics_active ? '' : 'collapsed' ?>" data-bs-target="#analytics-nav" data-bs-toggle="collapse" href="#">
-        <i class="bi bi-bar-chart-line-fill"></i><span class="ms-3">Analytics & Reporting</span><i class="bi bi-chevron-down"></i>
+        <i class="bi bi-bar-chart-line-fill"></i><span class="ms-3">Analytics &amp; Reporting</span><i class="bi bi-chevron-down"></i>
       </a>
       <ul id="analytics-nav" class="nav-content collapse <?= $analytics_active ? 'show' : '' ?>" data-bs-parent="#sidebar-nav">
         <li>
-          <a href="payHistory" class="<?= ($page == 'payHistory.php') ? 'active' : '' ?>">
-            <i class="bi bi-circle-fill"></i><span> Payment History</span>
+          <a href="payHistory.php" class="<?= ($page == 'payHistory.php') ? 'active' : '' ?>">
+            <i class="bi bi-circle-fill"></i><span> Payment History & Approval</span>
           </a>
         </li>
         <li>
-          <a href="reports" class="<?= ($page == 'reports.php') ? 'active' : '' ?>">
+          <a href="reports.php" class="<?= ($page == 'reports.php') ? 'active' : '' ?>">
             <i class="bi bi-circle-fill"></i><span>Reports</span>
           </a>
         </li>

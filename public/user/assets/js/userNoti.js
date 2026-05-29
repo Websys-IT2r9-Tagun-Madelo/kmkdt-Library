@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         // Dynamic Routing Logic
                         let targetUrl = `${BASE_URL}/public/user/profile`; 
                         if (isBookAlert) {
-                            targetUrl = `${BASE_URL}/public/user/myBooks.php`;
+                            targetUrl = `${BASE_URL}/public/user/myBooks`;
                         } else if (lowerTitle.includes("message") || item.type === 'warning') {
                             targetUrl = `${BASE_URL}/public/user/messageHub`;
                         }

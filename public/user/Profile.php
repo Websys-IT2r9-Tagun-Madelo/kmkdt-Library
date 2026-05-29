@@ -20,6 +20,13 @@ include('./includes/tsbar.php');
                 Payment Received! Your book penalty has been cleared.
             </div>
         </div>
+    <?php elseif (isset($_GET['status']) && $_GET['status'] == 'payment_submitted'): ?>
+        <div class="container mt-3">
+            <div class="alert alert-warning border-0 shadow-sm text-dark fw-bold d-flex align-items-center alert-warning-custom" style="background-color: #fff3cd; border-left: 5px solid #ffc107 !important;">
+                <iconify-icon icon="lucide:clock" class="fs-4 me-2 text-warning"></iconify-icon>
+                Payment Request Submitted! Awaiting admin verification confirmation.
+            </div>
+        </div>
     <?php endif; ?>
 
     <section class="banner-section banner-inner-section position-relative overflow-hidden d-flex align-items-end profile-banner">
@@ -109,9 +116,9 @@ include('./includes/tsbar.php');
                                 endwhile; 
                             else: 
                             ?>
-                                <div class="text-center py-4 text-muted">
-                                    <iconify-icon icon="lucide:folder-open" class="text-muted mb-1 fs-3 opacity-50 d-block"></iconify-icon>
-                                    <span class="small fw-medium text-secondary d-block">No records found</span>
+                                <div class="d-flex flex-column align-items-center justify-content-center py-5 my-3 text-muted">
+                                    <iconify-icon icon="lucide:folder-open" class="mb-2 fs-3 opacity-50"></iconify-icon>
+                                    <span class="small fw-medium text-secondary">No records found</span>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -135,15 +142,23 @@ include('./includes/tsbar.php');
                                     </div>
                                     <div class="d-flex gap-2 align-items-center flex-shrink-0">
                                         <?php if(isset($book['penalty']) && $book['penalty'] > 0): ?>
-                                            <button class="btn btn-success rounded-pill fw-bold px-4 btn-pay-penalty" data-bs-toggle="modal" data-bs-target="#paymentModal<?= $book['loan_id']; ?>">
-                                                Pay ₱<?= number_format($book['penalty'], 2); ?>
-                                            </button>
+                                            <?php if(isset($book['status']) && $book['status'] === 'payment_pending'): ?>
+                                                <!-- Awaiting Admin action passive state display button replacement -->
+                                                <button class="btn btn-secondary rounded-pill fw-bold px-3 btn-pay-penalty disabled" disabled style="background-color: #6c757d; border: none; font-size: 0.85rem;">
+                                                    <iconify-icon icon="lucide:loader" class="me-1 align-middle"></iconify-icon> Pending Verification
+                                                </button>
+                                            <?php else: ?>
+                                                <!-- Active trigger modal pay penalty state button -->
+                                                <button class="btn btn-success rounded-pill fw-bold px-4 btn-pay-penalty" data-bs-toggle="modal" data-bs-target="#paymentModal<?= $book['loan_id']; ?>">
+                                                    Pay ₱<?= number_format($book['penalty'], 2); ?>
+                                                </button>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                         <a href="myBooks" class="btn rounded-pill px-4 fw-bold shadow-sm btn-go-books">Go to My Books</a>
                                     </div>
                                 </div>
 
-                                <!-- Penalty Handling Modal -->
+                                <!-- Penalty Handling Modal Window Setup Container -->
                                 <div class="modal fade" id="paymentModal<?= $book['loan_id']; ?>" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content penalty-modal-content">
@@ -152,11 +167,15 @@ include('./includes/tsbar.php');
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <div class="modal-body text-center py-4">
-                                                <h2 class="fw-bold text-white penalty-amount-display">₱<?= number_format($book['penalty'] ?? 0, 2); ?></h2>
-                                                <p class="text-muted mb-4">Penalty fee calculated for <br><strong>"<?= htmlspecialchars($book['title']); ?>"</strong></p>
+                                                <h2 class="fw-bold text-dark penalty-amount-display">₱<?= number_format($book['penalty'] ?? 0, 2); ?></h2>
+                                                <p class="text-muted mb-4">You are declaring that you have settled this fine.<br><strong>"<?= htmlspecialchars($book['title']); ?>"</strong></p>
+                                                
+                                                <!-- Action form targeting the user process path -->
                                                 <form action="../../app/controller/process/paymentProcess.php" method="POST">
                                                     <input type="hidden" name="loan_id" value="<?= $book['loan_id']; ?>"> 
-                                                    <button type="submit" class="btn w-100 rounded-pill fw-bold py-2.5 text-white shadow-sm btn-confirm-payment">Confirm Payment</button>
+                                                    <button type="submit" class="btn w-100 rounded-pill fw-bold py-2.5 text-white shadow-sm btn-confirm-payment" style="background-color: #57cb57; border: none;">
+                                                        Submit Verification Request
+                                                    </button>
                                                 </form>
                                             </div>
                                         </div>

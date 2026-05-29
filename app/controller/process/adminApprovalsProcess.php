@@ -170,3 +170,68 @@ try {
     header("Location: {$redirectUrl}");
     exit();
 }
+
+// Add this block inside your form action router inside adminApprovalsProcess.php
+if (isset($_POST['action']) && $_POST['action'] === 'approve_penalty_payment') {
+    
+    $loanId = isset($_POST['loan_id']) ? intval($_POST['loan_id']) : 0;
+    $newDueDate = date('Y-m-d H:i:s', strtotime('+7 days')); // Extend their lease by 7 days
+
+    if ($loanId <= 0) {
+        redirect("Invalid transaction routing identifier.", "error");
+    }
+
+    // 1. Look up the dynamic fine amount and the corresponding user ID
+    $amountPaid = 0.00;
+    $borrowerId = null;
+
+    $checkSql = "SELECT penalty, user_id FROM borrowing_history WHERE id = ? LIMIT 1";
+    if ($stmt = $conn->prepare($checkSql)) {
+        $stmt->bind_param("i", $loanId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($row = $res->fetch_assoc()) {
+            $amountPaid = floatval($row['penalty']);
+            $borrowerId = intval($row['user_id']);
+        }
+        $stmt->close();
+    }
+
+    if (!$borrowerId) {
+        redirect("Target pipeline tracking failure: Borrower profile not found.", "error");
+    }
+
+    // Safety fallback fine if table tracking defaults to zero
+    if ($amountPaid <= 0) {
+        $amountPaid = 25.00; 
+    }
+
+    // 2. Commit transaction snapshot logs directly into penalty_payments
+    $logSql = "INSERT INTO penalty_payments (loan_id, user_id, amount_paid) VALUES (?, ?, ?)";
+    if ($logStmt = $conn->prepare($logSql)) {
+        $logStmt->bind_param("iid", $loanId, $borrowerId, $amountPaid);
+        if (!$logStmt->execute()) {
+            redirect("Ledger pipeline logging failure: " . $logStmt->error, "error");
+        }
+        $logStmt->close();
+    }
+
+    // 3. Clear the active violation and reset status flags back to safe 'borrowed' limits
+    $updateSql = "UPDATE borrowing_history 
+                  SET status = 'borrowed', 
+                      due_date = ?, 
+                      penalty = 0.00
+                  WHERE id = ?";
+
+    if ($updateStmt = $conn->prepare($updateSql)) {
+        $updateStmt->bind_param("si", $newDueDate, $loanId);
+        if ($updateStmt->execute()) {
+            $updateStmt->close();
+            redirect("Overdue payment approved successfully. Loan timeline extended (+7 days).", "success");
+        } else {
+            $errorMsg = $updateStmt->error;
+            $updateStmt->close();
+            redirect("Status modification execution failure: " . $errorMsg, "error");
+        }
+    }
+}

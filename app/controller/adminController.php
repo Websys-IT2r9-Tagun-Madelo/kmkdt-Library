@@ -297,26 +297,6 @@ function getCirculationStats($conn) {
     
     return $stats;
 }
-function getPenaltyPaymentsHistory($conn) {
-    $query = "SELECT pp.id, pp.amount_paid, pp.paid_at, u.fullName, u.username, 
-                     IFNULL(b.title, 'System Fine Adjustment') as book_title
-              FROM penalty_payments pp
-              INNER JOIN user u ON pp.user_id = u.id
-              LEFT JOIN borrowing_history bh ON pp.loan_id = bh.id
-              LEFT JOIN books b ON bh.book_id = b.id
-              ORDER BY pp.paid_at DESC";
-
-    $payments = [];
-    $result = mysqli_query($conn, $query);
-
-    if ($result) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $payments[] = $row;
-        }
-    }
-
-    return $payments;
-}
 
 function getLibraryMetrics($conn) {
     $currentDate = date('Y-m-d');
@@ -656,4 +636,144 @@ function getPendingReturnRequests($conn) {
     }
     
     return $pendingRequests;
+}
+
+function getPenaltyPaymentsHistory($conn) {
+    $data = [];
+    
+    // Ensure this version uses your single 'user' table and 'fullName' mapping layout
+    $query = "SELECT 
+                p.id, 
+                p.amount_paid, 
+                p.paid_at, 
+                u.username,
+                u.fullName AS fullName,
+                IFNULL(b.title, 'System Fine Adjustment') AS book_title
+              FROM penalty_payments p
+              INNER JOIN user u ON p.user_id = u.id
+              LEFT JOIN borrowing_history bh ON p.loan_id = bh.id
+              LEFT JOIN books b ON bh.book_id = b.id
+              ORDER BY p.paid_at DESC";
+              
+    $result = mysqli_query($conn, $query);
+    
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+    }
+    
+    return $data;
+}
+
+function approvePenaltyPayment($conn, $loanId) {
+    $loanId = intval($loanId);
+    $newDueDate = date('Y-m-d H:i:s', strtotime('+7 days'));
+
+    if ($loanId <= 0) {
+        return ['code' => 'error', 'message' => 'Invalid transaction tracking identifier mapping.'];
+    }
+
+    $amountPaid = 0.00;
+    $borrowerId = null;
+
+    $checkSql = "SELECT penalty, user_id FROM borrowing_history WHERE id = ? LIMIT 1";
+    if ($stmt = $conn->prepare($checkSql)) {
+        $stmt->bind_param("i", $loanId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($row = $res->fetch_assoc()) {
+            $amountPaid = floatval($row['penalty']);
+            $borrowerId = intval($row['user_id']);
+        }
+        $stmt->close();
+    }
+
+    if (!$borrowerId) {
+        return ['code' => 'error', 'message' => 'Target tracking failure: Borrower context could not be verified.'];
+    }
+
+    if ($amountPaid <= 0) {
+        $amountPaid = 25.00; 
+    }
+
+    $logSql = "INSERT INTO penalty_payments (loan_id, user_id, amount_paid) VALUES (?, ?, ?)";
+    if ($logStmt = $conn->prepare($logSql)) {
+        $logStmt->bind_param("iid", $loanId, $borrowerId, $amountPaid);
+        if (!$logStmt->execute()) {
+            $error = $logStmt->error;
+            $logStmt->close();
+            return ['code' => 'error', 'message' => 'Ledger pipeline logging failure: ' . $error];
+        }
+        $logStmt->close();
+    }
+
+    $updateSql = "UPDATE borrowing_history 
+                  SET status = 'borrowed', 
+                      due_date = ?, 
+                      penalty = 0.00
+                  WHERE id = ?";
+
+    if ($updateStmt = $conn->prepare($updateSql)) {
+        $updateStmt->bind_param("si", $newDueDate, $loanId);
+        if ($updateStmt->execute()) {
+            $updateStmt->close();
+            return ['code' => 'success', 'message' => 'Payment verified successfully! Penalty reset and loan timeline extended.'];
+        } else {
+            $error = $updateStmt->error;
+            $updateStmt->close();
+            return ['code' => 'error', 'message' => 'Status modification execution failure: ' . $error];
+        }
+    }
+
+    return ['code' => 'error', 'message' => 'Unknown core systems execution error.'];
+}
+
+function getPendingPenaltyPayments($conn) {
+    $pendingFines = [];
+    $query = "SELECT h.id AS loan_id, h.penalty, h.due_date, b.title, u.fullName, u.username
+              FROM borrowing_history h
+              JOIN user u ON h.user_id = u.id
+              JOIN books b ON h.book_id = b.id
+              WHERE h.penalty > 0 AND h.status != 'returned'
+              ORDER BY h.due_date ASC";
+              
+    if ($result = $conn->query($query)) {
+        while ($row = $result->fetch_assoc()) {
+            $pendingFines[] = $row;
+        }
+    }
+    return $pendingFines;
+}
+
+function rejectPenaltyPayment($conn, $loanId) {
+    $loanId = intval($loanId);
+
+    if ($loanId <= 0) {
+        return ['code' => 'error', 'message' => 'Invalid transaction tracking identifier mapping.'];
+    }
+
+    // Shift structural status back to 'borrowed' so the user is flag-notified that it was rejected
+    $updateSql = "UPDATE borrowing_history 
+                  SET status = 'borrowed' 
+                  WHERE id = ? AND status = 'payment_pending'";
+
+    if ($updateStmt = $conn->prepare($updateSql)) {
+        $updateStmt->bind_param("i", $loanId);
+        if ($updateStmt->execute()) {
+            if ($updateStmt->affected_rows > 0) {
+                $updateStmt->close();
+                return ['code' => 'success', 'message' => 'Payment verification request rejected. User status reset to outstanding fine penalty.'];
+            } else {
+                $updateStmt->close();
+                return ['code' => 'error', 'message' => 'Target record could not be updated or was already processed.'];
+            }
+        } else {
+            $error = $updateStmt->error;
+            $updateStmt->close();
+            return ['code' => 'error', 'message' => 'Status modification execution failure: ' . $error];
+        }
+    }
+
+    return ['code' => 'error', 'message' => 'Unknown core systems execution error.'];
 }
