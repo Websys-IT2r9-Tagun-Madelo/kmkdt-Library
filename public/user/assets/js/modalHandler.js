@@ -29,9 +29,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 1000);
     });
 
-    // ==========================================
+
     // B. MODAL HANDLER AND DYNAMIC INITIALIZATION
-    // ==========================================
     const bookModal = document.getElementById("bookModal");
     if (bookModal) {
       bookModal.addEventListener("show.bs.modal", function (event) {
