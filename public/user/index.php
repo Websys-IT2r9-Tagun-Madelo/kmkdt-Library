@@ -196,14 +196,14 @@ include('./includes/tsbar.php');
       <div class="row g-4">
         <!-- Feedback 1 -->
         <div class="col-lg-4">
-          <div class="card border-0 rounded-4 p-4 h-100 card-lime-accent">
-            <iconify-icon icon="ri:double-quotes-l" class="fs-1 text-dark opacity-25 mb-3"></iconify-icon>
-            <h5 class="fw-bold mb-4">The library helped me find all my research materials easily.</h5>
+          <div class="card border-0 rounded-4 p-4 h-100 card-lime-accent card portal-card">
+            <iconify-icon icon="ri:double-quotes-l" class="fs-1 text-white opacity-25 mb-3"></iconify-icon>
+            <h5 class="fw-bold text-white mb-4">The library helped me find all my research materials easily.</h5>
             <div class="mt-auto d-flex align-items-center gap-3">
               <img src="assets/images/profile/user-1.jpg" class="rounded-circle testimonial-avatar" alt="User Avatar">
               <div>
-                <h6 class="mb-0 fw-bold">jake</h6>
-                <small class="text-dark opacity-75">New Member</small>
+                <h6 class="mb-0 text-white fw-bold">Jake</h6>
+                <small class="text-white opacity-75">New Member</small>
               </div>
             </div>
           </div>
@@ -211,9 +211,9 @@ include('./includes/tsbar.php');
 
         <!-- Feedback 2 -->
         <div class="col-lg-4">
-          <div class="card border-0 rounded-4 p-4 h-100 bg-dark text-white">
+          <div class="card border-0 rounded-4 p-4 h-100 bg-dark text-white card portal-card">
             <iconify-icon icon="ri:double-quotes-l" class="fs-1 text-white opacity-25 mb-3"></iconify-icon>
-            <h5 class="text-white-50 mb-4">Access to digital books and journals made studying much easier.</h5>
+            <h5 class="text-white mb-4">Access to digital books and journals made studying much easier.</h5>
             <div class="mt-auto d-flex align-items-center gap-3">
               <img src="assets/images/profile/user-2.jpg" class="rounded-circle border testimonial-avatar"
                 alt="User Avatar">
@@ -227,14 +227,14 @@ include('./includes/tsbar.php');
 
         <!-- Feedback 3 -->
         <div class="col-lg-4">
-          <div class="card border-0 rounded-4 p-4 h-100 card-lime-accent">
-            <iconify-icon icon="ri:double-quotes-l" class="fs-1 text-dark opacity-25 mb-3"></iconify-icon>
-            <h5 class="fw-bold mb-4">Great place for studying and accessing professional resources.</h5>
+          <div class="card border-0 rounded-4 p-4 h-100 card-lime-accent card portal-card">
+            <iconify-icon icon="ri:double-quotes-l" class="fs-1 text-white opacity-25 mb-3"></iconify-icon>
+            <h5 class="fw-bold text-white mb-4">Great place for studying and accessing professional resources.</h5>
             <div class="mt-auto d-flex align-items-center gap-3">
               <img src="assets/images/profile/user-3.jpg" class="rounded-circle testimonial-avatar" alt="User Avatar">
               <div>
-                <h6 class="mb-0 fw-bold">Reese</h6>
-                <small class="text-dark opacity-75">Old Member</small>
+                <h6 class="mb-0 text-white fw-bold">Reese</h6>
+                <small class="text-white opacity-75">Old Member</small>
               </div>
             </div>
           </div>
@@ -262,7 +262,7 @@ include('./includes/tsbar.php');
           <div class="card portal-card overflow-hidden">
             <img src="assets/images/news/news1.jpg" class="w-100 news-img-large" alt="Featured News Image">
             <div class="p-4">
-              <span class="text-lime fw-bold small">GROWTH • APRIL 17, 2026</span>
+              <span class="text-muted fw-bold small">GROWTH • APRIL 17, 2026</span>
               <h3 class="fw-bold h4 mt-2">
                 <a class="text-decoration-none text-dark hover-lime">Popular book collections
                   continue attracting active student readers.</a>
