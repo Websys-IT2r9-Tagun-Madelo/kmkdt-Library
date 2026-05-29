@@ -2,7 +2,7 @@
  * Real-Time User Notification Engine
  */
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("🚀 User Notification Engine initialized.");
+    console.log(" User Notification Engine initialized.");
 
     const BASE_URL = window.location.origin + '/kmkdt-Library';
     const USER_API = `${BASE_URL}/app/controller/userController.php`;
@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const badge = document.getElementById('userNotiBadge');
 
     if (!container || !badge) {
-        console.warn("⚠️ Notification DOM elements missing from layout view.");
+        console.warn(" Notification DOM elements missing from layout view.");
         return;
     }
 
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        console.log("📡 Sending fetch request to:", `${USER_API}?action=get_live_user_updates`);
+        console.log(" Sending fetch request to:", `${USER_API}?action=get_live_user_updates`);
         
         fetch(`${USER_API}?action=get_live_user_updates`)
             .then(response => {
@@ -40,11 +40,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         const lowerTitle = (item.title || "").toLowerCase();
                         const lowerMessage = (item.message || "").toLowerCase();
 
-                        // 🔍 Determine if notification concerns a book deadline
+                        //  Determine if notification concerns a book deadline
                         const isBookAlert = lowerTitle.includes("due") || lowerTitle.includes("overdue") || lowerTitle.includes("book") || lowerMessage.includes("due") || lowerMessage.includes("overdue");
                         const isDanger = item.type === 'danger' || lowerTitle.includes("overdue");
 
-                        // 🎨 Visual Identity Routing & Icon Tweaks
+                        // Visual Identity Routing & Icon Tweaks
                         let badgeClass = 'noti-icon-wrapper-warning';
                         let iconClass = 'bi-envelope-fill';
 
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             iconClass = 'bi-exclamation-circle-fill';
                         }
 
-                        // 🗺️ Dynamic Routing Logic
+                        // Dynamic Routing Logic
                         let targetUrl = `${BASE_URL}/public/user/profile`; 
                         if (isBookAlert) {
                             targetUrl = `${BASE_URL}/public/user/myBooks.php`;
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => console.error("❌ Notification Engine Crash:", err));
     }
 
-    // ⚡ Optimistic UI Update: Clear notification from view instantly upon click action
+    // Optimistic UI Update: Clear notification from view instantly upon click action
     function attachInstantClickInterceptors() {
         const links = container.querySelectorAll('.legacy-noti-link');
         links.forEach(link => {

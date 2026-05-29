@@ -1,4 +1,5 @@
-// ===== MESSENGER CHAT SYSTEM =====
+// Messenger chat system
+
 // Configuration
 const MESSAGING_API = '/kmkdt-Library/app/controller/messagingController.php';
 const REFRESH_INTERVAL = 3000; // 3 seconds - refresh messages
@@ -7,7 +8,7 @@ const ADMIN_ID = 4; // Normalized Admin ID reference
 let currentConversationId = null;
 let currentRecipientId = null;
 let refreshInterval = null; 
-let isPolling = false; // Flag to prevent stacking asynchronous polling cycles
+let isPolling = false; 
 
 // Cached DOM Elements (Populated on setup/run)
 let domElements = {};
@@ -29,7 +30,7 @@ function cacheElements() {
     };
 }
 
-// ===== INITIALIZE MESSENGER =====
+//  Initialize messenger 
 function initializeMessenger() {
     console.log('Initializing messenger...');
     cacheElements();
@@ -40,7 +41,7 @@ function initializeMessenger() {
     startAutoRefresh();
 }
 
-// ===== SAFE HTML ESCAPING UTILITY =====
+// Safe html escaping utility 
 function escapeHtml(text) {
     if (!text) return '';
     return text
@@ -52,13 +53,13 @@ function escapeHtml(text) {
         .replace(/'/g, "&#039;");
 }
 
-// ===== CURRENT USER SESSION FALLBACK =====
+//  Current user session fallback 
 function getCurrentUserId() {
     const userElement = document.querySelector('[data-user-id]');
     return userElement ? (parseInt(userElement.getAttribute('data-user-id'), 10) || 0) : 0;
 }
 
-// ===== ENSURE ADMIN CONVERSATION EXISTS =====
+// Ensure admin conversation exists 
 async function ensureAdminConversation() {
     try {
         const response = await fetch(`${MESSAGING_API}?action=getAdminConversation`);
@@ -71,7 +72,7 @@ async function ensureAdminConversation() {
     }
 }
 
-// ===== LOAD CONVERSATIONS =====
+//  Load conversations 
 async function loadConversations() {
     try {
         const response = await fetch(`${MESSAGING_API}?action=getConversations`);
@@ -86,7 +87,7 @@ async function loadConversations() {
     }
 }
 
-// ===== RENDER CONVERSATIONS LIST =====
+// Render conversations list
 function renderConversations(conversations) {
     const listContainer = domElements.conversationsList;
     if (!listContainer) return;
@@ -96,7 +97,7 @@ function renderConversations(conversations) {
         return;
     }
     
-    // 1. Find the admin conversation dynamically to update the green pinned card
+    // Find the admin conversation dynamically to update the green pinned card
     const adminConv = conversations.find(c => parseInt(c.recipient_id, 10) === ADMIN_ID);
     const librarySupportBtn = domElements.librarySupportBtn;
     
@@ -122,7 +123,7 @@ function renderConversations(conversations) {
         }
     }
     
-    // 2. FILTER OUT THE ADMIN from the lower list so they only live in the green box
+    // Filter out the admin from the lower list so they only live in the green box
     const filteredConversations = conversations.filter(c => parseInt(c.recipient_id, 10) !== ADMIN_ID);
     
     // Sort remaining regular users by descending date
@@ -176,7 +177,7 @@ function renderConversations(conversations) {
     });
 }
 
-// ===== SELECT CONVERSATION =====
+// Select conversation 
 function selectConversation(conversationId, recipientId, recipientName) {
     currentConversationId = conversationId;
     currentRecipientId = recipientId;
@@ -215,7 +216,7 @@ function selectConversation(conversationId, recipientId, recipientName) {
     loadMessages(conversationId, true);
 }
 
-// ===== LOAD MESSAGES =====
+//  Load messages
 async function loadMessages(conversationId, forceScroll = false) {
     try {
         const response = await fetch(`${MESSAGING_API}?action=getMessages&conversation_id=${conversationId}`);
@@ -228,7 +229,8 @@ async function loadMessages(conversationId, forceScroll = false) {
     }
 }
 
-// ===== RENDER MESSAGES =====
+
+//  Render message 
 function renderMessages(messages, forceScroll = false) {
     const container = domElements.messagesContainer;
     if (!container) return;
@@ -265,7 +267,7 @@ function renderMessages(messages, forceScroll = false) {
     }
 }
 
-// ===== SEND MESSAGE =====
+//  Send message 
 async function sendMessage() {
     const textarea = domElements.textarea;
     if (!textarea || !currentConversationId) return;
@@ -300,7 +302,7 @@ async function sendMessage() {
     }
 }
 
-// ===== SETUP EVENT LISTENERS =====
+//  Setup event listeners
 function setupEventListeners() {
     if (domElements.sendBtn) {
         domElements.sendBtn.addEventListener('click', sendMessage);
@@ -338,7 +340,7 @@ function setupEventListeners() {
     }
 }
 
-// ===== NEW CHAT MODAL =====
+//  New chat modal 
 function openNewChatModal() {
     const modal = domElements.newChatModal;
     if (modal) {
@@ -348,7 +350,7 @@ function openNewChatModal() {
     }
 }
 
-// ===== CLOSE MODAL =====
+// Close modal 
 function closeNewChatModal() {
     const modal = domElements.newChatModal;
     if (modal) {
@@ -358,7 +360,7 @@ function closeNewChatModal() {
     }
 }
 
-// ===== START NEW CHAT ROUTINE =====
+//  Start new chat routine 
 async function startNewChat() {
     const email = domElements.newChatInput ? domElements.newChatInput.value.trim() : '';
     
@@ -404,7 +406,7 @@ async function startNewChat() {
     }
 }
 
-// ===== OPEN LIBRARY SUPPORT =====
+// Open library support
 async function openLibrarySupport() {
     try {
         const response = await fetch(`${MESSAGING_API}?action=getAdminConversation`);
@@ -430,7 +432,7 @@ async function openLibrarySupport() {
     }
 }
 
-// ===== AUTO-REFRESH MESSAGES =====
+// Auto-refresh messages 
 function startAutoRefresh() {
     if (refreshInterval) clearInterval(refreshInterval);
     
@@ -452,7 +454,7 @@ function startAutoRefresh() {
     }, REFRESH_INTERVAL);
 }
 
-// ===== UTILITY FUNCTIONS =====
+//  Utility functions 
 function formatTime(dateString) {
     if (!dateString) return '';
     if (dateString.includes('AM') || dateString.includes('PM')) return dateString;

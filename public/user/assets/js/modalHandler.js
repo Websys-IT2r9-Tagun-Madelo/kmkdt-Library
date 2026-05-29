@@ -1,4 +1,4 @@
-// --- BOOK DETAILS MODAL HANDLER & ENGINE ---
+ //  Book details modal handler & engine 
 
 document.addEventListener("DOMContentLoaded", function () {
   
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    // B. MODAL HANDLER AND DYNAMIC INITIALIZATION
+    //  Modal handler and dynamic initialization
     const bookModal = document.getElementById("bookModal");
     if (bookModal) {
       bookModal.addEventListener("show.bs.modal", function (event) {
