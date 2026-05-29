@@ -414,7 +414,7 @@ function getCatalog($conn) {
              AND h.status != 'returned' 
              LIMIT 1) as active_status
             FROM books b
-            ORDER BY b.id ASC";
+            ORDER BY b.id DESC";
 
     $result = mysqli_query($conn, $sql);
     if (!$result) {
@@ -606,7 +606,7 @@ function getDashboardAnalytics($conn) {
             $memberQuery->free();
         }
 
-        // 5. Fetch Recent Activities with Live Overdue Calculus Evaluator Flag
+        
         $sql = "SELECT h.*, u.fullName, b.title,
                        CASE 
                            WHEN h.status != 'returned' AND h.due_date < '$currentDateTime' THEN 1 

@@ -80,7 +80,7 @@ include('./includes/sidebar.php');
         </div>
       </div>
 
-       <div class="table-responsive">
+        <div class="table-responsive">
          <table class="table table-hover align-middle" id="catalogTable">
           <thead class="table-light text-secondary text-uppercase fs-7 small">
             <tr>
@@ -96,9 +96,14 @@ include('./includes/sidebar.php');
   
           <tbody>
             <?php if (!empty($books)): ?>
-              <?php foreach ($books as $index => $book): ?>
+              <?php 
+                $totalBooks = count($books); // Get the total number of books in the array
+                foreach ($books as $index => $book): 
+                  // Calculate reverse sequence number (e.g., total down to 1)
+                  $displayNumber = $totalBooks - $index; 
+              ?>
                 <tr class="book-row border-bottom align-middle">
-                  <td class="ps-3 text-muted fw-semibold"><?= $index + 1 ?></td>
+                  <td class="ps-3 text-muted fw-semibold"><?= $displayNumber ?></td>
                   <td>
                     <?php if (!empty($book['cover_image'])): ?>
                       <img src="/kmkdt-Library/app/uploads/covers/<?= htmlspecialchars($book['cover_image']) ?>" alt="Cover" class="img-thumbnail rounded-0 cover-img-thumbnail">

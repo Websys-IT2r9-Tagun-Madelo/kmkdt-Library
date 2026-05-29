@@ -163,7 +163,7 @@ include('./includes/sidebar.php');
       </div>
     </div>
 
-    <div class="col-lg-5">
+<div class="col-lg-5">
       <div class="card rounded-0 shadow-sm border-0 h-100">
         <div class="card-body pt-3">
           <h5 class="card-title">Live Transactions</h5>
@@ -175,12 +175,30 @@ include('./includes/sidebar.php');
                   $status = strtolower($act['status'] ?? '');
                   $isOverdue = (!empty($act['is_overdue']) && $act['is_overdue'] == 1);
                   
+                  // DYNAMIC CALCULATION: Sync "due soon" validation based on the due date window
+                  if ($status === 'borrowed' && !$isOverdue && !empty($act['due_date'])) {
+                      $dueDate = strtotime($act['due_date']);
+                      $today = strtotime(date('Y-m-d'));
+                      $daysRemaining = ($dueDate - $today) / 86400; // Convert seconds to days
+
+                      if ($daysRemaining >= 0 && $daysRemaining <= 3) {
+                          $status = 'due soon';
+                      }
+                  }
+
                   // Determine live visual status badge indicators
-                  if ($isOverdue) {
-                      $badgeColor = 'bg-danger';
+                  if ($isOverdue || $status === 'overdue') {
+                      $badgeColor = 'bg-danger text-white';
                       $statusLabel = 'overdue';
+                  } elseif ($status === 'due soon' || $status === 'due_soon') {
+                      $badgeColor = 'bg-warning text-dark';
+                      $statusLabel = 'due soon';
+                  } elseif ($status === 'returned') {
+                      $badgeColor = 'bg-success text-white';
+                      $statusLabel = 'returned';
                   } else {
-                      $badgeColor = ($status === 'returned') ? 'bg-success' : (($status === 'overdue') ? 'bg-danger' : 'bg-warning text-dark');
+                      // Fallback for standard active "borrowed" statuses
+                      $badgeColor = 'bg-borrowed text-white'; // Switch to 'bg-primary' if custom CSS fails
                       $statusLabel = $status;
                   }
               ?>
