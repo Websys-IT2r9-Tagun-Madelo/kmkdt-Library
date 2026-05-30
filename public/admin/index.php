@@ -136,7 +136,7 @@ include('./includes/sidebar.php');
               </a>
             </div>
             <div class="col-sm-6">
-              <a href="payHistory" class="btn btn-outline-dangerz d-flex align-items-center p-3 rounded-0 text-start w-100 h-100">
+              <a href="payHistory" class="btn btn-outline-danger d-flex align-items-center p-3 rounded-0 text-start w-100 h-100">
                 <i class="bi bi-receipt fs-3 me-3 text-black"></i>
                 <div>
                   <div class="fw-bold text-dark">Penalty Logs</div>

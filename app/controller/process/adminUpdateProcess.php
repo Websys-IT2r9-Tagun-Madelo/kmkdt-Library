@@ -34,10 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $password     = $_POST['password'];
         $confirmPass  = $_POST['confirmPassword'];
 
-        // --- LOGIC: Is this the owner? ---
+        // Is this the owner? 
         $isOwner = ($uid == $targetId);
 
-        // 1. Mandatory Fields & Email Validation
+        //  Mandatory Fields & Email Validation
         if (empty($fullName) || empty($username) || empty($emailAddress)) {
             $_SESSION['message'] = "Full Name, Username, and Email fields are mandatory.";
             $_SESSION['code'] = "error";
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             exit();
         }
 
-        // 2. Duplicate Prevention
+        // Duplicate Prevention
         $checkQuery = "SELECT username FROM user WHERE (username = ? OR emailAddress = ?) AND id != ? LIMIT 1";
         $checkStmt = mysqli_prepare($conn, $checkQuery);
         mysqli_stmt_bind_param($checkStmt, "ssi", $username, $emailAddress, $targetId);
@@ -64,9 +64,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             exit();
         }
 
-        // 3. Dynamic Query Builder
+        //  Dynamic Query Builder
         if ($isOwner) {
-            // --- OWNER CAN UPDATE EVERYTHING ---
+            
             $street = trim($_POST['street']);
             $barangay = trim($_POST['barangay']);
             $city = trim($_POST['city']);
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 mysqli_stmt_bind_param($stmt, "ssssssi", $fullName, $username, $emailAddress, $street, $barangay, $city, $targetId);
             }
         } else {
-            // --- ADMIN CAN ONLY UPDATE PROFILE ---
+            
             if (!empty($password)) {
                 $hashed = password_hash($password, PASSWORD_BCRYPT);
                 $query = "UPDATE user SET fullName=?, username=?, emailAddress=?, password=? WHERE id=?";
@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
         }
 
-        // 4. Execution
+        // Execution
         if (mysqli_stmt_execute($stmt)) {
             $_SESSION['message'] = "Profile updated successfully!";
             $_SESSION['code'] = "success";

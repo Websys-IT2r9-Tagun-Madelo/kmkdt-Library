@@ -8,39 +8,9 @@ if (!defined('APP_PATH')) {
 require_once APP_PATH . '/config/config.php';
 require_once APP_PATH . '/controller/adminController.php'; 
 
-// --- CONTROLLER ROUTER DISPATCHER ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    $loanId = isset($_POST['loan_id']) ? intval($_POST['loan_id']) : 0;
-    
-    if ($_POST['action'] === 'approve_received_payment') {
-        // Call the approval controller process
-        $result = approvePenaltyPayment($conn, $loanId);
-        $_SESSION['message'] = $result['message'];
-        $_SESSION['code'] = $result['code'];
-    } 
-    elseif ($_POST['action'] === 'reject_received_payment') {
-        // Call the new rejection controller process
-        $result = rejectPenaltyPayment($conn, $loanId);
-        $_SESSION['message'] = $result['message'];
-        $_SESSION['code'] = $result['code'];
-    }
-    
-    // Explicit relative destination paths prevent folder duplication errors
-    header("Location: /kmkdt-Library/public/admin/payHistory");
-    exit();
-}
+$dashboardData = handlePenaltyPaymentLifecycle($conn);
+extract($dashboardData); 
 
-// Fetch historical dataset snapshots via core controllers
-$payments = getPenaltyPaymentsHistory($conn);
-$pendingFines = getPendingPenaltyPayments($conn);
-
-// Compute real-time dashboard metrics summaries
-$totalCollected = 0.00;
-$receiptCount = count($payments);
-foreach ($payments as $pay) {
-    $totalCollected += floatval($pay['amount_paid']);
-}
-$averageFine = $receiptCount > 0 ? ($totalCollected / $receiptCount) : 0.00;
 
 include('./includes/header.php');
 include('./includes/topbar.php');

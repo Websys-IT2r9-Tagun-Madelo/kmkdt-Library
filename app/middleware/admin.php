@@ -18,7 +18,7 @@ if (strpos($currentUrl, '/public/login') !== false || strpos($currentUrl, '/publ
     return; 
 }
 
-// 1. Strict Authorization Guard Check
+// Strict Authorization Guard Check
 if (!isset($_SESSION['authUser']) || !is_array($_SESSION['authUser'])) {
     $_SESSION['message'] = "Please login to access the admin area.";
     $_SESSION['code'] = "warning";

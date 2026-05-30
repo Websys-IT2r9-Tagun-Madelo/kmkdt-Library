@@ -13,12 +13,11 @@ if (session_status() === PHP_SESSION_NONE) {
 $redirectUrl = "/kmkdt-Library/public/admin/catalog";
 
 try {
-    // 1. INPUT VALIDATION: Ensure request method is POST
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         throw new Exception("invalid_request_method");
     }
 
-    // 2. PATH RESOLUTION & COMPONENT SECURITY
+    
     $controllerDir = dirname(__DIR__); 
     $appDir        = dirname($controllerDir); 
     
@@ -34,7 +33,7 @@ try {
     require_once $adminCtrlPath; 
     require_once $userCtrlPath; 
 
-    // 3. DATABASE CONNECTION INTEGRITY CHECK
+    
     if (!isset($conn) || !$conn instanceof mysqli) {
         throw new Exception("database_offline");
     }
@@ -42,7 +41,7 @@ try {
         throw new Exception("database_connection_error");
     }
 
-    // 4. PARAMETER VALIDATION & SANITIZATION
+   
     $requestId = $_POST['request_id'] ?? null;
     $action    = $_POST['action'] ?? null;
 
@@ -61,7 +60,7 @@ try {
         throw new Exception("unknown_action");
     }
 
-    // 5. DATABASE QUERY VALIDATION: Fetching history securely
+    
     $checkSql = "SELECT user_id, status, book_id FROM borrowing_history WHERE id = ? LIMIT 1";
     $loan     = null;
 
@@ -77,7 +76,7 @@ try {
         throw new Exception("query_prepare_failed");
     }
 
-    // Verify record exists
+    
     if (!$loan) {
         throw new Exception("request_not_found");
     }
@@ -86,13 +85,13 @@ try {
     $actualBookId  = (int)$loan['book_id'];
     $currentStatus = strtolower(trim($loan['status']));
 
-    // Verify state match before making updates
+    
     if ($currentStatus !== 'pending_return') {
         throw new Exception("not_pending_return");
     }
 
 
-    // --- ACTION: REJECT ---
+    
     if ($action === 'reject') {
         $revertSql = "UPDATE borrowing_history SET status = 'borrowed' WHERE id = ?";
         $success   = false;
@@ -122,13 +121,13 @@ try {
         exit();
     }
 
-    // --- ACTION: APPROVE ---
+    
     elseif ($action === 'approve') {
         if (!function_exists('processBookReturn')) {
             throw new Exception("processor_missing");
         }
 
-        // processBookReturn contains its own internal database transactions
+        
         $success = processBookReturn($conn, $targetUserId, $actualBookId, true);
 
         if (!$success) {
@@ -141,7 +140,7 @@ try {
     }
 
 } catch (Exception $e) {
-    // 6. ERROR MAPPING: Translate code exception tags into consumer-friendly language
+    
     $errorKey = $e->getMessage();
     
     $friendlyMessages = [
@@ -181,7 +180,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'approve_penalty_payment') {
         redirect("Invalid transaction routing identifier.", "error");
     }
 
-    // 1. Look up the dynamic fine amount and the corresponding user ID
+    // Look up the dynamic fine amount and the corresponding user ID
     $amountPaid = 0.00;
     $borrowerId = null;
 
@@ -206,7 +205,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'approve_penalty_payment') {
         $amountPaid = 25.00; 
     }
 
-    // 2. Commit transaction snapshot logs directly into penalty_payments
+    // Commit transaction snapshot logs directly into penalty_payments
     $logSql = "INSERT INTO penalty_payments (loan_id, user_id, amount_paid) VALUES (?, ?, ?)";
     if ($logStmt = $conn->prepare($logSql)) {
         $logStmt->bind_param("iid", $loanId, $borrowerId, $amountPaid);
@@ -216,7 +215,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'approve_penalty_payment') {
         $logStmt->close();
     }
 
-    // 3. Clear the active violation and reset status flags back to safe 'borrowed' limits
+    // Clear the active violation and reset status flags back to safe 'borrowed' limits
     $updateSql = "UPDATE borrowing_history 
                   SET status = 'borrowed', 
                       due_date = ?, 

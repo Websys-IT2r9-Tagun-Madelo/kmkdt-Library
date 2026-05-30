@@ -1,5 +1,5 @@
 <?php
-// 1. Session Identity Handling (Cookie-safe cross-login initialization)
+// Session Identity Handling (Cookie-safe cross-login initialization)
 if (session_status() === PHP_SESSION_NONE) {
     if (isset($_COOKIE['KMKDT_USER_SESSION'])) {
         session_name('KMKDT_USER_SESSION');
@@ -12,7 +12,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 try {
-    // 2. Resolve Paths cleanly using explicit absolute directory matching
+    // Resolve Paths cleanly using explicit absolute directory matching
     $controllerDir = dirname(__DIR__); 
     $appDir        = dirname($controllerDir); // Points to /app/
     
@@ -44,7 +44,7 @@ try {
     $loanId = intval($loanId);
     $action = strtolower(trim($action));
 
-    // 3. Look up real-time record variables before shifting table structures
+    // Look up real-time record variables before shifting table structures
     $checkSql = "SELECT user_id, status, penalty FROM borrowing_history WHERE id = ? LIMIT 1";
     $loan     = null;
 
@@ -66,7 +66,7 @@ try {
     $currentStatus = strtolower(trim($loan['status']));
     $penaltyAmount = floatval($loan['penalty']);
 
-    // --- REJECT ACTION ---
+    // Reject action
     if ($action === 'reject') {
         if ($currentStatus !== 'payment_pending') {
             throw new Exception("invalid_state");
@@ -95,7 +95,7 @@ try {
         exit();
     }
 
-    // --- APPROVE ACTION (Dual Identity Workflow Connection) ---
+    // Approve action (dual identity workflow connection) 
     elseif ($action === 'approve') {
         
         // Context A: If request is pending, finalize clearance logs and extend timelines (Admin Action)

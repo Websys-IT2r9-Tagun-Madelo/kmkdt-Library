@@ -67,7 +67,7 @@ function handleCoverImageUpload($fileArray, $uploadDir) {
     return false;
 }
 
-// 🟢 NEW FUNCTION: Safely processes and saves uploaded PDFs
+// Safely processes and saves uploaded PDFs
 function handleEbookFileUpload($fileArray, $ebookDir) {
     if (!isset($fileArray) || $fileArray['error'] !== UPLOAD_ERR_OK) {
         return null; // No file was uploaded, or it was left empty intentionally
@@ -92,7 +92,7 @@ function handleEbookFileUpload($fileArray, $ebookDir) {
     return false;
 }
 
-// --- CRUD ROUTING INTERCEPTIONS ---
+// CRUD
 
 switch ($action) {
     case 'add_category':

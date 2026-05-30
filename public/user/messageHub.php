@@ -33,7 +33,7 @@ $sessionUserId = $_SESSION['user_id'] ?? $_SESSION['authUser']['user_id'] ?? 0;
                             </div>
                             <span class="text-muted fw-bold small tracking-wider">LIBRARY ADDRESS</span>
                         </div>
-                        <p class="mb-0 text-secondary fw-semibold">secret city <br> coming soon</p>
+                        <p class="mb-0 text-secondary fw-semibold"> Lapasan <br> Cagayan de Oro City</p>
                     </div>
                 </div>
 
@@ -55,7 +55,7 @@ $sessionUserId = $_SESSION['user_id'] ?? $_SESSION['authUser']['user_id'] ?? 0;
                             <div class="icon-avatar me-3 bg-danger bg-opacity-10 text-danger rounded-3 d-flex align-items-center justify-content-center">
                                 <i class="bi bi-envelope-fill fs-4"></i>
                             </div>
-                            <span class="text-muted fw-bold small tracking-wider">ANOTHER GMAIL SUPPORT</span>
+                            <span class="text-muted fw-bold small tracking-wider">OTHER EMAILs</span>
                         </div>
                         <p class="mb-0 text-secondary fw-semibold text-break">admin2@kmkdtlibrary.edu.ph<br>admin@kmkdtlibrary.edu.ph</p>
                     </div>

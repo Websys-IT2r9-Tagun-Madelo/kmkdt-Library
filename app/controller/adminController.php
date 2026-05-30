@@ -753,7 +753,7 @@ function rejectPenaltyPayment($conn, $loanId) {
         return ['code' => 'error', 'message' => 'Invalid transaction tracking identifier mapping.'];
     }
 
-    // Shift structural status back to 'borrowed' so the user is flag-notified that it was rejected
+  
     $updateSql = "UPDATE borrowing_history 
                   SET status = 'borrowed' 
                   WHERE id = ? AND status = 'payment_pending'";
@@ -776,4 +776,47 @@ function rejectPenaltyPayment($conn, $loanId) {
     }
 
     return ['code' => 'error', 'message' => 'Unknown core systems execution error.'];
+}
+
+
+function handlePenaltyPaymentLifecycle($conn) {
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+        $loanId = isset($_POST['loan_id']) ? intval($_POST['loan_id']) : 0;
+        $result = ['message' => 'Invalid action', 'code' => 'error'];
+
+        if ($_POST['action'] === 'approve_received_payment') {
+            $result = approvePenaltyPayment($conn, $loanId);
+        } elseif ($_POST['action'] === 'reject_received_payment') {
+            $result = rejectPenaltyPayment($conn, $loanId);
+        }
+        
+        $_SESSION['message'] = $result['message'];
+        $_SESSION['code'] = $result['code'];
+        
+        header("Location: /kmkdt-Library/public/admin/payHistory");
+        exit();
+    }
+
+    
+    $payments = getPenaltyPaymentsHistory($conn) ?: [];
+    $pendingFines = getPendingPenaltyPayments($conn) ?: [];
+
+    
+    $totalCollected = 0.00;
+    $receiptCount = count($payments);
+
+    foreach ($payments as $pay) {
+        $totalCollected += floatval($pay['amount_paid'] ?? 0);
+    }
+    
+    $averageFine = $receiptCount > 0 ? ($totalCollected / $receiptCount) : 0.00;
+
+    return [
+        'payments'       => $payments,
+        'pendingFines'   => $pendingFines,
+        'totalCollected' => $totalCollected,
+        'receiptCount'   => $receiptCount,
+        'averageFine'    => $averageFine
+    ];
 }

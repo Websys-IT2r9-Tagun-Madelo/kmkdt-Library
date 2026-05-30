@@ -11,13 +11,13 @@ $currentUserId = $_SESSION['user_id'] ?? $_SESSION['authUser']['user_id'] ?? nul
 // Captures the dynamic loan transaction ID passed via URL (?id=...)
 $loanId = $_GET['id'] ?? null; 
 
-// 1. Authorization Check
+// Authorization Check
 if (!$currentUserId || !$loanId) {
     header("Location: /kmkdt-Library/public/user/myBooks?error=unauthorized");
     exit();
 }
 
-// 2. Target the explicit history record, pull category, AND grab the current due_date
+// Target the explicit history record, pull category, AND grab the current due_date
 $checkSql = "SELECT bh.status, bh.renewal_count, bh.due_date, b.category 
              FROM borrowing_history bh
              JOIN books b ON bh.book_id = b.id
@@ -58,7 +58,7 @@ if (stripos($bookCategory, 'Online') !== false) {
     exit();
 }
 
-// 3. DYNAMIC DAY CALCULATION: Evaluate category classification
+// Evaluate category classification
 if (stripos($bookCategory, 'Reserve') !== false) {
     $daysToAdd = 3;
 } elseif (stripos($bookCategory, 'Non-Fiction') !== false) {
@@ -69,11 +69,11 @@ if (stripos($bookCategory, 'Reserve') !== false) {
     $daysToAdd = 18;
 }
 
-// FIXED: Calculate new timeline based relative to its PRIOR due date, not 'today'
+//  Calculate new timeline based relative to its PRIOR due date, not 'today'
 $currentDueDateTimestamp = strtotime($loan['due_date']);
 $newDueDate = date('Y-m-d H:i:s', strtotime("+$daysToAdd days", $currentDueDateTimestamp));
 
-// 4. Process the Renewal Execution
+// Process the Renewal Execution
 $updateSql = "UPDATE borrowing_history 
               SET due_date = ?, 
                   renewal_count = renewal_count + 1 

@@ -18,7 +18,7 @@ if (!isset($_SESSION['authUser']) || empty($_SESSION['authUser'])) {
         exit();
     }
 } else {
-    // Optional: If a LOGGED-IN user tries to visit login/signup, kick them to dashboard
+    
     if ($isPublicPage) {
         header("Location: /kmkdt-Library/public/user/profile"); 
         exit();

@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // NEW: Email Validation
+    // Email Validation
     if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['message'] = "Invalid email format. Must be a complete address (e.g., name@domain.com).";
         $_SESSION['code'] = "error";

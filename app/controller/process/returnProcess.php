@@ -1,5 +1,5 @@
 <?php
-// 1. Session Identity Handling
+//  Session Identity Handling
 if (session_status() === PHP_SESSION_NONE) {
     if (isset($_COOKIE['KMKDT_USER_SESSION'])) {
         session_name('KMKDT_USER_SESSION');
@@ -12,9 +12,9 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 try {
-    // 2. Resolve Paths cleanly using explicit absolute directory matching
+    // Resolve Paths cleanly using explicit absolute directory matching
     $controllerDir = dirname(__DIR__); 
-    $appDir        = dirname($controllerDir); // Points to /app/
+    $appDir        = dirname($controllerDir); 
     
     $configPath    = $appDir . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
     $adminCtrlPath = $controllerDir . DIRECTORY_SEPARATOR . 'adminController.php'; 
@@ -43,7 +43,7 @@ try {
     $requestId = intval($requestId);
     $action    = strtolower(trim($action));
 
-    // 3. Look up request history state
+    // Look up request history state
     $checkSql = "SELECT user_id, status, book_id FROM borrowing_history WHERE id = ? LIMIT 1";
     $loan     = null;
 
@@ -65,7 +65,7 @@ try {
     $actualBookId  = (int)$loan['book_id'];
     $currentStatus = strtolower(trim($loan['status']));
 
-    // --- REJECT ACTION ---
+    // Reject action
     if ($action === 'reject') {
         if ($currentStatus !== 'pending_return') {
             throw new Exception("invalid_state");
@@ -92,7 +92,7 @@ try {
         exit();
     }
 
-    // --- APPROVE ACTION (Dual Identity Workflow) ---
+    // Approve action 
     elseif ($action === 'approve') {
         
         // Context A: If the entry is ALREADY pending_return, process inventory check-in (Admin action)
@@ -161,7 +161,7 @@ try {
 
     $displayError = $friendlyMessages[$errorKey] ?? 'An unexpected system execution barrier occurred.';
     
-    // NO REDIRECT TO ADMIN CATALOG: Break process right here with clean styling UI element layout
+    
     die("
         <div style='font-family: sans-serif; padding: 20px; max-width: 500px; margin: 50px auto; border: 1px solid #f5c2c7; background-color: #f8d7da; color: #842029; border-radius: 4px;'>
             <h4 style='margin-top: 0;'>Return Update Interrupted</h4>

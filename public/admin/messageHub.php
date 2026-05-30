@@ -28,7 +28,7 @@ $adminId = $_SESSION['authUser']['user_id'] ?? $_SESSION['user_id'] ?? 4;
         </div>
         <div>
           <span class="info-label">LIBRARY ADDRESS</span>
-          <p class="info-data">USTP, Lapasan,<br>Cagayan de Oro City</p>
+          <p class="info-data">Lapasan <br> Cagayan de Oro City</p>
         </div>
       </div>
     </div>
@@ -51,8 +51,8 @@ $adminId = $_SESSION['authUser']['user_id'] ?? $_SESSION['user_id'] ?? 4;
           <i class="bi bi-envelope fs-4"></i>
         </div>
         <div>
-          <span class="info-label">LIBRARY EMAIL</span>
-          <p class="info-data">library@school.edu<br>support@library.edu</p>
+          <span class="info-label">OTHER EMAIL SUPPORT</span>
+          <p class="info-data">admin2@kmkdtlibrary.edu.ph<br>admin3@kmkdtlibrary.edu.ph</p>
         </div>
       </div>
     </div>
