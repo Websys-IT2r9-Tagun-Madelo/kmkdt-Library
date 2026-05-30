@@ -27,7 +27,7 @@
       </div>
 
       <div class="col-md-4 col-xl-3 mb-8 mb-xl-0">
-        <p class="mb-0 text-white text-opacity-70 text-md-end">© Studiova copyright 2025</p>
+        <p class="mb-0 text-white text-opacity-70 text-md-end"> This platform is built strictly for educational purposes. All media, assets, and resources belong to their rightful owners. </p>
       </div>
     </div>
   </div>

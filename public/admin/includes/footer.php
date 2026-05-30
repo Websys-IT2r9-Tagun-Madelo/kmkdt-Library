@@ -5,7 +5,7 @@
   <!-- <div class="copyright">
     &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
   </div>
-  <div class="credits">
+  <div class="credits" This platform is built strictly for educational purposes. All media, assets, and resources belong to their rightful owners.>
     All the links in the footer should remain intact. 
     You can delete the links only if you purchased the pro version. 
     Licensing information: https://bootstrapmade.com/license/ 
